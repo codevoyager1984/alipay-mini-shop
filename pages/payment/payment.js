@@ -165,37 +165,26 @@ Page({
       console.log('支付结果:', payResult);
 
       if (payResult.resultCode === '9000') {
-        // 支付成功，直接跳转到订单页面
-        this.setData({ 
-          paymentStatus: 'success',
-          loading: false 
-        });
-        
-        // 显示支付成功提示并跳转到订单页面
-        my.showToast({
-          content: '支付成功！',
-          type: 'success',
-          duration: 2000,
-          success: () => {
-            setTimeout(() => {
-              my.reLaunch({
-                url: '/pages/orders/orders'
-              });
-            }, 1000);
-          }
-        });
-      } else if (payResult.resultCode === '8000') {
-        // 支付处理中
+        // 支付提交成功，跳转到支付状态页面进行确认
         this.setData({ 
           paymentStatus: 'processing',
           loading: false 
         });
         
-        my.showModal({
-          title: '支付处理中',
-          content: '支付正在处理中，请稍后查看订单状态',
-          confirmText: '知道了',
-          showCancel: false
+        // 跳转到支付状态确认页面
+        my.navigateTo({
+          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&installmentNo=${this.data.orderInfo.currentInstallmentNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${this.data.orderInfo.amount}`
+        });
+      } else if (payResult.resultCode === '8000') {
+        // 支付处理中，也跳转到状态页面
+        this.setData({ 
+          paymentStatus: 'processing',
+          loading: false 
+        });
+        
+        // 跳转到支付状态确认页面
+        my.navigateTo({
+          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&installmentNo=${this.data.orderInfo.currentInstallmentNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${this.data.orderInfo.amount}`
         });
       } else {
         // 支付失败或取消

@@ -70,14 +70,7 @@
           >
             立即支付
           </button>
-          <button 
-            class="action-btn primary" 
-            onTap="renewOrder" 
-            data-order="{{item}}"
-            a:if="{{item.status === 'ongoing'}}"
-          >
-            续租
-          </button>
+
           <button 
             class="action-btn secondary" 
             onTap="viewOrder" 

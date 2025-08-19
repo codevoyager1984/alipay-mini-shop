@@ -198,11 +198,11 @@ Page({
     // 生成状态文本
     let status = '';
     if (paidCount === 0) {
-      status = '未开始还款';
+      status = '未开始支付';
     } else if (paidCount === totalCount) {
-      status = '已全部还清';
+      status = '已全部支付';
     } else {
-      status = `已还 ${paidCount}/${totalCount} 期`;
+      status = `已付 ${paidCount}/${totalCount} 期`;
     }
 
     return {
@@ -249,7 +249,7 @@ Page({
   getStatusText(apiStatus) {
     const statusTextMap = {
       'pending': '待支付',
-      'paid': '租赁中',
+      'paid': '已完成',
       'ongoing': '租赁中',
       'completed': '已完成',
       'cancelled': '已取消',
@@ -325,25 +325,7 @@ Page({
     });
   },
 
-  // 续租订单
-  renewOrder(e) {
-    const order = e.currentTarget.dataset.order;
-    my.showModal({
-      title: '续租订单',
-      content: `确定要续租 ${order.vehicleName} 一个月吗？费用：¥${order.totalPrice}`,
-      confirmText: '确认续租',
-      cancelText: '取消',
-      success: (result) => {
-        if (result.confirm) {
-          // 这里可以调用续租API
-          my.showToast({
-            content: '续租功能开发中...',
-            type: 'none'
-          });
-        }
-      }
-    });
-  },
+
 
   // 查看订单详情
   viewOrder(e) {

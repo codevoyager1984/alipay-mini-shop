@@ -18,8 +18,6 @@ Page({
     countdownText: '',
     
     // 轮询相关
-    pollingTimer: null,
-    countdownTimer: null,
     pollingCount: 0,
     maxPollingCount: 600, // 最多轮询600次（10分钟）
     isTimeout: false, // 是否已超时
@@ -27,6 +25,10 @@ Page({
     // 加载状态
     loading: true
   },
+
+  // 将定时器存储在页面实例上，而不是data中
+  pollingTimer: null,
+  countdownTimer: null,
 
   onLoad(query) {
     console.log('Payment status page onLoad with query:', query);
@@ -70,8 +72,10 @@ Page({
   },
 
   onShow() {
+    console.log('页面显示，当前状态:', this.data.paymentStatus);
     // 页面显示时如果还在检查状态，重新开始轮询
-    if (this.data.paymentStatus === 'checking' && !this.data.pollingTimer) {
+    if (this.data.paymentStatus === 'checking' && !this.pollingTimer) {
+      console.log('重新开始轮询和倒计时');
       this.startStatusPolling();
       this.startCountdown();
     }
@@ -79,14 +83,21 @@ Page({
 
   // 开始轮询支付状态
   startStatusPolling() {
+    console.log('开始轮询支付状态...');
+    
+    // 清理之前的定时器
+    this.clearPollingTimer();
+    
+    // 立即检查一次
     this.checkPaymentStatus();
     
-    this.setData({
-      pollingTimer: setInterval(() => {
-        // 不停止轮询，继续检查状态
-        this.checkPaymentStatus();
-      }, 1000) // 每秒轮询一次
-    });
+    // 设置轮询定时器
+    this.pollingTimer = setInterval(() => {
+      console.log('轮询检查支付状态，次数:', this.data.pollingCount);
+      this.checkPaymentStatus();
+    }, 2000); // 改为每2秒轮询一次，减少服务器压力
+    
+    console.log('轮询定时器已设置，ID:', this.pollingTimer);
   },
 
   // 检查支付状态
@@ -138,20 +149,25 @@ Page({
 
   // 开始倒计时
   startCountdown() {
+    console.log('开始倒计时...');
+    
+    // 清理之前的倒计时定时器
+    this.clearCountdownTimer();
+    
     this.updateCountdownText();
     
-    this.setData({
-      countdownTimer: setInterval(() => {
-        const newCountdown = this.data.countdown - 1;
-        this.setData({ countdown: newCountdown });
-        
-        if (newCountdown <= 0) {
-          this.handleCountdownEnd();
-        } else {
-          this.updateCountdownText();
-        }
-      }, 1000)
-    });
+    this.countdownTimer = setInterval(() => {
+      const newCountdown = this.data.countdown - 1;
+      this.setData({ countdown: newCountdown });
+      
+      if (newCountdown <= 0) {
+        this.handleCountdownEnd();
+      } else {
+        this.updateCountdownText();
+      }
+    }, 1000);
+    
+    console.log('倒计时定时器已设置，ID:', this.countdownTimer);
   },
 
   // 更新倒计时文本
@@ -260,19 +276,31 @@ Page({
 
   // 清理定时器
   clearTimers() {
-    if (this.data.pollingTimer) {
-      clearInterval(this.data.pollingTimer);
-      this.setData({ pollingTimer: null });
+    this.clearPollingTimer();
+    this.clearCountdownTimer();
+  },
+
+  // 清理轮询定时器
+  clearPollingTimer() {
+    if (this.pollingTimer) {
+      console.log('清理轮询定时器，ID:', this.pollingTimer);
+      clearInterval(this.pollingTimer);
+      this.pollingTimer = null;
     }
-    
-    if (this.data.countdownTimer) {
-      clearInterval(this.data.countdownTimer);
-      this.setData({ countdownTimer: null });
+  },
+
+  // 清理倒计时定时器
+  clearCountdownTimer() {
+    if (this.countdownTimer) {
+      console.log('清理倒计时定时器，ID:', this.countdownTimer);
+      clearInterval(this.countdownTimer);
+      this.countdownTimer = null;
     }
   },
 
   // 手动刷新状态
   refreshStatus() {
+    console.log('手动刷新状态');
     if (this.data.paymentStatus !== 'checking') {
       this.setData({
         paymentStatus: 'checking',
@@ -284,7 +312,7 @@ Page({
       });
       
       // 如果轮询已停止，重新开始
-      if (!this.data.pollingTimer) {
+      if (!this.pollingTimer) {
         this.startStatusPolling();
       }
       this.startCountdown();
