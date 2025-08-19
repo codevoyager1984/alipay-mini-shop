@@ -1,0 +1,71 @@
+<view class="order-detail-container">
+  <!-- 加载状态 -->
+  <view class="loading-state" a:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 订单基本信息 -->
+  <view class="order-info-card" a:if="{{!loading && orderDetail}}">
+    <view class="order-header">
+      <text class="order-number">订单号：{{orderDetail.orderNo}}</text>
+      <text class="order-status {{orderDetail.status}}">{{orderDetail.statusText}}</text>
+    </view>
+    
+    <view class="product-info">
+      <image class="product-image" src="{{orderDetail.productImage}}" mode="aspectFill" />
+      <view class="product-details">
+        <text class="product-name">{{orderDetail.productName}}</text>
+        <text class="order-time">下单时间：{{orderDetail.createTime}}</text>
+        <text class="rental-period">租赁期限：{{orderDetail.rentalPeriod}}</text>
+        <text class="total-amount">订单总额：¥{{orderDetail.totalAmount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分期付款详情 -->
+  <view class="installments-card" a:if="{{!loading && installments.length > 0}}">
+    <view class="card-title">
+      <text class="title-text">分期付款详情</text>
+      <text class="title-desc">共{{installments.length}}期</text>
+    </view>
+    
+    <view class="installments-list">
+      <block a:for="{{installments}}" a:key="installmentNo">
+        <view class="installment-item">
+          <view class="installment-header">
+            <text class="installment-title">第{{item.installmentNo}}期</text>
+            <text class="installment-status {{item.status}}">{{item.statusText}}</text>
+          </view>
+          
+          <view class="installment-details">
+            <view class="detail-row">
+              <text class="label">应付金额：</text>
+              <text class="value amount">¥{{item.amount}}</text>
+            </view>
+            <view class="detail-row">
+              <text class="label">到期时间：</text>
+              <text class="value">{{item.dueDate}}</text>
+            </view>
+            <view class="detail-row" a:if="{{item.paidDate}}">
+              <text class="label">支付时间：</text>
+              <text class="value">{{item.paidDate}}</text>
+            </view>
+            <view class="detail-row" a:if="{{item.paymentMethod}}">
+              <text class="label">支付方式：</text>
+              <text class="value">{{item.paymentMethod}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" a:if="{{!loading && !orderDetail}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">订单信息加载失败</text>
+    <button class="retry-btn" onTap="loadOrderDetail">重新加载</button>
+  </view>
+
+</view>

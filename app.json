@@ -4,6 +4,7 @@
     "pages/orders/orders",
     "pages/profile/profile",
     "pages/order/order",
+    "pages/order-detail/order-detail",
     "pages/auth/auth",
     "pages/payment/payment",
     "pages/payment-status/payment-status"

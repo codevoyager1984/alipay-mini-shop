@@ -56,11 +56,11 @@
         <view class="order-actions">
           <button 
             class="action-btn secondary" 
-            onTap="contactService" 
+            onTap="viewOrderDetail" 
             data-order="{{item}}"
-            a:if="{{item.status === 'ongoing'}}"
+            a:if="{{item.status === 'pending'}}"
           >
-            联系客服
+            查看详情
           </button>
           <button 
             class="action-btn primary" 
@@ -70,10 +70,18 @@
           >
             立即支付
           </button>
-
           <button 
             class="action-btn secondary" 
-            onTap="viewOrder" 
+            onTap="viewOrderDetail" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'ongoing'}}"
+          >
+            查看详情
+          </button>
+          
+          <button 
+            class="action-btn secondary" 
+            onTap="viewOrderDetail" 
             data-order="{{item}}"
             a:if="{{item.status === 'completed'}}"
           >

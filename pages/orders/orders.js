@@ -328,15 +328,12 @@ Page({
 
 
   // 查看订单详情
-  viewOrder(e) {
+  viewOrderDetail(e) {
     const order = e.currentTarget.dataset.order;
     
-    // 可以跳转到订单详情页面，或者显示详细信息
-    my.showModal({
-      title: '订单详情',
-      content: `订单号：${order.orderNo}\n车辆：${order.vehicleName}\n创建时间：${order.createTime}\n租期：${order.rentalPeriod}\n总费用：¥${order.totalPrice}\n状态：${order.statusText}`,
-      showCancel: false,
-      confirmText: '知道了'
+    // 跳转到订单详情页面
+    my.navigateTo({
+      url: `/pages/order-detail/order-detail?orderId=${order.id}&orderNo=${order.orderNo}`
     });
   },
 
