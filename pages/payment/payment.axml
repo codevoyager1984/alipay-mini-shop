@@ -39,6 +39,19 @@
     </view>
   </view>
 
+  <!-- 支付时间提醒 -->
+  <view class="payment-time-notice" a:if="{{!orderInfo.isPaymentDue && orderInfo.dueDate}}">
+    <view class="notice-content">
+      <view class="notice-icon">📅</view>
+      <view class="notice-text">
+        <view class="notice-title">支付时间提醒</view>
+        <view class="notice-desc">
+          第{{orderInfo.currentInstallmentNo}}期分期付款将于 {{orderInfo.dueDate}} 到期，您可以提前支付，不会产生额外费用。
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 支付状态 -->
   <view class="payment-status-card">
     <!-- 等待支付 -->
@@ -74,7 +87,7 @@
   <view class="payment-method-card" a:if="{{paymentStatus === 'pending'}}">
     <view class="card-title">支付方式</view>
     <view class="payment-method">
-      <view class="method-icon">💰</view>
+      <image class="method-icon-image" src="/images/alipay.png" mode="aspectFit" />
       <view class="method-info">
         <view class="method-name">支付宝</view>
         <view class="method-desc">安全快捷的在线支付</view>

@@ -12,7 +12,10 @@ Page({
       // 分期相关信息
       installmentAmount: 0,
       currentInstallmentNo: 1,
-      totalInstallments: 0
+      totalInstallments: 0,
+      // 支付时间相关
+      dueDate: null,
+      isPaymentDue: false
     },
     
     // 支付状态
@@ -93,6 +96,8 @@ Page({
           'orderInfo.installmentAmount': installmentInfo.currentAmount,
           'orderInfo.currentInstallmentNo': installmentInfo.currentInstallmentNo,
           'orderInfo.totalInstallments': installmentInfo.totalInstallments,
+          'orderInfo.dueDate': this.formatDueDate(installmentInfo.dueDate),
+          'orderInfo.isPaymentDue': installmentInfo.isPaymentDue,
           // 更新支付金额为当前分期金额
           'orderInfo.amount': installmentInfo.currentAmount
         });
@@ -114,7 +119,9 @@ Page({
       return {
         currentAmount: 0,
         currentInstallmentNo: 1,
-        totalInstallments: 0
+        totalInstallments: 0,
+        dueDate: null,
+        isPaymentDue: false
       };
     }
 
@@ -126,10 +133,15 @@ Page({
     );
     
     if (unpaidInstallment) {
+      const dueDate = unpaidInstallment.due_date;
+      const isPaymentDue = this.checkIfPaymentDue(dueDate);
+      
       return {
         currentAmount: unpaidInstallment.amount,
         currentInstallmentNo: unpaidInstallment.installment_no,
-        totalInstallments: totalInstallments
+        totalInstallments: totalInstallments,
+        dueDate: dueDate,
+        isPaymentDue: isPaymentDue
       };
     } else {
       // 如果所有分期都已支付，返回最后一期的信息
@@ -137,13 +149,81 @@ Page({
       return {
         currentAmount: lastInstallment.amount,
         currentInstallmentNo: lastInstallment.installment_no,
-        totalInstallments: totalInstallments
+        totalInstallments: totalInstallments,
+        dueDate: lastInstallment.due_date,
+        isPaymentDue: true // 已完成的订单认为可以支付
       };
     }
   },
 
+  // 检查是否到了支付时间
+  checkIfPaymentDue(dueDate) {
+    if (!dueDate) return true; // 如果没有到期日期，默认可以支付
+    
+    const now = new Date();
+    const due = new Date(dueDate);
+    
+    // 提前7天可以支付
+    const advancePaymentDays = 7;
+    const advancePaymentTime = new Date(due.getTime() - advancePaymentDays * 24 * 60 * 60 * 1000);
+    
+    return now >= advancePaymentTime;
+  },
+
+  // 格式化日期显示
+  formatDueDate(dueDate) {
+    if (!dueDate) return '';
+    
+    const date = new Date(dueDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  },
+
+  // 计算距离支付时间的天数
+  getDaysUntilPayment(dueDate) {
+    if (!dueDate) return 0;
+    
+    const now = new Date();
+    const due = new Date(dueDate);
+    const advancePaymentDays = 7;
+    const advancePaymentTime = new Date(due.getTime() - advancePaymentDays * 24 * 60 * 60 * 1000);
+    
+    const diffTime = advancePaymentTime.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return Math.max(0, diffDays);
+  },
+
   // 发起支付
   async startPayment() {
+    // 检查是否到了支付时间
+    if (!this.data.orderInfo.isPaymentDue) {
+      const daysUntil = this.getDaysUntilPayment(this.data.orderInfo.dueDate);
+      const dueDateStr = this.formatDueDate(this.data.orderInfo.dueDate);
+      
+      my.showModal({
+        title: '支付提醒',
+        content: `第${this.data.orderInfo.currentInstallmentNo}期分期付款将于${dueDateStr}到期，还有${daysUntil}天。\n\n提前支付不会产生额外费用，您确定要现在支付吗？`,
+        confirmText: '确定支付',
+        cancelText: '稍后支付',
+        success: (result) => {
+          if (result.confirm) {
+            this.proceedWithPayment();
+          }
+        }
+      });
+      return;
+    }
+    
+    // 如果已到支付时间，直接进行支付
+    this.proceedWithPayment();
+  },
+
+  // 执行支付流程
+  async proceedWithPayment() {
     try {
       this.setData({ 
         paymentStatus: 'processing',

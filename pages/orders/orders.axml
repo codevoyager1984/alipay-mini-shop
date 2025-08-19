@@ -46,6 +46,7 @@
             <text class="order-time">下单时间：{{item.createTime}}</text>
             <text class="rental-period">租赁期限：{{item.rentalPeriod}}</text>
             <text class="installment-status">{{item.installmentStatus}}</text>
+            <text class="next-payment-date" a:if="{{item.status === 'inprogress' && item.nextPaymentDate}}">下次支付：{{item.nextPaymentDate}}</text>
           </view>
           <view class="order-price">
             <text class="price">¥{{item.installmentAmount}}</text>
@@ -77,6 +78,23 @@
             a:if="{{item.status === 'ongoing'}}"
           >
             查看详情
+          </button>
+          
+          <button 
+            class="action-btn secondary" 
+            onTap="viewOrderDetail" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'inprogress'}}"
+          >
+            查看详情
+          </button>
+          <button 
+            class="action-btn primary" 
+            onTap="payOrder" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'inprogress' && item.nextPaymentDate}}"
+          >
+            支付下期
           </button>
           
           <button 

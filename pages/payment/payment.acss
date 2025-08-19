@@ -51,7 +51,8 @@
 /* 卡片通用样式 */
 .order-info-card,
 .payment-status-card,
-.payment-method-card {
+.payment-method-card,
+.payment-time-notice {
   background: #fff;
   margin: 20rpx 30rpx;
   border-radius: 20rpx;
@@ -212,6 +213,12 @@
   margin-right: 20rpx;
 }
 
+.method-icon-image {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+}
+
 .method-info {
   flex: 1;
 }
@@ -332,4 +339,38 @@
   .action-buttons button:last-child {
     margin-bottom: 0;
   }
+}
+
+/* 支付时间提醒卡片 */
+.payment-time-notice {
+  background: linear-gradient(135deg, #fff7e6 0%, #fff2d9 100%);
+  border: 1rpx solid #ffd591;
+}
+
+.notice-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.notice-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+  margin-top: 5rpx;
+}
+
+.notice-text {
+  flex: 1;
+}
+
+.notice-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #d46b08;
+  margin-bottom: 10rpx;
+}
+
+.notice-desc {
+  font-size: 26rpx;
+  color: #ad6800;
+  line-height: 1.6;
 }

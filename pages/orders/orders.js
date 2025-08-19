@@ -118,6 +118,7 @@ Page({
             paidInstallments: installmentInfo.paidCount, // 已付期数
             totalInstallments: installmentInfo.totalCount, // 总期数
             installmentStatus: installmentInfo.status, // 分期状态文本
+            nextPaymentDate: installmentInfo.nextPaymentDate, // 下次支付日期
             status: this.mapOrderStatus(item.status),
             statusText: this.getStatusText(item.status),
             rawData: item // 保存原始数据，方便后续使用
@@ -183,7 +184,8 @@ Page({
         amount: 0,
         paidCount: 0,
         totalCount: 0,
-        status: '无分期信息'
+        status: '无分期信息',
+        nextPaymentDate: null
       };
     }
 
@@ -194,6 +196,14 @@ Page({
     
     // 获取单期金额（假设所有分期金额相同，取第一期的金额）
     const amount = installments.length > 0 ? installments[0].amount : 0;
+    
+    // 找到下一个未支付的分期，获取其到期日期
+    const nextUnpaidInstallment = installments.find(item => 
+      item.status === 'pending' && item.paid_date === null
+    );
+    
+    const nextPaymentDate = nextUnpaidInstallment ? 
+      this.formatDate(nextUnpaidInstallment.due_date) : null;
     
     // 生成状态文本
     let status = '';
@@ -209,8 +219,26 @@ Page({
       amount: amount,
       paidCount: paidCount,
       totalCount: totalCount,
-      status: status
+      status: status,
+      nextPaymentDate: nextPaymentDate
     };
+  },
+
+  // 格式化日期（只显示年月日）
+  formatDate(dateStr) {
+    if (!dateStr) return '';
+    
+    try {
+      const date = new Date(dateStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error('日期格式化失败:', error);
+      return dateStr;
+    }
   },
 
   // 格式化日期时间
@@ -237,6 +265,7 @@ Page({
     const statusMap = {
       'pending': 'pending',      // 待支付
       'paid': 'ongoing',         // 已支付 -> 租赁中
+      'inprogress': 'inprogress', // 进行中
       'ongoing': 'ongoing',      // 租赁中
       'completed': 'completed',  // 已完成
       'cancelled': 'cancelled'   // 已取消
@@ -274,7 +303,7 @@ Page({
     
     if (this.data.activeTab === 'ongoing') {
       filtered = this.data.orders.filter(order => 
-        order.status === 'ongoing' || order.status === 'pending'
+        order.status === 'ongoing' || order.status === 'pending' || order.status === 'inprogress'
       );
     } else if (this.data.activeTab === 'completed') {
       filtered = this.data.orders.filter(order => 
@@ -319,9 +348,14 @@ Page({
   payOrder(e) {
     const order = e.currentTarget.dataset.order;
     
+    // 对于分期订单，使用分期金额；对于普通订单，使用总金额
+    const paymentAmount = order.installmentAmount && order.installmentAmount !== '0.00' 
+      ? order.installmentAmount 
+      : order.totalPrice;
+    
     // 跳转到支付页面
     my.navigateTo({
-      url: `/pages/payment/payment?orderId=${order.id}&orderNo=${order.orderNo}&amount=${order.totalPrice}`
+      url: `/pages/payment/payment?orderId=${order.id}&orderNo=${order.orderNo}&amount=${paymentAmount}`
     });
   },
 
