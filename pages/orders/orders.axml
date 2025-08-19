@@ -1,0 +1,92 @@
+<view class="orders-container">
+  <!-- 订单状态切换 -->
+  <view class="order-tabs">
+    <view 
+      class="tab-item {{activeTab === 'all' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="all"
+    >
+      全部
+    </view>
+    <view 
+      class="tab-item {{activeTab === 'ongoing' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="ongoing"
+    >
+      进行中
+    </view>
+    <view 
+      class="tab-item {{activeTab === 'completed' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="completed"
+    >
+      已完成
+    </view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <block a:for="{{filteredOrders}}" a:key="id">
+      <view class="order-item">
+        <view class="order-header">
+          <text class="order-number">订单号：{{item.orderNo}}</text>
+          <text class="order-status {{item.status}}">{{item.statusText}}</text>
+        </view>
+        
+        <view class="order-content">
+          <image class="vehicle-image" src="{{item.vehicleImage}}" mode="aspectFill" />
+          <view class="order-info">
+            <text class="vehicle-name">{{item.vehicleName}}</text>
+            <text class="order-time">下单时间：{{item.createTime}}</text>
+            <text class="rental-period">租赁期限：{{item.rentalPeriod}}</text>
+          </view>
+          <view class="order-price">
+            <text class="price">¥{{item.totalPrice}}</text>
+          </view>
+        </view>
+        
+        <view class="order-actions">
+          <button 
+            class="action-btn secondary" 
+            onTap="contactService" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'ongoing'}}"
+          >
+            联系客服
+          </button>
+          <button 
+            class="action-btn primary" 
+            onTap="payOrder" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'pending'}}"
+          >
+            立即支付
+          </button>
+          <button 
+            class="action-btn primary" 
+            onTap="renewOrder" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'ongoing'}}"
+          >
+            续租
+          </button>
+          <button 
+            class="action-btn secondary" 
+            onTap="viewOrder" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'completed'}}"
+          >
+            查看详情
+          </button>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" a:if="{{filteredOrders.length === 0}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">暂无{{activeTab === 'all' ? '' : activeTab === 'ongoing' ? '进行中的' : '已完成的'}}订单</text>
+    <button class="go-rent-btn" onTap="goToRent">去租车</button>
+  </view>
+</view>

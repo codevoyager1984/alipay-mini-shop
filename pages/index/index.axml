@@ -1,0 +1,77 @@
+
+<view class="container">
+  <!-- 顶部 Logo -->
+  <view class="header">
+    <image class="logo" src="{{logoUrl}}" mode="aspectFit" />
+    <text class="brand-name">微小租新能源</text>
+  </view>
+
+  <!-- 店铺信息 -->
+  <view class="shop-info">
+    <view class="shop-card">
+      <view class="shop-title">倍受信赖的以租代购平台</view>
+      <view class="shop-subtitle">0首付 租满送</view>
+      
+      <view class="shop-details">
+        <view class="detail-item">
+          <text class="shop-name">{{shopInfo.name}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="time">{{shopInfo.time}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="address">{{shopInfo.address}}</text>
+        </view>
+        
+        <view class="action-buttons">
+          <button class="nav-btn" onTap="onNavigate">
+            <text class="icon">📍</text>
+            导航
+          </button>
+          <button class="call-btn" onTap="onCall">
+            <text class="icon">📞</text>
+            电话
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-section">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input 
+        class="search-input" 
+        placeholder="输入商品名称搜索"
+        value="{{searchKeyword}}"
+        onInput="onSearchInput"
+      />
+      <button class="search-btn" onTap="onSearch">搜索</button>
+    </view>
+  </view>
+
+  <!-- 电瓶车列表 -->
+  <view class="vehicle-list">
+    <block a:for="{{filteredVehicles}}" a:key="id">
+      <view class="vehicle-item">
+        <image class="vehicle-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="vehicle-info">
+          <view class="vehicle-name">{{item.name}}</view>
+          <view class="vehicle-price">
+            <text class="price">¥ {{item.price}}</text>
+            <text class="unit">/月</text>
+          </view>
+        </view>
+        <button class="order-btn" onTap="onOrder" data-id="{{item.id}}">
+          前往下单
+        </button>
+      </view>
+    </block>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" a:if="{{filteredVehicles.length === 0 && searchKeyword}}">
+    <text>未找到相关车辆</text>
+  </view>
+</view>

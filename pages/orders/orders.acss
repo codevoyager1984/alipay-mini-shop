@@ -1,0 +1,238 @@
+/* 订单页面容器 */
+.orders-container {
+  background: #f7f7f7;
+  min-height: 100vh;
+  padding-bottom: 20rpx;
+}
+
+/* 订单状态切换标签 */
+.order-tabs {
+  background: #fff;
+  display: flex;
+  border-bottom: 1rpx solid #eee;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 30rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #ff4757;
+  font-weight: bold;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #ff4757;
+  border-radius: 2rpx;
+}
+
+/* 订单列表 */
+.order-list {
+  padding: 20rpx;
+}
+
+.order-item {
+  background: #fff;
+  border-radius: 15rpx;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 订单头部 */
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.order-number {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.order-status {
+  font-size: 26rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: bold;
+}
+
+.order-status.pending {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+.order-status.ongoing {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.order-status.completed {
+  background: #f0f0f0;
+  color: #666;
+}
+
+/* 订单内容 */
+.order-content {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.vehicle-image {
+  width: 120rpx;
+  height: 80rpx;
+  border-radius: 10rpx;
+  margin-right: 20rpx;
+  background: #f5f5f5;
+}
+
+.order-info {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.vehicle-name {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.order-time {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.rental-period {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.order-price {
+  text-align: right;
+}
+
+.price {
+  font-size: 32rpx;
+  color: #ff4757;
+  font-weight: bold;
+}
+
+/* 订单操作按钮 */
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+}
+
+.action-btn {
+  padding: 16rpx 32rpx;
+  border-radius: 25rpx;
+  font-size: 26rpx;
+  border: none;
+  min-width: 120rpx;
+}
+
+.action-btn.primary {
+  background: #ff4757;
+  color: #fff;
+}
+
+.action-btn.primary:active {
+  background: #ff3838;
+}
+
+.action-btn.secondary {
+  background: #fff;
+  color: #ff4757;
+  border: 1rpx solid #ff4757;
+}
+
+.action-btn.secondary:active {
+  background: #fff5f5;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 40rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.3;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.go-rent-btn {
+  background: #ff4757;
+  color: #fff;
+  border: none;
+  border-radius: 30rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.go-rent-btn:active {
+  background: #ff3838;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 375px) {
+  .order-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .vehicle-image {
+    margin-bottom: 15rpx;
+    margin-right: 0;
+  }
+  
+  .order-info {
+    margin-right: 0;
+    margin-bottom: 15rpx;
+    width: 100%;
+  }
+  
+  .order-price {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .order-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

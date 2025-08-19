@@ -1,0 +1,281 @@
+/* 我的页面容器 */
+.profile-container {
+  background: #f7f7f7;
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+/* 用户信息区域 */
+.user-section {
+  background: linear-gradient(135deg, #ff4757 0%, #ff6b7a 100%);
+  padding: 60rpx 30rpx 40rpx;
+  color: #fff;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  margin-right: 30rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.user-details {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.username {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.phone {
+  display: block;
+  font-size: 28rpx;
+  opacity: 0.8;
+}
+
+.login-tip {
+  display: block;
+  font-size: 26rpx;
+  opacity: 0.7;
+}
+
+.user-actions {
+  text-align: right;
+}
+
+.verify-status {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.verify-status.unverified {
+  background: rgba(255, 183, 77, 0.3);
+}
+
+/* 功能区域通用样式 */
+.auth-section,
+.function-section {
+  background: #fff;
+  margin: 20rpx 30rpx;
+  border-radius: 15rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  padding: 30rpx 30rpx 20rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+/* 菜单项 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: relative;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:not(.disabled):active {
+  background: #f8f8f8;
+}
+
+.menu-item.disabled {
+  opacity: 0.6;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.item-icon {
+  font-size: 32rpx;
+  margin-right: 20rpx;
+  width: 40rpx;
+  text-align: center;
+}
+
+.item-text {
+  font-size: 30rpx;
+  color: #333;
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+}
+
+.item-status {
+  font-size: 26rpx;
+  color: #999;
+  margin-right: 10rpx;
+}
+
+.item-status.success {
+  color: #52c41a;
+}
+
+.item-arrow {
+  font-size: 24rpx;
+  color: #ccc;
+}
+
+/* 退出登录按钮 */
+.logout-section {
+  padding: 30rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  height: 80rpx;
+  background: #fff;
+  color: #ff4757;
+  border: 2rpx solid #ff4757;
+  border-radius: 40rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn:active {
+  background: #fff5f5;
+}
+
+/* 认证弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.auth-modal {
+  background: #fff;
+  border-radius: 20rpx;
+  margin: 40rpx;
+  max-width: 600rpx;
+  width: 100%;
+  overflow: hidden;
+}
+
+.modal-title {
+  padding: 40rpx 30rpx 20rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-content {
+  padding: 30rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #d9d9d9;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #ff4757;
+}
+
+.modal-actions {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 80rpx;
+  border: none;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-btn.cancel {
+  background: #f8f8f8;
+  color: #666;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.modal-btn.confirm {
+  background: #ff4757;
+  color: #fff;
+}
+
+.modal-btn:active {
+  opacity: 0.8;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 375px) {
+  .user-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .avatar {
+    margin-right: 0;
+    margin-bottom: 20rpx;
+  }
+  
+  .user-details {
+    margin-right: 0;
+    margin-bottom: 20rpx;
+  }
+  
+  .auth-modal {
+    margin: 20rpx;
+  }
+}

@@ -1,0 +1,117 @@
+<view class="profile-container">
+  <!-- 用户信息区域 -->
+  <view class="user-section">
+    <view class="user-info">
+      <image class="avatar" src="{{userInfo.avatar || defaultAvatar}}" mode="aspectFill" onTap="{{userInfo.isLogin ? '' : 'login'}}" />
+      <view class="user-details">
+        <text class="username" a:if="{{userInfo.isLogin}}">{{userInfo.nickname || '用户'}}</text>
+        <text class="username" a:else onTap="login">点击登录</text>
+        <text class="phone" a:if="{{userInfo.phone}}">{{userInfo.phone}}</text>
+        <text class="login-tip" a:else>登录后享受更多服务</text>
+      </view>
+      <view class="user-actions">
+        <text class="verify-status" a:if="{{userInfo.isVerified}}">✅ 已认证</text>
+        <text class="verify-status unverified" a:else>⚠️ 未认证</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 认证功能区域 -->
+  <view class="auth-section">
+    <view class="section-title">账户认证</view>
+    
+    <!-- 登录 -->
+    <view class="menu-item" onTap="login" a:if="{{!userInfo.isLogin}}">
+      <view class="item-left">
+        <text class="item-icon">👤</text>
+        <text class="item-text">登录账户</text>
+      </view>
+      <text class="item-arrow">></text>
+    </view>
+    
+    <!-- 获取手机号 -->
+    <view class="menu-item" onTap="getPhoneNumber" a:if="{{userInfo.isLogin && !userInfo.phone}}">
+      <view class="item-left">
+        <text class="item-icon">📱</text>
+        <text class="item-text">绑定手机号</text>
+      </view>
+      <text class="item-arrow">></text>
+    </view>
+    
+    <!-- 实名认证 -->
+    <view class="menu-item" onTap="realNameAuth" a:if="{{userInfo.isLogin && !userInfo.isVerified}}">
+      <view class="item-left">
+        <text class="item-icon">🆔</text>
+        <text class="item-text">实名认证</text>
+      </view>
+      <view class="item-right">
+        <text class="item-status">未认证</text>
+        <text class="item-arrow">></text>
+      </view>
+    </view>
+    
+    <!-- 已完成认证显示 -->
+    <view class="menu-item disabled" a:if="{{userInfo.isLogin && userInfo.isVerified}}">
+      <view class="item-left">
+        <text class="item-icon">✅</text>
+        <text class="item-text">实名认证</text>
+      </view>
+      <text class="item-status success">已认证</text>
+    </view>
+  </view>
+
+  <!-- 其他功能区域 -->
+  <view class="function-section">
+    <view class="section-title">其他功能</view>
+    
+    <view class="menu-item" onTap="viewProfile">
+      <view class="item-left">
+        <text class="item-icon">👨‍💼</text>
+        <text class="item-text">个人资料</text>
+      </view>
+      <text class="item-arrow">></text>
+    </view>
+    
+    <view class="menu-item" onTap="contactService">
+      <view class="item-left">
+        <text class="item-icon">🎧</text>
+        <text class="item-text">联系客服</text>
+      </view>
+      <text class="item-arrow">></text>
+    </view>
+    
+    <view class="menu-item" onTap="about">
+      <view class="item-left">
+        <text class="item-icon">ℹ️</text>
+        <text class="item-text">关于我们</text>
+      </view>
+      <text class="item-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section" a:if="{{userInfo.isLogin}}">
+    <button class="logout-btn" onTap="logout">退出登录</button>
+  </view>
+
+  <!-- 认证弹窗 -->
+  <view class="modal-overlay" a:if="{{showAuthModal}}" onTap="closeAuthModal">
+    <view class="auth-modal" onTap="stopPropagation">
+      <view class="modal-title">实名认证</view>
+      <view class="modal-content">
+        <view class="form-item">
+          <text class="form-label">真实姓名</text>
+          <input class="form-input" placeholder="请输入真实姓名" value="{{authForm.realName}}" onInput="onAuthFormChange" data-field="realName" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">身份证号</text>
+          <input class="form-input" placeholder="请输入身份证号" value="{{authForm.idCard}}" onInput="onAuthFormChange" data-field="idCard" />
+        </view>
+      </view>
+      <view class="modal-actions">
+        <button class="modal-btn cancel" onTap="closeAuthModal">取消</button>
+        <button class="modal-btn confirm" onTap="submitAuth">提交认证</button>
+      </view>
+    </view>
+  </view>
+</view>

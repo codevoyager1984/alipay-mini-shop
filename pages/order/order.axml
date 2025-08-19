@@ -1,0 +1,69 @@
+<view class="order-container">
+  <!-- 车辆图片 -->
+  <view class="vehicle-hero">
+    <image class="vehicle-main-image" src="{{vehicleInfo.image}}" mode="aspectFill" />
+  </view>
+
+  <!-- 车辆信息 -->
+  <view class="vehicle-info-card">
+    <view class="vehicle-title">{{vehicleInfo.name}}</view>
+    <view class="vehicle-price">
+      <text class="price-symbol">¥</text>
+      <text class="price-amount">{{vehicleInfo.price}}</text>
+      <text class="price-unit">/月</text>
+    </view>
+    
+    <!-- 特别提醒 -->
+    <view class="warning-notice">
+      <text class="warning-text">特别提醒：本租赁订单经过公证处公证，逾期直接法院执行，请谨慎下单。</text>
+    </view>
+  </view>
+
+  <!-- 商品介绍和下单须知 -->
+  <view class="info-tabs">
+    <view class="tab-header">
+      <view 
+        class="tab-item {{activeTab === 'intro' ? 'active' : ''}}" 
+        onTap="switchTab" 
+        data-tab="intro"
+      >
+        商品介绍
+      </view>
+      <view 
+        class="tab-item {{activeTab === 'notice' ? 'active' : ''}}" 
+        onTap="switchTab" 
+        data-tab="notice"
+      >
+        下单须知
+      </view>
+    </view>
+    
+    <view class="tab-content">
+      <view class="intro-content" a:if="{{activeTab === 'intro'}}">
+        <view class="empty-intro">
+          <text class="empty-text">暂无介绍</text>
+        </view>
+      </view>
+      
+      <view class="notice-content" a:if="{{activeTab === 'notice'}}">
+        <view class="notice-item">
+          <text class="notice-title">租赁条件</text>
+          <text class="notice-desc">需要提供身份证、驾驶证等有效证件</text>
+        </view>
+        <view class="notice-item">
+          <text class="notice-title">押金说明</text>
+          <text class="notice-desc">需缴纳相应押金，租期结束无损坏可退还</text>
+        </view>
+        <view class="notice-item">
+          <text class="notice-title">违约责任</text>
+          <text class="notice-desc">逾期未还将承担相应法律责任</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部下单按钮 -->
+  <view class="bottom-action">
+    <button class="order-btn" onTap="confirmOrder">立即下单</button>
+  </view>
+</view>

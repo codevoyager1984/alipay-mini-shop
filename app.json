@@ -1,0 +1,44 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/orders/orders",
+    "pages/profile/profile",
+    "pages/order/order"
+  ],
+  "window": {
+    "defaultTitle": "伟小保新能源"
+  },
+  "tabBar": {
+    "textColor": "#999999",
+    "selectedColor": "#ff4757",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "items": [
+      {
+        "pagePath": "pages/index/index",
+        "name": "首页",
+        "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgOUw5IDNMMTUgOUwyMiAyVjIySDJWOVpNMTEgMTFIMTNWMTlIMTFWMTFaIiBmaWxsPSIjOTk5OTk5Ii8+Cjwvc3ZnPgo=",
+        "activeIcon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgOUw5IDNMMTUgOUwyMiAyVjIySDJWOVpNMTEgMTFIMTNWMTlIMTFWMTFaIiBmaWxsPSIjZmY0NzU3Ii8+Cjwvc3ZnPgo="
+      },
+      {
+        "pagePath": "pages/orders/orders",
+        "name": "订单",
+        "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTggNEgxNkMyMCA0IDIwIDQgMjAgOFYyMEMyMCAyMCAyMCAyMCAxNiAyMEg4QzQgMjAgNCAyMCA0IDIwVjhDNCA0IDQgNCA4IDRaIiBzdHJva2U9IiM5OTk5OTkiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNOCAxMEgxNiIgc3Ryb2tlPSIjOTk5OTk5IiBzdHJva2Utd2lkdGg9IjIiLz4KPHBhdGggZD0iTTggMTRIMTIiIHN0cm9rZT0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPgo=",
+        "activeIcon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTggNEgxNkMyMCA0IDIwIDQgMjAgOFYyMEMyMCAyMCAyMCAyMCAxNiAyMEg4QzQgMjAgNCAyMCA0IDIwVjhDNCA0IDQgNCA4IDRaIiBzdHJva2U9IiNmZjQ3NTciIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNOCAxMEgxNiIgc3Ryb2tlPSIjZmY0NzU3IiBzdHJva2Utd2lkdGg9IjIiLz4KPHBhdGggZD0iTTggMTRIMTIiIHN0cm9rZT0iI2ZmNDc1NyIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPgo="
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "name": "我的",
+        "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSI0IiBzdHJva2U9IiM5OTk5OTkiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNNiAyMUMgNiAxNyA4LjY4NjI5IDE0IDEyIDE0QzE1LjMxMzcgMTQgMTggMTcgMTggMjEiIHN0cm9rZT0iIzk5OTk5OSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPgo=",
+        "activeIcon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSI4IiByPSI0IiBzdHJva2U9IiNmZjQ3NTciIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNNiAyMUMgNiAxNyA4LjY4NjI5IDE0IDEyIDE0QzE1LjMxMzcgMTQgMTggMTcgMTggMjEiIHN0cm9rZT0iI2ZmNDc1NyIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPgo="
+      }
+    ]
+  },
+  "lazyCodeLoading": "renderedComponents",
+  "behavior": {
+    "requestReferrerStrategy": "page",
+    "requestReferrerStyle": "full",
+    "requestDefaultEnableCookie": true,
+    "connectSocketDefaultMultiple": true
+  }
+}
