@@ -201,7 +201,7 @@ Page({
   // 获取订单状态文本
   getStatusText(apiStatus) {
     const statusTextMap = {
-        'pending': '待支付',
+        'pending': '未开始',
         'paid': '已完成',
         'ongoing': '租赁中',
         'completed': '已完成',
@@ -233,12 +233,12 @@ Page({
     }
     
     const statusTextMap = {
-      'pending': '待支付',
+      'pending': '未开始',
       'paid': '已支付',
       'overdue': '已逾期'
     };
     
-    return statusTextMap[apiStatus] || '待支付';
+    return statusTextMap[apiStatus] || '未开始';
   },
 
   // 支付分期

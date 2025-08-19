@@ -103,7 +103,11 @@ Page({
         // 转换API数据格式以适配现有UI
         const orders = response.data.orders.map(item => {
           // 计算分期信息
-          const installmentInfo = this.calculateInstallmentInfo(item.installments || []);
+          const installmentInfo = this.calculateInstallmentInfo(
+            item.installments || [], 
+            item.monthly_price, 
+            item.rental_period
+          );
           
           return {
             id: item.id,
@@ -178,13 +182,13 @@ Page({
   },
 
   // 计算分期信息
-  calculateInstallmentInfo(installments) {
+  calculateInstallmentInfo(installments, monthlyPrice, rentalPeriod) {
     if (!installments || installments.length === 0) {
       return {
-        amount: 0,
+        amount: monthlyPrice || 0, // 使用 monthly_price 作为单期金额
         paidCount: 0,
-        totalCount: 0,
-        status: '无分期信息',
+        totalCount: rentalPeriod || 0, // 使用 rental_period 作为总期数
+        status: '未开始支付',
         nextPaymentDate: null
       };
     }
@@ -195,7 +199,7 @@ Page({
     ).length;
     
     // 获取单期金额（假设所有分期金额相同，取第一期的金额）
-    const amount = installments.length > 0 ? installments[0].amount : 0;
+    const amount = installments.length > 0 ? installments[0].amount : monthlyPrice;
     
     // 找到下一个未支付的分期，获取其到期日期
     const nextUnpaidInstallment = installments.find(item => 
@@ -263,7 +267,7 @@ Page({
   // 映射订单状态
   mapOrderStatus(apiStatus) {
     const statusMap = {
-      'pending': 'pending',      // 待支付
+      'pending': 'pending',      // 未开始
       'paid': 'ongoing',         // 已支付 -> 租赁中
       'inprogress': 'inprogress', // 进行中
       'ongoing': 'ongoing',      // 租赁中
@@ -277,7 +281,7 @@ Page({
   // 获取状态文本
   getStatusText(apiStatus) {
     const statusTextMap = {
-      'pending': '待支付',
+      'pending': '未开始',
       'paid': '已完成',
       'ongoing': '租赁中',
       'completed': '已完成',

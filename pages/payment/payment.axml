@@ -54,10 +54,10 @@
 
   <!-- 支付状态 -->
   <view class="payment-status-card">
-    <!-- 等待支付 -->
+    <!-- 等未开始 -->
     <view class="status-content" a:if="{{paymentStatus === 'pending'}}">
       <view class="status-icon pending">⏱</view>
-      <view class="status-title">等待支付</view>
+      <view class="status-title">等未开始</view>
       <view class="status-desc">请点击下方按钮完成支付</view>
     </view>
     
@@ -98,7 +98,7 @@
 
   <!-- 底部操作区域 -->
   <view class="bottom-action">
-    <!-- 等待支付状态 -->
+    <!-- 等未开始状态 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'pending'}}">
       <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
         立即支付 ¥{{orderInfo.amount}}

@@ -88,7 +88,11 @@ Page({
       
       if (response.statusCode === 200 && response.data) {
         // 计算分期信息
-        const installmentInfo = this.calculateInstallmentInfo(response.data.installments || []);
+        const installmentInfo = this.calculateInstallmentInfo(
+          response.data.installments || [], 
+          response.data.monthly_price, 
+          response.data.rental_period
+        );
         
         this.setData({
           'orderInfo.productName': response.data.product_name,
@@ -114,14 +118,14 @@ Page({
   },
 
   // 计算分期信息
-  calculateInstallmentInfo(installments) {
+  calculateInstallmentInfo(installments, monthlyPrice, rentalPeriod) {
     if (!installments || installments.length === 0) {
       return {
-        currentAmount: 0,
+        currentAmount: monthlyPrice || 0, // 使用 monthly_price 作为当前支付金额
         currentInstallmentNo: 1,
-        totalInstallments: 0,
+        totalInstallments: rentalPeriod || 0, // 使用 rental_period 作为总期数
         dueDate: null,
-        isPaymentDue: false
+        isPaymentDue: true // 首期支付默认可以支付
       };
     }
 

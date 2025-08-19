@@ -130,7 +130,7 @@ Page({
           // 支付成功
           this.handlePaymentSuccess();
         } else if (is_paid === false) {
-          // 继续等待支付完成
+          // 继续等未开始完成
           this.setData({
             statusText: '支付确认中，请稍候...'
           });
