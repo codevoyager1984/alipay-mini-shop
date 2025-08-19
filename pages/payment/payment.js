@@ -12,7 +12,8 @@ Page({
       // 分期相关信息
       installmentAmount: 0,
       currentInstallmentNo: 1,
-      totalInstallments: 0,
+      totalInstallments: 0, // 实际生成的分期数量（用于判断初始支付）
+      plannedInstallments: 0, // 计划的分期总数（用于页面显示）
       // 支付时间相关
       dueDate: null,
       isPaymentDue: false
@@ -99,7 +100,8 @@ Page({
           'orderInfo.productImage': response.data.product_cover_image,
           'orderInfo.installmentAmount': installmentInfo.currentAmount,
           'orderInfo.currentInstallmentNo': installmentInfo.currentInstallmentNo,
-          'orderInfo.totalInstallments': installmentInfo.totalInstallments,
+          'orderInfo.totalInstallments': installmentInfo.totalInstallments, // 实际分期数量（用于判断初始支付）
+          'orderInfo.plannedInstallments': installmentInfo.plannedInstallments, // 计划分期总数（用于页面显示）
           'orderInfo.dueDate': this.formatDueDate(installmentInfo.dueDate),
           'orderInfo.isPaymentDue': installmentInfo.isPaymentDue,
           // 更新支付金额为当前分期金额
@@ -123,7 +125,8 @@ Page({
       return {
         currentAmount: monthlyPrice || 0, // 使用 monthly_price 作为当前支付金额
         currentInstallmentNo: 1,
-        totalInstallments: rentalPeriod || 0, // 使用 rental_period 作为总期数
+        totalInstallments: 0, // 实际生成的分期数量，用于判断初始支付
+        plannedInstallments: rentalPeriod || 0, // 计划的分期总数，用于页面显示
         dueDate: null,
         isPaymentDue: true // 首期支付默认可以支付
       };
@@ -144,6 +147,7 @@ Page({
         currentAmount: unpaidInstallment.amount,
         currentInstallmentNo: unpaidInstallment.installment_no,
         totalInstallments: totalInstallments,
+        plannedInstallments: totalInstallments, // 有分期数据时，计划数等于实际数
         dueDate: dueDate,
         isPaymentDue: isPaymentDue
       };
@@ -154,6 +158,7 @@ Page({
         currentAmount: lastInstallment.amount,
         currentInstallmentNo: lastInstallment.installment_no,
         totalInstallments: totalInstallments,
+        plannedInstallments: totalInstallments, // 有分期数据时，计划数等于实际数
         dueDate: lastInstallment.due_date,
         isPaymentDue: true // 已完成的订单认为可以支付
       };
@@ -210,7 +215,7 @@ Page({
       
       my.showModal({
         title: '支付提醒',
-        content: `第${this.data.orderInfo.currentInstallmentNo}期分期付款将于${dueDateStr}到期，还有${daysUntil}天。\n\n提前支付不会产生额外费用，您确定要现在支付吗？`,
+        content: `第${this.data.orderInfo.currentInstallmentNo}期分期付款的最晚时间为${dueDateStr}，提前支付不会产生额外费用，您确定要现在支付吗？`,
         confirmText: '确定支付',
         cancelText: '稍后支付',
         success: (result) => {
@@ -326,18 +331,43 @@ Page({
     try {
       const accessToken = my.getStorageSync({ key: 'access_token' });
       
+      // 判断是否为初始支付（没有分期信息）
+      const isInitialPayment = this.data.orderInfo.totalInstallments === 0;
+      console.log('支付调试信息:', {
+        totalInstallments: this.data.orderInfo.totalInstallments,
+        plannedInstallments: this.data.orderInfo.plannedInstallments,
+        isInitialPayment: isInitialPayment,
+        orderId: this.data.orderInfo.orderId,
+        currentInstallmentNo: this.data.orderInfo.currentInstallmentNo
+      });
+      
+      const endpoint = isInitialPayment 
+        ? config.api.endpoints.payment.initial 
+        : config.api.endpoints.payment.create;
+      
+      console.log('使用的支付接口:', endpoint);
+      
+      // 构建请求数据
+      const requestData = {
+        order_id: this.data.orderInfo.orderId
+      };
+      
+      // 如果不是初始支付，需要传入分期号
+      if (!isInitialPayment) {
+        requestData.installment_no = this.data.orderInfo.currentInstallmentNo;
+      }
+      
+      console.log('支付请求参数:', requestData);
+      
       const response = await new Promise((resolve, reject) => {
         my.request({
-          url: `${config.api.baseUrl}${config.api.endpoints.payment.create}`,
+          url: `${config.api.baseUrl}${endpoint}`,
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken.data}`
           },
-          data: {
-            order_id: this.data.orderInfo.orderId,
-            installment_no: this.data.orderInfo.currentInstallmentNo
-          },
+          data: requestData,
           success: resolve,
           fail: reject
         });
@@ -360,70 +390,6 @@ Page({
       console.error('创建支付订单失败:', error);
       throw new Error(error.message || '创建支付订单失败，请稍后重试');
     }
-  },
-
-  // 构建支付宝订单字符串
-  buildOrderString(paymentData) {
-    // 根据支付宝SDK要求构建订单字符串
-    // 实际项目中，这个字符串应该由后端完整生成，包含签名等安全信息
-    const params = {
-      app_id: '2021000000000000', // 实际应用中应该从配置获取
-      method: 'alipay.trade.app.pay',
-      charset: 'UTF-8',
-      sign_type: 'RSA2',
-      timestamp: new Date().toISOString().replace(/[T]/g, ' ').replace(/\..+/, ''),
-      version: '1.0',
-      biz_content: JSON.stringify({
-        out_trade_no: paymentData.out_trade_no,
-        total_amount: paymentData.total_amount,
-        subject: paymentData.subject,
-        body: paymentData.body,
-        product_code: 'QUICK_MSECURITY_PAY'
-      })
-    };
-
-    // 构建参数字符串
-    const paramStr = Object.keys(params)
-      .sort()
-      .map(key => `${key}=${encodeURIComponent(params[key])}`)
-      .join('&');
-
-    return paramStr + '&sign=mock_signature'; // 实际项目中签名应该由后端生成
-  },
-
-  // 生成订单字符串（实际项目中应该从后端获取）
-  generateOrderString() {
-    // 这是一个模拟的订单字符串，实际项目中需要从后端获取完整的支付参数
-    // 包含签名、商户信息等
-    return `alipay_sdk=alipay-sdk-java-4.22.110.ALL&app_id=2021000000000000&biz_content=%7B%22out_trade_no%22%3A%22${this.data.orderInfo.orderNo}%22%2C%22total_amount%22%3A%22${this.data.orderInfo.amount}%22%2C%22subject%22%3A%22${encodeURIComponent(this.data.orderInfo.productName)}%22%2C%22product_code%22%3A%22QUICK_MSECURITY_PAY%22%7D&charset=UTF-8&format=json&method=alipay.trade.app.pay&sign_type=RSA2&timestamp=2024-01-01+00%3A00%3A00&version=1.0&sign=mock_signature`;
-  },
-
-  // 显示支付成功
-  showPaymentSuccess() {
-    const { currentInstallmentNo, totalInstallments } = this.data.orderInfo;
-    const message = totalInstallments > 0 
-      ? `恭喜您！第${currentInstallmentNo}期分期支付成功，我们将尽快为您安排发货。`
-      : '恭喜您！订单支付成功，我们将尽快为您安排发货。';
-      
-    my.showModal({
-      title: '支付成功',
-      content: message,
-      confirmText: '查看订单',
-      cancelText: '返回首页',
-      success: (result) => {
-        if (result.confirm) {
-          // 跳转到订单列表
-          my.reLaunch({
-            url: '/pages/orders/orders'
-          });
-        } else {
-          // 返回首页
-          my.reLaunch({
-            url: '/pages/index/index'
-          });
-        }
-      }
-    });
   },
 
   // 返回订单列表

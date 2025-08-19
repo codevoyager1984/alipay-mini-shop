@@ -30,6 +30,7 @@ const config = {
       // 支付相关
       payment: {
         create: '/api/payment/create',
+        initial: '/api/payment/initial',
         notify: '/api/payment/notify',
         status: '/api/payment/status'  // 状态接口会拼接 /{order_id}
       }

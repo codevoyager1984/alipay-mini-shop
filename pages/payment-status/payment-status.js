@@ -219,27 +219,6 @@ Page({
       countdownText: '支付确认完成',
       isTimeout: false
     });
-
-    // 延迟1秒显示成功提示
-    setTimeout(() => {
-      my.showModal({
-        title: '支付成功',
-        content: '恭喜您！支付已成功完成，我们将尽快为您安排发货。',
-        confirmText: '查看订单',
-        cancelText: '返回首页',
-        success: (result) => {
-          if (result.confirm) {
-            my.reLaunch({
-              url: '/pages/orders/orders'
-            });
-          } else {
-            my.reLaunch({
-              url: '/pages/index/index'
-            });
-          }
-        }
-      });
-    }, 1000);
   },
 
   // 支付失败处理
