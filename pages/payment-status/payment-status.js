@@ -5,6 +5,7 @@ Page({
     // 订单信息
     orderId: null,
     orderNo: '',
+    installmentNo: null,
     productName: '',
     amount: 0,
     
@@ -31,10 +32,11 @@ Page({
     console.log('Payment status page onLoad with query:', query);
     
     // 获取订单参数
-    if (query.orderId && query.orderNo) {
+    if (query.orderId && query.orderNo && query.installmentNo) {
       this.setData({
         orderId: parseInt(query.orderId),
         orderNo: query.orderNo,
+        installmentNo: parseInt(query.installmentNo),
         productName: query.productName || '商品',
         amount: parseFloat(query.amount) || 0
       });
@@ -47,7 +49,7 @@ Page({
     } else {
       my.showModal({
         title: '参数错误',
-        content: '订单信息获取失败，请重新支付',
+        content: '订单信息获取失败，缺少必要参数（orderId、orderNo、installmentNo），请重新支付',
         confirmText: '知道了',
         showCancel: false,
         success: () => {
@@ -94,7 +96,7 @@ Page({
       
       const response = await new Promise((resolve, reject) => {
         my.request({
-          url: `${config.api.baseUrl}${config.api.endpoints.payment.status}/${this.data.orderId}`,
+          url: `${config.api.baseUrl}${config.api.endpoints.payment.status}/${this.data.orderId}/${this.data.installmentNo}`,
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${accessToken.data}`
@@ -111,20 +113,19 @@ Page({
       console.log('支付状态查询结果:', response.data);
 
       if (response.statusCode === 200 && response.data) {
-        const status = response.data.status;
+        const { is_paid } = response.data;
         
-        if (status === 'paid' || status === 'success') {
+        if (is_paid === true) {
           // 支付成功
           this.handlePaymentSuccess();
-        } else if (status === 'failed' || status === 'cancelled') {
-          // 支付失败
-          this.handlePaymentFailed();
-        } else {
-          // 继续等待（pending, processing等状态）
+        } else if (is_paid === false) {
+          // 继续等待支付完成
           this.setData({
             statusText: '支付确认中，请稍候...'
           });
         }
+        // 注意：新接口似乎只返回 is_paid 布尔值，不再有明确的失败状态
+        // 如果需要处理支付失败的情况，可能需要结合超时逻辑或其他机制
       }
     } catch (error) {
       console.error('查询支付状态失败:', error);
@@ -246,7 +247,7 @@ Page({
         if (result.confirm) {
           // 返回支付页面重新支付
           my.navigateTo({
-            url: `/pages/payment/payment?orderId=${this.data.orderId}&orderNo=${this.data.orderNo}&amount=${this.data.amount}`
+            url: `/pages/payment/payment?orderId=${this.data.orderId}&orderNo=${this.data.orderNo}&installmentNo=${this.data.installmentNo}&amount=${this.data.amount}`
           });
         } else {
           my.reLaunch({

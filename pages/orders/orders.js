@@ -252,7 +252,8 @@ Page({
       'paid': '租赁中',
       'ongoing': '租赁中',
       'completed': '已完成',
-      'cancelled': '已取消'
+      'cancelled': '已取消',
+      "inprogress": "进行中"
     };
     
     return statusTextMap[apiStatus] || '未知状态';

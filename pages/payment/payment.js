@@ -165,15 +165,24 @@ Page({
       console.log('支付结果:', payResult);
 
       if (payResult.resultCode === '9000') {
-        // 支付成功，跳转到支付状态检查页面
+        // 支付成功，直接跳转到订单页面
         this.setData({ 
           paymentStatus: 'success',
           loading: false 
         });
         
-        // 跳转到支付状态检查页面
-        my.navigateTo({
-          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${this.data.orderInfo.amount}`
+        // 显示支付成功提示并跳转到订单页面
+        my.showToast({
+          content: '支付成功！',
+          type: 'success',
+          duration: 2000,
+          success: () => {
+            setTimeout(() => {
+              my.reLaunch({
+                url: '/pages/orders/orders'
+              });
+            }, 1000);
+          }
         });
       } else if (payResult.resultCode === '8000') {
         // 支付处理中
