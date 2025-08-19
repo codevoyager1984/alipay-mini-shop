@@ -248,7 +248,6 @@ Page({
           },
           data: {
             product_id: this.data.productInfo.id,
-            user_id: userInfo.data.userId,
             remark: null
           },
           success: resolve,

@@ -14,7 +14,7 @@ Page({
 
   onLoad(query) {
     console.info(`Orders page onLoad with query: ${JSON.stringify(query)}`);
-    this.loadOrders();
+    this.loadOrders(true);
   },
 
   onReady() {
@@ -23,7 +23,7 @@ Page({
 
   onShow() {
     // 页面显示 - 重新加载订单数据
-    this.loadOrders();
+    this.loadOrders(true);
   },
 
   onHide() {
@@ -90,7 +90,6 @@ Page({
           data: {
             page: this.data.currentPage,
             limit: this.data.pageSize,
-            user_id: userInfo.data.userId
           },
           success: resolve,
           fail: reject,
@@ -102,18 +101,28 @@ Page({
 
       if (response.statusCode === 200 && response.data && response.data.orders) {
         // 转换API数据格式以适配现有UI
-        const orders = response.data.orders.map(item => ({
-          id: item.id,
-          orderNo: item.order_no,
-          vehicleName: item.product_name,
-          vehicleImage: item.product_cover_image || this.getDefaultImage(),
-          createTime: this.formatDateTime(item.created_at),
-          rentalPeriod: `${item.rental_period}个月`,
-          totalPrice: item.total_amount.toFixed(2),
-          status: this.mapOrderStatus(item.status),
-          statusText: this.getStatusText(item.status),
-          rawData: item // 保存原始数据，方便后续使用
-        }));
+        const orders = response.data.orders.map(item => {
+          // 计算分期信息
+          const installmentInfo = this.calculateInstallmentInfo(item.installments || []);
+          
+          return {
+            id: item.id,
+            orderNo: item.order_no,
+            vehicleName: item.product_name,
+            vehicleImage: item.product_cover_image || this.getDefaultImage(),
+            createTime: this.formatDateTime(item.created_at),
+            rentalPeriod: `${item.rental_period}个月`,
+            totalPrice: item.total_amount.toFixed(2),
+            // 分期相关信息
+            installmentAmount: installmentInfo.amount.toFixed(2), // 单期金额
+            paidInstallments: installmentInfo.paidCount, // 已付期数
+            totalInstallments: installmentInfo.totalCount, // 总期数
+            installmentStatus: installmentInfo.status, // 分期状态文本
+            status: this.mapOrderStatus(item.status),
+            statusText: this.getStatusText(item.status),
+            rawData: item // 保存原始数据，方便后续使用
+          };
+        });
 
         // 合并订单数据（用于分页加载）
         const allOrders = refresh ? orders : [...this.data.orders, ...orders];
@@ -165,6 +174,43 @@ Page({
   // 获取默认图片
   getDefaultImage() {
     return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iIzk5OSIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPC9zdmc+';
+  },
+
+  // 计算分期信息
+  calculateInstallmentInfo(installments) {
+    if (!installments || installments.length === 0) {
+      return {
+        amount: 0,
+        paidCount: 0,
+        totalCount: 0,
+        status: '无分期信息'
+      };
+    }
+
+    const totalCount = installments.length;
+    const paidCount = installments.filter(item => 
+      item.status === 'paid' || item.paid_date !== null
+    ).length;
+    
+    // 获取单期金额（假设所有分期金额相同，取第一期的金额）
+    const amount = installments.length > 0 ? installments[0].amount : 0;
+    
+    // 生成状态文本
+    let status = '';
+    if (paidCount === 0) {
+      status = '未开始还款';
+    } else if (paidCount === totalCount) {
+      status = '已全部还清';
+    } else {
+      status = `已还 ${paidCount}/${totalCount} 期`;
+    }
+
+    return {
+      amount: amount,
+      paidCount: paidCount,
+      totalCount: totalCount,
+      status: status
+    };
   },
 
   // 格式化日期时间

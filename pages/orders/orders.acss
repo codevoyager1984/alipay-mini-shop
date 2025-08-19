@@ -153,16 +153,33 @@
   display: block;
   font-size: 24rpx;
   color: #999;
+  margin-bottom: 8rpx;
+}
+
+.installment-status {
+  display: block;
+  font-size: 24rpx;
+  color: #52c41a;
+  font-weight: 500;
 }
 
 .order-price {
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .price {
   font-size: 32rpx;
   color: #ff4757;
   font-weight: bold;
+}
+
+.price-unit {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 2rpx;
 }
 
 /* 订单操作按钮 */

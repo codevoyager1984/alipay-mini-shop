@@ -45,9 +45,11 @@
             <text class="vehicle-name">{{item.vehicleName}}</text>
             <text class="order-time">下单时间：{{item.createTime}}</text>
             <text class="rental-period">租赁期限：{{item.rentalPeriod}}</text>
+            <text class="installment-status">{{item.installmentStatus}}</text>
           </view>
           <view class="order-price">
-            <text class="price">¥{{item.totalPrice}}</text>
+            <text class="price">¥{{item.installmentAmount}}</text>
+            <text class="price-unit">/期</text>
           </view>
         </view>
         
