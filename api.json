@@ -96,6 +96,66 @@
                     }
                 }
             }
+        },
+        "/api/auth/bind-phone": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Bind Phone",
+                "description": "绑定手机号接口",
+                "operationId": "bind_phone_api_auth_bind_phone_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BindPhoneRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BindPhoneResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -139,6 +199,53 @@
                     "user"
                 ],
                 "title": "AlipayLoginResponse"
+            },
+            "BindPhoneRequest": {
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "title": "Response"
+                    },
+                    "sign": {
+                        "type": "string",
+                        "title": "Sign"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "response",
+                    "sign"
+                ],
+                "title": "BindPhoneRequest"
+            },
+            "BindPhoneResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "phone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "title": "BindPhoneResponse"
             },
             "HTTPValidationError": {
                 "properties": {

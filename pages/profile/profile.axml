@@ -30,12 +30,14 @@
     </view>
     
     <!-- 获取手机号 -->
-    <view class="menu-item" onTap="getPhoneNumber" a:if="{{userInfo.isLogin && !userInfo.phone}}">
-      <view class="item-left">
-        <text class="item-icon">📱</text>
-        <text class="item-text">绑定手机号</text>
-      </view>
-      <text class="item-arrow">></text>
+    <view class="menu-item" a:if="{{userInfo.isLogin && !userInfo.phone}}">
+      <button class="auth-button" open-type="getAuthorize" scope="phoneNumber" onGetAuthorize="onGetPhoneAuthorize" onError="onGetPhoneError">
+        <view class="item-left">
+          <text class="item-icon">📱</text>
+          <text class="item-text">绑定手机号</text>
+        </view>
+        <text class="item-arrow">></text>
+      </button>
     </view>
     
     <!-- 实名认证 -->

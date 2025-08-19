@@ -252,8 +252,10 @@ Page({
     }
   },
 
-  // 获取手机号
-  getPhoneNumber() {
+  // 用户同意授权手机号回调
+  onGetPhoneAuthorize(authResult) {
+    console.log('用户授权手机号成功:', authResult);
+    
     if (!this.data.userInfo.isLogin) {
       my.showToast({
         content: '请先登录',
@@ -262,31 +264,224 @@ Page({
       return;
     }
 
+    // 用户已授权，直接调用获取手机号API
+    this.callGetPhoneNumberAPI();
+  },
+
+  // 用户拒绝授权手机号回调
+  onGetPhoneError(error) {
+    console.log('用户拒绝授权手机号:', error);
+    
+    my.showToast({
+      content: '需要手机号授权才能绑定账户',
+      type: 'fail'
+    });
+  },
+
+  // 调用获取手机号API
+  callGetPhoneNumberAPI() {
+    // 使用支付宝官方API获取手机号
     my.getPhoneNumber({
       success: (phoneResult) => {
         console.log('获取手机号成功:', phoneResult);
         
-        // 模拟手机号绑定成功
-        const userInfo = {
-          ...this.data.userInfo,
-          phone: '138****' + Math.floor(Math.random() * 9000 + 1000)
-        };
-        
-        this.saveUserInfo(userInfo);
-        
-        my.showToast({
-          content: '手机号绑定成功！',
-          type: 'success'
-        });
+        // 检查返回的数据是否包含错误信息
+        if (phoneResult.response) {
+          try {
+            // 尝试解析response，检查是否有错误
+            const responseData = JSON.parse(phoneResult.response);
+            if (responseData.code && responseData.code !== '10000') {
+              // API返回了错误信息
+              this.handlePhoneNumberError(responseData);
+              return;
+            }
+          } catch (e) {
+            // response不是JSON格式，说明是正常的加密数据
+            console.log('response是加密数据，继续处理');
+          }
+          
+          // 将加密数据发送到后端进行绑定
+          this.bindPhoneNumber(phoneResult);
+        } else {
+          my.showToast({
+            content: '获取手机号数据失败',
+            type: 'fail'
+          });
+        }
       },
       fail: (error) => {
         console.error('获取手机号失败:', error);
+        
+        // 根据错误类型显示不同的提示信息
+        let errorMessage = '获取手机号失败';
+        
+        if (error.error === 4) {
+          errorMessage = '用户拒绝授权';
+        } else if (error.error === 10) {
+          errorMessage = '网络异常，请重试';
+        } else if (error.error === 11) {
+          errorMessage = '用户取消操作';
+        }
+        
         my.showToast({
-          content: '获取手机号失败',
+          content: errorMessage,
           type: 'fail'
         });
       }
     });
+  },
+
+  // 处理获取手机号的API错误
+  handlePhoneNumberError(errorData) {
+    console.error('获取手机号API错误:', errorData);
+    
+    let errorMessage = '获取手机号失败';
+    let showConfig = false;
+    
+    switch (errorData.code) {
+      case '40001':
+        if (errorData.subCode === 'isv.missing-encrypt-key') {
+          errorMessage = '小程序未配置手机号获取功能';
+          showConfig = true;
+        } else {
+          errorMessage = '参数配置错误';
+          showConfig = true;
+        }
+        break;
+      case '40002':
+        errorMessage = '权限不足，请联系管理员';
+        break;
+      case '40003':
+        errorMessage = '应用未上线或已下线';
+        break;
+      default:
+        errorMessage = `获取失败: ${errorData.msg || '未知错误'}`;
+    }
+    
+    if (showConfig) {
+      // 显示配置说明
+      my.showModal({
+        title: '功能配置提示',
+        content: `${errorMessage}\n\n请在支付宝开放平台小程序管理后台：\n1. 添加"获取会员手机号"功能包\n2. 配置加密密钥\n3. 重新发布小程序`,
+        confirmText: '知道了',
+        showCancel: false
+      });
+    } else {
+      my.showToast({
+        content: errorMessage,
+        type: 'fail'
+      });
+    }
+  },
+
+  // 绑定手机号
+  bindPhoneNumber(phoneResult) {
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        my.showToast({
+          content: '请重新登录',
+          type: 'fail'
+        });
+        return;
+      }
+
+      my.showLoading({
+        content: '绑定手机号中...'
+      });
+
+      // 准备发送到后端的数据
+      // 如果phoneResult.response是JSON字符串，需要解析
+      // 如果是加密字符串，直接使用
+      let requestData;
+      
+      try {
+        // 尝试解析response，看是否是JSON格式
+        const parsedResponse = JSON.parse(phoneResult.response);
+        
+        // 如果解析成功且包含response和sign字段，使用解析后的数据
+        if (parsedResponse.response && parsedResponse.sign) {
+          requestData = {
+            response: parsedResponse.response,
+            sign: parsedResponse.sign
+          };
+        } else {
+          // 如果解析后的数据格式不正确，使用原始数据
+          requestData = {
+            response: phoneResult.response,
+            sign: phoneResult.sign
+          };
+        }
+      } catch (e) {
+        // 如果解析失败，说明response是加密字符串，直接使用
+        requestData = {
+          response: phoneResult.response,
+          sign: phoneResult.sign
+        };
+      }
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.auth.bindPhone,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        data: requestData,
+        success: (response) => {
+          my.hideLoading();
+          console.log('绑定手机号成功:', response);
+          
+          if (response.statusCode === 200 && response.data) {
+            const responseData = response.data;
+            
+            if (responseData.success && responseData.phone) {
+              // 更新本地用户信息
+              const userInfo = {
+                ...this.data.userInfo,
+                phone: responseData.phone
+              };
+              
+              this.saveUserInfo(userInfo);
+              
+              my.showToast({
+                content: responseData.message || '手机号绑定成功！',
+                type: 'success'
+              });
+            } else {
+              my.showToast({
+                content: responseData.message || '手机号绑定失败',
+                type: 'fail'
+              });
+            }
+          } else {
+            throw new Error('绑定响应数据格式错误');
+          }
+        },
+        fail: (error) => {
+          my.hideLoading();
+          console.error('绑定手机号失败:', error);
+          
+          let errorMessage = '手机号绑定失败，请稍后重试';
+          if (error.status === 401) {
+            errorMessage = '登录已过期，请重新登录';
+            this.logout();
+          }
+          
+          my.showToast({
+            content: errorMessage,
+            type: 'fail'
+          });
+        }
+      });
+    } catch (e) {
+      my.hideLoading();
+      console.error('绑定手机号时发生错误:', e);
+      my.showToast({
+        content: '操作失败，请稍后重试',
+        type: 'fail'
+      });
+    }
   },
 
   // 实名认证
@@ -429,7 +624,7 @@ Page({
   about() {
     my.showModal({
       title: '关于我们',
-      content: '伟小保新能源\n倍受信赖的以租代购平台\n\n地址：浙江省 温州市龙湾区雁荡西路267号鸿福家园\n营业时间：09:00-18:00\n客服电话：400-123-4567',
+      content: '微小租新能源\n倍受信赖的以租代购平台\n\n地址：浙江省 温州市龙湾区雁荡西路267号鸿福家园\n营业时间：09:00-18:00\n客服电话：400-123-4567',
       showCancel: false,
       confirmText: '知道了'
     });
