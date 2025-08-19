@@ -1,47 +1,20 @@
+const config = require('../../config.js');
+
 Page({
   data: {
     activeTab: 'all',
-    orders: [
-      {
-        id: 1,
-        orderNo: 'WXB202312010001',
-        vehicleName: '贵阳小牛系列(编号：4699)',
-        vehicleImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyMGw4LThoMjBsOCA4aDIwbDIwIDIwdjEwSDYweiIgZmlsbD0iIzk5OSIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPHN2ZyB4PSI5MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjYiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRMMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDQgMCAwIDEgMC0xLjQxNGwyLTJhMSAxIDAgMCAxIDEuNDE0IDAiLz4KPC9zdmc+CjwvdGV4dD4K',
-        createTime: '2023-12-01 14:30',
-        rentalPeriod: '1个月',
-        totalPrice: '802.00',
-        status: 'ongoing',
-        statusText: '租赁中'
-      },
-      {
-        id: 2,
-        orderNo: 'WXB202311280002',
-        vehicleName: '成都电动车（编号：2000)',
-        vehicleImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iI2Y0NDMzNiIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPHN2ZyB4PSI5MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjYiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRMMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDQgMCAwIDEgMC0xLjQxNGwyLTJhMSAxIDAgMCAxIDEuNDE0IDAiLz4KPC9zdmc+CjwvdGV4dD4K',
-        createTime: '2023-11-28 10:15',
-        rentalPeriod: '1个月',
-        totalPrice: '434.00',
-        status: 'completed',
-        statusText: '已完成'
-      },
-      {
-        id: 3,
-        orderNo: 'WXB202312020003',
-        vehicleName: '雅迪电动车（编号：3001)',
-        vehicleImage: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iIzRjYWY1MCIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPHN2ZyB4PSI5MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjYiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRMMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDQgMCAwIDEgMC0xLjQxNGwyLTJhMSAxIDAgMCAxIDEuNDE0IDAiLz4KPC9zdmc+CjwvdGV4dD4K',
-        createTime: '2023-12-02 16:45',
-        rentalPeriod: '2个月',
-        totalPrice: '1376.00',
-        status: 'pending',
-        statusText: '待支付'
-      }
-    ],
-    filteredOrders: []
+    orders: [],
+    filteredOrders: [],
+    loading: false,
+    // 分页参数
+    currentPage: 1,
+    pageSize: 20,
+    hasMore: true
   },
 
   onLoad(query) {
     console.info(`Orders page onLoad with query: ${JSON.stringify(query)}`);
-    this.filterOrders();
+    this.loadOrders();
   },
 
   onReady() {
@@ -49,7 +22,8 @@ Page({
   },
 
   onShow() {
-    // 页面显示
+    // 页面显示 - 重新加载订单数据
+    this.loadOrders();
   },
 
   onHide() {
@@ -65,14 +39,15 @@ Page({
   },
 
   onPullDownRefresh() {
-    // 页面被下拉
-    setTimeout(() => {
-      my.stopPullDownRefresh();
-    }, 1000);
+    // 页面被下拉刷新
+    this.loadOrders(true);
   },
 
   onReachBottom() {
-    // 页面被拉到底部
+    // 页面被拉到底部 - 加载更多
+    if (this.data.hasMore && !this.data.loading) {
+      this.loadMoreOrders();
+    }
   },
 
   onShareAppMessage() {
@@ -81,6 +56,160 @@ Page({
       desc: '查看电瓶车租赁订单',
       path: 'pages/orders/orders',
     };
+  },
+
+  // 加载订单列表
+  async loadOrders(refresh = false) {
+    try {
+      // 如果是刷新，重置分页参数
+      if (refresh) {
+        this.setData({
+          currentPage: 1,
+          hasMore: true,
+          orders: []
+        });
+      }
+
+      this.setData({ loading: true });
+
+      // 获取用户信息和token
+      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+
+      if (!userInfo.data || !userInfo.data.userId || !accessToken.data) {
+        throw new Error('用户未登录，请先登录');
+      }
+
+      const response = await new Promise((resolve, reject) => {
+        my.request({
+          url: `${config.api.baseUrl}${config.api.endpoints.orders.list}`,
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          data: {
+            page: this.data.currentPage,
+            limit: this.data.pageSize,
+            user_id: userInfo.data.userId
+          },
+          success: resolve,
+          fail: reject,
+          complete: () => {
+            my.stopPullDownRefresh();
+          }
+        });
+      });
+
+      if (response.statusCode === 200 && response.data && response.data.orders) {
+        // 转换API数据格式以适配现有UI
+        const orders = response.data.orders.map(item => ({
+          id: item.id,
+          orderNo: item.order_no,
+          vehicleName: item.product_name,
+          vehicleImage: item.product_cover_image || this.getDefaultImage(),
+          createTime: this.formatDateTime(item.created_at),
+          rentalPeriod: `${item.rental_period}个月`,
+          totalPrice: item.total_amount.toFixed(2),
+          status: this.mapOrderStatus(item.status),
+          statusText: this.getStatusText(item.status),
+          rawData: item // 保存原始数据，方便后续使用
+        }));
+
+        // 合并订单数据（用于分页加载）
+        const allOrders = refresh ? orders : [...this.data.orders, ...orders];
+        
+        this.setData({
+          orders: allOrders,
+          hasMore: response.data.orders.length === this.data.pageSize,
+          currentPage: refresh ? 2 : this.data.currentPage + 1
+        });
+
+        this.filterOrders();
+      } else {
+        throw new Error((response.data && response.data.message) ? response.data.message : '获取订单列表失败');
+      }
+    } catch (error) {
+      console.error('加载订单失败:', error);
+      
+      // 如果是认证错误，跳转到登录页面
+      if (error.message && error.message.includes('未登录')) {
+        my.showModal({
+          title: '请先登录',
+          content: '获取订单信息需要先登录账户',
+          confirmText: '去登录',
+          cancelText: '取消',
+          success: (result) => {
+            if (result.confirm) {
+              my.switchTab({
+                url: '/pages/profile/profile'
+              });
+            }
+          }
+        });
+      } else {
+        my.showToast({
+          content: error.message || '加载订单失败，请稍后重试',
+          type: 'fail'
+        });
+      }
+    } finally {
+      this.setData({ loading: false });
+    }
+  },
+
+  // 加载更多订单
+  loadMoreOrders() {
+    this.loadOrders(false);
+  },
+
+  // 获取默认图片
+  getDefaultImage() {
+    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iIzk5OSIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPC9zdmc+';
+  },
+
+  // 格式化日期时间
+  formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    
+    try {
+      const date = new Date(dateTimeStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    } catch (error) {
+      console.error('日期格式化失败:', error);
+      return dateTimeStr;
+    }
+  },
+
+  // 映射订单状态
+  mapOrderStatus(apiStatus) {
+    const statusMap = {
+      'pending': 'pending',      // 待支付
+      'paid': 'ongoing',         // 已支付 -> 租赁中
+      'ongoing': 'ongoing',      // 租赁中
+      'completed': 'completed',  // 已完成
+      'cancelled': 'cancelled'   // 已取消
+    };
+    
+    return statusMap[apiStatus] || 'pending';
+  },
+
+  // 获取状态文本
+  getStatusText(apiStatus) {
+    const statusTextMap = {
+      'pending': '待支付',
+      'paid': '租赁中',
+      'ongoing': '租赁中',
+      'completed': '已完成',
+      'cancelled': '已取消'
+    };
+    
+    return statusTextMap[apiStatus] || '未知状态';
   },
 
   // 切换标签页
@@ -142,36 +271,11 @@ Page({
   // 支付订单
   payOrder(e) {
     const order = e.currentTarget.dataset.order;
-    my.showLoading({
-      content: '正在支付...'
+    
+    // 跳转到支付页面
+    my.navigateTo({
+      url: `/pages/payment/payment?orderId=${order.id}&orderNo=${order.orderNo}&amount=${order.totalPrice}`
     });
-
-    // 模拟支付过程
-    setTimeout(() => {
-      my.hideLoading();
-      
-      // 更新订单状态
-      const orders = this.data.orders.map(item => {
-        if (item.id === order.id) {
-          return {
-            ...item,
-            status: 'ongoing',
-            statusText: '租赁中'
-          };
-        }
-        return item;
-      });
-      
-      this.setData({
-        orders: orders
-      });
-      this.filterOrders();
-      
-      my.showToast({
-        content: '支付成功！',
-        type: 'success'
-      });
-    }, 2000);
   },
 
   // 续租订单
@@ -179,14 +283,15 @@ Page({
     const order = e.currentTarget.dataset.order;
     my.showModal({
       title: '续租订单',
-      content: `确定要续租 ${order.vehicleName} 一个月吗？费用：¥${order.totalPrice.split('.')[0]}.00`,
+      content: `确定要续租 ${order.vehicleName} 一个月吗？费用：¥${order.totalPrice}`,
       confirmText: '确认续租',
       cancelText: '取消',
       success: (result) => {
         if (result.confirm) {
+          // 这里可以调用续租API
           my.showToast({
-            content: '续租成功！',
-            type: 'success'
+            content: '续租功能开发中...',
+            type: 'none'
           });
         }
       }
@@ -196,11 +301,67 @@ Page({
   // 查看订单详情
   viewOrder(e) {
     const order = e.currentTarget.dataset.order;
+    
+    // 可以跳转到订单详情页面，或者显示详细信息
     my.showModal({
       title: '订单详情',
-      content: `订单号：${order.orderNo}\n车辆：${order.vehicleName}\n租赁时间：${order.createTime}\n租期：${order.rentalPeriod}\n总费用：¥${order.totalPrice}`,
+      content: `订单号：${order.orderNo}\n车辆：${order.vehicleName}\n创建时间：${order.createTime}\n租期：${order.rentalPeriod}\n总费用：¥${order.totalPrice}\n状态：${order.statusText}`,
       showCancel: false,
       confirmText: '知道了'
+    });
+  },
+
+  // 取消订单
+  async cancelOrder(e) {
+    const order = e.currentTarget.dataset.order;
+    
+    my.showModal({
+      title: '取消订单',
+      content: `确定要取消订单 ${order.orderNo} 吗？`,
+      confirmText: '确认取消',
+      cancelText: '不取消',
+      success: async (result) => {
+        if (result.confirm) {
+          try {
+            my.showLoading({ content: '正在取消订单...' });
+            
+            const accessToken = my.getStorageSync({ key: 'access_token' });
+            
+            const response = await new Promise((resolve, reject) => {
+              my.request({
+                url: `${config.api.baseUrl}${config.api.endpoints.orders.cancel}/${order.id}/cancel`,
+                method: 'PUT',
+                headers: {
+                  'Authorization': `Bearer ${accessToken.data}`
+                },
+                success: resolve,
+                fail: reject
+              });
+            });
+            
+            my.hideLoading();
+            
+            if (response.statusCode === 200) {
+              my.showToast({
+                content: '订单取消成功',
+                type: 'success'
+              });
+              
+              // 重新加载订单列表
+              this.loadOrders(true);
+            } else {
+              throw new Error((response.data && response.data.message) ? response.data.message : '取消订单失败');
+            }
+          } catch (error) {
+            my.hideLoading();
+            console.error('取消订单失败:', error);
+            my.showToast({
+              content: error.message || '取消订单失败，请稍后重试',
+              type: 'fail'
+            });
+          }
+        }
+      }
     });
   },
 

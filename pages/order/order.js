@@ -223,34 +223,64 @@ Page({
   },
 
   // 提交订单
-  submitOrder() {
-    my.showLoading({
-      content: '正在处理订单...'
-    });
-
-    // 模拟网络请求
-    setTimeout(() => {
-      my.hideLoading();
-      
-      // 关闭确认弹窗
-      this.setData({
-        showOrderConfirm: false
+  async submitOrder() {
+    try {
+      my.showLoading({
+        content: '正在创建订单...'
       });
+
+      // 获取用户信息
+      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+      
+      if (!userInfo.data || !userInfo.data.userId) {
+        throw new Error('用户信息获取失败，请重新登录');
+      }
+
+      // 调用订单创建API
+      const response = await new Promise((resolve, reject) => {
+        my.request({
+          url: `${config.api.baseUrl}${config.api.endpoints.orders.create}`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          data: {
+            product_id: this.data.productInfo.id,
+            user_id: userInfo.data.userId,
+            remark: null
+          },
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      my.hideLoading();
+
+      if (response.statusCode === 200 && response.data) {
+        // 订单创建成功，关闭确认弹窗
+        this.setData({
+          showOrderConfirm: false
+        });
+
+        // 跳转到支付页面
+        my.navigateTo({
+          url: `/pages/payment/payment?orderId=${response.data.id}&orderNo=${response.data.order_no}&amount=${response.data.total_amount}`
+        });
+      } else {
+        throw new Error((response.data && response.data.message) ? response.data.message : '订单创建失败');
+      }
+    } catch (error) {
+      my.hideLoading();
+      console.error('创建订单失败:', error);
       
       my.showModal({
-        title: '下单成功',
-        content: `您已成功租赁 ${this.data.productInfo.name}，月租金 ¥${this.data.productInfo.price}。我们将尽快与您联系确认订单详情。`,
+        title: '订单创建失败',
+        content: error.message || '网络错误，请稍后重试',
         confirmText: '知道了',
-        showCancel: false,
-        success: (result) => {
-          if (result.confirm) {
-            // 返回首页
-            my.reLaunch({
-              url: '/pages/index/index'
-            });
-          }
-        }
+        showCancel: false
       });
-    }, 2000);
+    }
   }
 });

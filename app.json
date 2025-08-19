@@ -4,7 +4,8 @@
     "pages/orders/orders",
     "pages/profile/profile",
     "pages/order/order",
-    "pages/auth/auth"
+    "pages/auth/auth",
+    "pages/payment/payment"
   ],
   "window": {
     "defaultTitle": "微小租新能源"

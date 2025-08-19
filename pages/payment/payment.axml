@@ -1,0 +1,109 @@
+<view class="payment-container">
+  <!-- 加载状态 -->
+  <view class="loading-overlay" a:if="{{loading}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">处理中...</text>
+    </view>
+  </view>
+
+  <!-- 订单信息 -->
+  <view class="order-info-card">
+    <view class="card-title">订单信息</view>
+    
+    <view class="order-detail">
+      <image class="product-image" src="{{orderInfo.productImage}}" mode="aspectFill" a:if="{{orderInfo.productImage}}" />
+      <view class="product-placeholder" a:else>
+        <text class="placeholder-text">商品图片</text>
+      </view>
+      
+      <view class="product-info">
+        <view class="product-name">{{orderInfo.productName || '商品名称'}}</view>
+        <view class="order-no">订单号：{{orderInfo.orderNo}}</view>
+      </view>
+    </view>
+    
+    <view class="amount-section">
+      <view class="amount-label">支付金额</view>
+      <view class="amount-value">
+        <text class="currency">¥</text>
+        <text class="amount">{{orderInfo.amount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 支付状态 -->
+  <view class="payment-status-card">
+    <!-- 等待支付 -->
+    <view class="status-content" a:if="{{paymentStatus === 'pending'}}">
+      <view class="status-icon pending">⏱</view>
+      <view class="status-title">等待支付</view>
+      <view class="status-desc">请点击下方按钮完成支付</view>
+    </view>
+    
+    <!-- 支付处理中 -->
+    <view class="status-content" a:if="{{paymentStatus === 'processing'}}">
+      <view class="status-icon processing">⏳</view>
+      <view class="status-title">支付处理中</view>
+      <view class="status-desc">支付正在处理中，请稍候...</view>
+    </view>
+    
+    <!-- 支付成功 -->
+    <view class="status-content" a:if="{{paymentStatus === 'success'}}">
+      <view class="status-icon success">✅</view>
+      <view class="status-title">支付成功</view>
+      <view class="status-desc">订单支付成功，我们将尽快为您安排发货</view>
+    </view>
+    
+    <!-- 支付失败 -->
+    <view class="status-content" a:if="{{paymentStatus === 'failed'}}">
+      <view class="status-icon failed">❌</view>
+      <view class="status-title">支付失败</view>
+      <view class="status-desc">支付未完成，您可以重新尝试支付</view>
+    </view>
+  </view>
+
+  <!-- 支付方式 -->
+  <view class="payment-method-card" a:if="{{paymentStatus === 'pending'}}">
+    <view class="card-title">支付方式</view>
+    <view class="payment-method">
+      <view class="method-icon">💰</view>
+      <view class="method-info">
+        <view class="method-name">支付宝</view>
+        <view class="method-desc">安全快捷的在线支付</view>
+      </view>
+      <view class="method-selected">✓</view>
+    </view>
+  </view>
+
+  <!-- 底部操作区域 -->
+  <view class="bottom-action">
+    <!-- 等待支付状态 -->
+    <view class="action-buttons" a:if="{{paymentStatus === 'pending'}}">
+      <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
+        立即支付 ¥{{orderInfo.amount}}
+      </button>
+      <button class="contact-btn" onTap="contactService">联系客服</button>
+    </view>
+    
+    <!-- 支付成功状态 -->
+    <view class="action-buttons" a:if="{{paymentStatus === 'success'}}">
+      <button class="primary-btn" onTap="goToOrders">查看订单</button>
+      <button class="secondary-btn" onTap="goToHome">返回首页</button>
+    </view>
+    
+    <!-- 支付失败状态 -->
+    <view class="action-buttons" a:if="{{paymentStatus === 'failed'}}">
+      <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
+        重新支付 ¥{{orderInfo.amount}}
+      </button>
+      <button class="secondary-btn" onTap="contactService">联系客服</button>
+    </view>
+    
+    <!-- 支付处理中状态 -->
+    <view class="action-buttons" a:if="{{paymentStatus === 'processing'}}">
+      <button class="secondary-btn" onTap="goToOrders">查看订单</button>
+      <button class="secondary-btn" onTap="contactService">联系客服</button>
+    </view>
+  </view>
+</view>

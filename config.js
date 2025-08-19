@@ -19,6 +19,13 @@ const config = {
       products: {
         list: '/api/products',
         detail: '/api/products'  // 详情接口会拼接 /{id}
+      },
+      // 订单相关
+      orders: {
+        create: '/api/orders',
+        list: '/api/orders',
+        detail: '/api/orders',  // 详情接口会拼接 /{id}
+        cancel: '/api/orders'   // 取消接口会拼接 /{id}/cancel
       }
     }
   },
