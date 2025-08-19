@@ -20,14 +20,21 @@
       <view class="product-info">
         <view class="product-name">{{orderInfo.productName || '商品名称'}}</view>
         <view class="order-no">订单号：{{orderInfo.orderNo}}</view>
+        <view class="installment-info" a:if="{{orderInfo.totalInstallments > 0}}">
+          第{{orderInfo.currentInstallmentNo}}期 / 共{{orderInfo.totalInstallments}}期
+        </view>
       </view>
     </view>
     
     <view class="amount-section">
-      <view class="amount-label">支付金额</view>
+      <view class="amount-label">
+        <text a:if="{{orderInfo.totalInstallments > 0}}">本期支付金额</text>
+        <text a:else>支付金额</text>
+      </view>
       <view class="amount-value">
         <text class="currency">¥</text>
         <text class="amount">{{orderInfo.amount}}</text>
+        <text class="amount-unit" a:if="{{orderInfo.totalInstallments > 0}}">/期</text>
       </view>
     </view>
   </view>

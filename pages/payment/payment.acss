@@ -110,6 +110,13 @@
 .order-no {
   font-size: 26rpx;
   color: #999;
+  margin-bottom: 8rpx;
+}
+
+.installment-info {
+  font-size: 26rpx;
+  color: #52c41a;
+  font-weight: 500;
 }
 
 .amount-section {
@@ -141,6 +148,12 @@
   font-size: 40rpx;
   color: #ff4757;
   font-weight: bold;
+}
+
+.amount-unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
 }
 
 /* 支付状态卡片 */

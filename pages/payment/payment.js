@@ -8,7 +8,11 @@ Page({
       orderNo: '',
       amount: 0,
       productName: '',
-      productImage: ''
+      productImage: '',
+      // 分期相关信息
+      installmentAmount: 0,
+      currentInstallmentNo: 1,
+      totalInstallments: 0
     },
     
     // 支付状态
@@ -80,9 +84,17 @@ Page({
       });
       
       if (response.statusCode === 200 && response.data) {
+        // 计算分期信息
+        const installmentInfo = this.calculateInstallmentInfo(response.data.installments || []);
+        
         this.setData({
           'orderInfo.productName': response.data.product_name,
-          'orderInfo.productImage': response.data.product_cover_image
+          'orderInfo.productImage': response.data.product_cover_image,
+          'orderInfo.installmentAmount': installmentInfo.currentAmount,
+          'orderInfo.currentInstallmentNo': installmentInfo.currentInstallmentNo,
+          'orderInfo.totalInstallments': installmentInfo.totalInstallments,
+          // 更新支付金额为当前分期金额
+          'orderInfo.amount': installmentInfo.currentAmount
         });
       }
     } catch (error) {
@@ -93,6 +105,40 @@ Page({
       });
     } finally {
       this.setData({ loading: false });
+    }
+  },
+
+  // 计算分期信息
+  calculateInstallmentInfo(installments) {
+    if (!installments || installments.length === 0) {
+      return {
+        currentAmount: 0,
+        currentInstallmentNo: 1,
+        totalInstallments: 0
+      };
+    }
+
+    const totalInstallments = installments.length;
+    
+    // 找到第一个未支付的分期
+    const unpaidInstallment = installments.find(item => 
+      item.status === 'pending' && item.paid_date === null
+    );
+    
+    if (unpaidInstallment) {
+      return {
+        currentAmount: unpaidInstallment.amount,
+        currentInstallmentNo: unpaidInstallment.installment_no,
+        totalInstallments: totalInstallments
+      };
+    } else {
+      // 如果所有分期都已支付，返回最后一期的信息
+      const lastInstallment = installments[installments.length - 1];
+      return {
+        currentAmount: lastInstallment.amount,
+        currentInstallmentNo: lastInstallment.installment_no,
+        totalInstallments: totalInstallments
+      };
     }
   },
 
@@ -186,9 +232,14 @@ Page({
 
   // 显示支付成功
   showPaymentSuccess() {
+    const { currentInstallmentNo, totalInstallments } = this.data.orderInfo;
+    const message = totalInstallments > 0 
+      ? `恭喜您！第${currentInstallmentNo}期分期支付成功，我们将尽快为您安排发货。`
+      : '恭喜您！订单支付成功，我们将尽快为您安排发货。';
+      
     my.showModal({
       title: '支付成功',
-      content: '恭喜您！订单支付成功，我们将尽快为您安排发货。',
+      content: message,
       confirmText: '查看订单',
       cancelText: '返回首页',
       success: (result) => {
