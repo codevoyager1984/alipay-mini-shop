@@ -145,6 +145,17 @@ Page({
     }
   },
 
+  // 检查实名认证状态
+  checkVerificationStatus() {
+    try {
+      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      return userInfo.data && userInfo.data.isVerified;
+    } catch (e) {
+      console.error('检查实名认证状态失败:', e);
+      return false;
+    }
+  },
+
   // 确认下单
   confirmOrder() {
     // 先检查登录状态
@@ -159,6 +170,25 @@ Page({
             // 跳转到个人页面
             my.navigateTo({
               url: '/pages/profile/profile'
+            });
+          }
+        }
+      });
+      return;
+    }
+
+    // 检查实名认证状态
+    if (!this.checkVerificationStatus()) {
+      my.showModal({
+        title: '需要实名认证',
+        content: '为了您的账户安全，下单前需要完成实名认证，点击确定前往认证页面。',
+        confirmText: '去认证',
+        cancelText: '取消',
+        success: (result) => {
+          if (result.confirm) {
+            // 跳转到实名认证页面
+            my.navigateTo({
+              url: '/pages/auth/auth'
             });
           }
         }
