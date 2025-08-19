@@ -126,8 +126,38 @@ Page({
     });
   },
 
+  // 检查登录状态
+  checkLoginStatus() {
+    try {
+      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      return userInfo.data && userInfo.data.isLogin;
+    } catch (e) {
+      console.error('检查登录状态失败:', e);
+      return false;
+    }
+  },
+
   // 确认下单
   confirmOrder() {
+    // 先检查登录状态
+    if (!this.checkLoginStatus()) {
+      my.showModal({
+        title: '请先登录',
+        content: '下单前需要先登录账户，点击确定跳转到个人页面完成登录。',
+        confirmText: '去登录',
+        cancelText: '取消',
+        success: (result) => {
+          if (result.confirm) {
+            // 跳转到个人页面
+            my.navigateTo({
+              url: '/pages/profile/profile'
+            });
+          }
+        }
+      });
+      return;
+    }
+
     my.showLoading({
       content: '正在处理订单...'
     });
