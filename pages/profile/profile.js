@@ -232,13 +232,15 @@ Page({
           if (response.statusCode === 200 && response.data) {
             const userProfile = response.data;
             
-            // 更新用户信息
+            // 更新用户信息，使用服务器返回的 is_certified 字段
             const userInfo = {
               ...this.data.userInfo,
               isLogin: true,
               nickname: userProfile.nickname,
               avatar: userProfile.avatar_url,
               phone: userProfile.phone,
+              isVerified: userProfile.is_certified || false,  // 使用服务器返回的认证状态
+              realName: userProfile.id_card_name || '',
               alipayUserId: userProfile.alipay_user_id,
               userId: userProfile.id
             };

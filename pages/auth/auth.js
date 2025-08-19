@@ -10,7 +10,10 @@ Page({
     
     // 提交状态
     isSubmitting: false,
-    loadingText: '正在初始化认证...'
+    loadingText: '正在初始化认证...',
+    
+    // 当前认证ID
+    currentCertifyId: null
   },
 
   onLoad(query) {
@@ -151,8 +154,9 @@ Page({
       const certifyData = await this.initializeCertify(realName.trim(), idCard.trim());
       
       if (certifyData && certifyData.certify_id && certifyData.certify_url) {
-        // 更新加载文本
+        // 存储认证ID
         this.setData({
+          currentCertifyId: certifyData.certify_id,
           loadingText: '正在启动身份验证...'
         });
         
@@ -172,6 +176,63 @@ Page({
         type: 'fail'
       });
     }
+  },
+
+  // 查询认证结果接口
+  queryCertifyResult(certifyId) {
+    return new Promise((resolve, reject) => {
+      try {
+        const tokenResult = my.getStorageSync({ key: 'access_token' });
+        if (!tokenResult.data) {
+          reject(new Error('登录已过期，请重新登录'));
+          return;
+        }
+
+        my.request({
+          url: config.api.baseUrl + config.api.endpoints.auth.certifyQuery,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${tokenResult.data}`
+          },
+          data: {
+            certify_id: certifyId
+          },
+          success: (response) => {
+            console.log('查询认证结果响应:', response);
+            
+            if (response.statusCode === 200 && response.data) {
+              const responseData = response.data;
+              
+              if (responseData.success) {
+                resolve(responseData);
+              } else {
+                reject(new Error(responseData.message || '查询认证结果失败'));
+              }
+            } else {
+              reject(new Error('服务器响应异常'));
+            }
+          },
+          fail: (error) => {
+            console.error('查询认证结果请求失败:', error);
+            
+            let errorMessage = '网络请求失败，请检查网络连接';
+            if (error.status === 401) {
+              errorMessage = '登录已过期，请重新登录';
+            } else if (error.status === 400) {
+              errorMessage = '请求参数错误';
+            } else if (error.status >= 500) {
+              errorMessage = '服务器异常，请稍后重试';
+            }
+            
+            reject(new Error(errorMessage));
+          }
+        });
+      } catch (e) {
+        console.error('查询认证结果过程中发生错误:', e);
+        reject(new Error('查询认证结果失败'));
+      }
+    });
   },
 
   // 调用认证初始化接口
@@ -267,14 +328,11 @@ Page({
   },
 
   // 处理验证结果
-  handleVerificationResult(verifyResult, resolve, reject) {
+  async handleVerificationResult(verifyResult, resolve, reject) {
     console.log('处理验证结果:', verifyResult);
-    
-    this.setData({
-      isSubmitting: false
-    });
 
     if (!verifyResult || !verifyResult.resultStatus) {
+      this.setData({ isSubmitting: false });
       reject(new Error('验证结果数据异常'));
       return;
     }
@@ -283,20 +341,62 @@ Page({
 
     switch (resultStatus) {
       case '9000':
-        // 认证完成（需要后端再次确认最终状态）
-        this.showSuccessAndGoBack();
-        resolve();
+        // 认证完成，需要调用后端查询接口确认最终状态
+        try {
+          this.setData({
+            loadingText: '正在确认认证结果...'
+          });
+
+          // 从result中获取certifyId，如果没有则从存储的数据中获取
+          let certifyId = null;
+          if (result && result.certifyId) {
+            certifyId = result.certifyId;
+          } else {
+            // 从页面数据中获取certifyId（需要在启动验证时存储）
+            certifyId = this.data.currentCertifyId;
+          }
+
+          if (!certifyId) {
+            throw new Error('无法获取认证ID，请重新认证');
+          }
+
+          const queryResult = await this.queryCertifyResult(certifyId);
+          console.log('查询认证结果:', queryResult);
+
+          this.setData({ isSubmitting: false });
+
+          if (queryResult.passed === true) {
+            // 认证通过，刷新用户信息
+            await this.refreshUserProfile();
+            this.showSuccessAndGoBack();
+            resolve();
+          } else if (queryResult.passed === false) {
+            // 认证失败
+            const failReason = queryResult.fail_reason || '身份认证未通过';
+            reject(new Error(`认证失败: ${failReason}`));
+          } else {
+            // 认证结果待定
+            reject(new Error('认证结果处理中，请稍后查看认证状态'));
+          }
+        } catch (error) {
+          this.setData({ isSubmitting: false });
+          console.error('查询认证结果失败:', error);
+          reject(new Error(error.message || '确认认证结果失败，请稍后查看认证状态'));
+        }
         break;
         
       case '6001':
+        this.setData({ isSubmitting: false });
         reject(new Error('用户取消了身份验证'));
         break;
         
       case '6002':
+        this.setData({ isSubmitting: false });
         reject(new Error('网络异常，请检查网络连接'));
         break;
         
       case '4000':
+        this.setData({ isSubmitting: false });
         let errorMessage = '验证过程中出现异常';
         if (result && result.errorCode) {
           switch (result.errorCode) {
@@ -317,32 +417,71 @@ Page({
         break;
         
       default:
+        this.setData({ isSubmitting: false });
         reject(new Error(`未知的验证状态: ${resultStatus}`));
     }
   },
 
+  // 刷新用户信息
+  refreshUserProfile() {
+    return new Promise((resolve, reject) => {
+      try {
+        const tokenResult = my.getStorageSync({ key: 'access_token' });
+        if (!tokenResult.data) {
+          reject(new Error('登录已过期，请重新登录'));
+          return;
+        }
+
+        my.request({
+          url: config.api.baseUrl + config.api.endpoints.auth.profile,
+          method: 'GET',
+          headers: {
+            'authorization': `Bearer ${tokenResult.data}`
+          },
+          success: (response) => {
+            console.log('刷新用户信息成功:', response);
+            
+            if (response.statusCode === 200 && response.data) {
+              const userProfile = response.data;
+              
+              // 更新用户信息，使用服务器返回的 is_certified 字段
+              const userInfo = {
+                isLogin: true,
+                nickname: userProfile.nickname,
+                avatar: userProfile.avatar_url,
+                phone: userProfile.phone,
+                isVerified: userProfile.is_certified || false,  // 使用服务器返回的认证状态
+                realName: userProfile.id_card_name || '',
+                idCard: '',  // 不保存完整身份证号
+                alipayUserId: userProfile.alipay_user_id,
+                userId: userProfile.id
+              };
+              
+              // 保存到本地存储
+              my.setStorageSync({
+                key: 'userInfo',
+                data: userInfo
+              });
+              
+              resolve(userInfo);
+            } else {
+              reject(new Error('获取用户信息失败'));
+            }
+          },
+          fail: (error) => {
+            console.error('刷新用户信息失败:', error);
+            reject(new Error('刷新用户信息失败'));
+          }
+        });
+      } catch (e) {
+        console.error('刷新用户信息时发生错误:', e);
+        reject(new Error('刷新用户信息失败'));
+      }
+    });
+  },
+
   // 显示成功提示并返回
   showSuccessAndGoBack() {
-    try {
-      // 更新本地用户信息的认证状态
-      const userInfo = my.getStorageSync({ key: 'userInfo' });
-      if (userInfo.data) {
-        const updatedUserInfo = {
-          ...userInfo.data,
-          isVerified: true,
-          realName: this.data.authForm.realName.trim(),
-          idCard: this.data.authForm.idCard.trim()
-        };
-        
-        my.setStorageSync({
-          key: 'userInfo',
-          data: updatedUserInfo
-        });
-      }
-    } catch (e) {
-      console.error('更新本地用户信息失败:', e);
-    }
-
     my.showModal({
       title: '认证成功',
       content: '恭喜您！实名认证已完成，现在可以享受更多服务了。',

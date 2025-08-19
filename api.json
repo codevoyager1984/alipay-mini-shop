@@ -216,6 +216,66 @@
                     }
                 }
             }
+        },
+        "/api/auth/certify/query": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Query Certify Result",
+                "description": "查询身份认证结果接口",
+                "operationId": "query_certify_result_api_auth_certify_query_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CertifyQueryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CertifyQueryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -365,6 +425,59 @@
                 ],
                 "title": "CertifyInitializeResponse"
             },
+            "CertifyQueryRequest": {
+                "properties": {
+                    "certify_id": {
+                        "type": "string",
+                        "title": "Certify Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "certify_id"
+                ],
+                "title": "CertifyQueryRequest"
+            },
+            "CertifyQueryResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "passed": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Passed"
+                    },
+                    "fail_reason": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Fail Reason"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "title": "CertifyQueryResponse"
+            },
             "HTTPValidationError": {
                 "properties": {
                     "detail": {
@@ -458,6 +571,22 @@
                             }
                         ],
                         "title": "Phone"
+                    },
+                    "is_certified": {
+                        "type": "boolean",
+                        "title": "Is Certified",
+                        "default": false
+                    },
+                    "id_card_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Id Card Name"
                     },
                     "created_at": {
                         "anyOf": [

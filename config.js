@@ -12,7 +12,8 @@ const config = {
         alipayLogin: '/api/auth/alipay/login',
         profile: '/api/auth/profile',
         bindPhone: '/api/auth/bind-phone',
-        certifyInitialize: '/api/auth/certify/initialize'
+        certifyInitialize: '/api/auth/certify/initialize',
+        certifyQuery: '/api/auth/certify/query'
       }
     }
   },
