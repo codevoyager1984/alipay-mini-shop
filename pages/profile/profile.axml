@@ -6,8 +6,7 @@
       <view class="user-details">
         <text class="username" a:if="{{userInfo.isLogin}}">{{userInfo.nickname || '用户'}}</text>
         <text class="username" a:else onTap="login">点击登录</text>
-        <text class="phone" a:if="{{userInfo.phone}}">{{userInfo.phone}}</text>
-        <text class="login-tip" a:else>登录后享受更多服务</text>
+        <text class="login-tip" a:if="{{!userInfo.isLogin}}">登录后享受更多服务</text>
       </view>
       <view class="user-actions">
         <text class="verify-status" a:if="{{userInfo.isVerified}}">✅ 已认证</text>
@@ -38,6 +37,18 @@
         </view>
         <text class="item-arrow">></text>
       </button>
+    </view>
+    
+    <!-- 已绑定手机号显示 -->
+    <view class="menu-item disabled" a:if="{{userInfo.isLogin && userInfo.phone}}">
+      <view class="item-left">
+        <text class="item-icon">📱</text>
+        <text class="item-text">手机号码</text>
+      </view>
+      <view class="item-right">
+        <text class="item-status success">{{maskedPhone}}</text>
+        <text class="item-status verified">✅ 已绑定</text>
+      </view>
     </view>
     
     <!-- 实名认证 -->
@@ -96,24 +107,5 @@
     <button class="logout-btn" onTap="logout">退出登录</button>
   </view>
 
-  <!-- 认证弹窗 -->
-  <view class="modal-overlay" a:if="{{showAuthModal}}" onTap="closeAuthModal">
-    <view class="auth-modal" onTap="stopPropagation">
-      <view class="modal-title">实名认证</view>
-      <view class="modal-content">
-        <view class="form-item">
-          <text class="form-label">真实姓名</text>
-          <input class="form-input" placeholder="请输入真实姓名" value="{{authForm.realName}}" onInput="onAuthFormChange" data-field="realName" />
-        </view>
-        <view class="form-item">
-          <text class="form-label">身份证号</text>
-          <input class="form-input" placeholder="请输入身份证号" value="{{authForm.idCard}}" onInput="onAuthFormChange" data-field="idCard" />
-        </view>
-      </view>
-      <view class="modal-actions">
-        <button class="modal-btn cancel" onTap="closeAuthModal">取消</button>
-        <button class="modal-btn confirm" onTap="submitAuth">提交认证</button>
-      </view>
-    </view>
-  </view>
+
 </view>

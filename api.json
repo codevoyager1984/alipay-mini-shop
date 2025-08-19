@@ -156,6 +156,66 @@
                     }
                 }
             }
+        },
+        "/api/auth/certify/initialize": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Initialize Certify",
+                "description": "初始化身份认证单据号接口",
+                "operationId": "initialize_certify_api_auth_certify_initialize_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CertifyInitializeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CertifyInitializeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -246,6 +306,64 @@
                     "message"
                 ],
                 "title": "BindPhoneResponse"
+            },
+            "CertifyInitializeRequest": {
+                "properties": {
+                    "cert_name": {
+                        "type": "string",
+                        "title": "Cert Name"
+                    },
+                    "cert_no": {
+                        "type": "string",
+                        "title": "Cert No"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "cert_name",
+                    "cert_no"
+                ],
+                "title": "CertifyInitializeRequest"
+            },
+            "CertifyInitializeResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "certify_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Certify Id"
+                    },
+                    "certify_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Certify Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "title": "CertifyInitializeResponse"
             },
             "HTTPValidationError": {
                 "properties": {

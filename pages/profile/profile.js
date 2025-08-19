@@ -18,12 +18,8 @@ Page({
       userId: null
     },
 
-    // 认证弹窗相关
-    showAuthModal: false,
-    authForm: {
-      realName: '',
-      idCard: ''
-    }
+    // 打码的手机号
+    maskedPhone: ''
   },
 
   onLoad(query) {
@@ -78,7 +74,8 @@ Page({
       const userInfo = my.getStorageSync({ key: 'userInfo' });
       if (userInfo.data) {
         this.setData({
-          userInfo: userInfo.data
+          userInfo: userInfo.data,
+          maskedPhone: this.maskPhoneNumber(userInfo.data.phone)
         });
         
         // 如果用户已登录，尝试从后端获取最新用户信息
@@ -99,11 +96,21 @@ Page({
         data: userInfo
       });
       this.setData({
-        userInfo: userInfo
+        userInfo: userInfo,
+        maskedPhone: this.maskPhoneNumber(userInfo.phone)
       });
     } catch (e) {
       console.error('保存用户信息失败', e);
     }
+  },
+
+  // 手机号打码处理
+  maskPhoneNumber(phone) {
+    if (!phone || phone.length !== 11) {
+      return '';
+    }
+    // 显示前3位和后4位，中间用****替代
+    return phone.substring(0, 3) + '****' + phone.substring(7);
   },
 
   // 登录
@@ -494,82 +501,10 @@ Page({
       return;
     }
 
-    this.setData({
-      showAuthModal: true,
-      authForm: {
-        realName: '',
-        idCard: ''
-      }
+    // 跳转到认证页面
+    my.navigateTo({
+      url: '/pages/auth/auth'
     });
-  },
-
-  // 认证表单输入处理
-  onAuthFormChange(e) {
-    const field = e.currentTarget.dataset.field;
-    const value = e.detail.value;
-    
-    this.setData({
-      [`authForm.${field}`]: value
-    });
-  },
-
-  // 提交认证
-  submitAuth() {
-    const { realName, idCard } = this.data.authForm;
-    
-    if (!realName || !idCard) {
-      my.showToast({
-        content: '请填写完整信息',
-        type: 'fail'
-      });
-      return;
-    }
-
-    // 简单的身份证号验证
-    const idCardReg = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
-    if (!idCardReg.test(idCard)) {
-      my.showToast({
-        content: '身份证号格式不正确',
-        type: 'fail'
-      });
-      return;
-    }
-
-    my.showLoading({
-      content: '认证中...'
-    });
-
-    // 模拟认证过程
-    setTimeout(() => {
-      my.hideLoading();
-      
-      const userInfo = {
-        ...this.data.userInfo,
-        isVerified: true,
-        realName: realName,
-        idCard: idCard
-      };
-      
-      this.saveUserInfo(userInfo);
-      this.closeAuthModal();
-      
-      my.showToast({
-        content: '实名认证成功！',
-        type: 'success'
-      });
-    }, 2000);
-  },
-
-  // 关闭认证弹窗
-  closeAuthModal() {
-    this.setData({
-      showAuthModal: false
-    });
-  },
-
-  // 阻止事件冒泡
-  stopPropagation() {
-    // 阻止事件冒泡
   },
 
   // 查看个人资料

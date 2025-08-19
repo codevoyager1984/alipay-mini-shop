@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/orders/orders",
     "pages/profile/profile",
-    "pages/order/order"
+    "pages/order/order",
+    "pages/auth/auth"
   ],
   "window": {
     "defaultTitle": "微小租新能源"
