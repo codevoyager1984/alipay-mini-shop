@@ -160,7 +160,20 @@ Page({
     if (!dateTimeStr) return '';
     
     try {
-      const date = new Date(dateTimeStr);
+      let date;
+      // 检查是否为ISO格式但没有时区信息的时间字符串
+      const hasTimezone = dateTimeStr.includes('Z') || 
+                         dateTimeStr.includes('+') || 
+                         (dateTimeStr.includes('-') && dateTimeStr.lastIndexOf('-') > 10);
+      
+      if (dateTimeStr.includes('T') && !hasTimezone) {
+        // 如果是ISO格式但没有时区信息，将其视为UTC时间，添加Z后缀
+        const utcTimeStr = dateTimeStr.endsWith('Z') ? dateTimeStr : dateTimeStr + 'Z';
+        date = new Date(utcTimeStr);
+      } else {
+        date = new Date(dateTimeStr);
+      }
+      
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
@@ -179,7 +192,20 @@ Page({
     if (!dateStr) return '';
     
     try {
-      const date = new Date(dateStr);
+      let date;
+      // 检查是否为ISO格式但没有时区信息的时间字符串
+      const hasTimezone = dateStr.includes('Z') || 
+                         dateStr.includes('+') || 
+                         (dateStr.includes('-') && dateStr.lastIndexOf('-') > 10);
+      
+      if (dateStr.includes('T') && !hasTimezone) {
+        // 如果是ISO格式但没有时区信息，将其视为UTC时间，添加Z后缀
+        const utcTimeStr = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
+        date = new Date(utcTimeStr);
+      } else {
+        date = new Date(dateStr);
+      }
+      
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');

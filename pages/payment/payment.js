@@ -189,7 +189,20 @@ Page({
   formatDueDate(dueDate) {
     if (!dueDate) return '';
     
-    const date = new Date(dueDate);
+    let date;
+    // 检查是否为ISO格式但没有时区信息的时间字符串
+    const hasTimezone = dueDate.includes('Z') || 
+                       dueDate.includes('+') || 
+                       (dueDate.includes('-') && dueDate.lastIndexOf('-') > 10);
+    
+    if (dueDate.includes('T') && !hasTimezone) {
+      // 如果是ISO格式但没有时区信息，将其视为UTC时间，添加Z后缀
+      const utcTimeStr = dueDate.endsWith('Z') ? dueDate : dueDate + 'Z';
+      date = new Date(utcTimeStr);
+    } else {
+      date = new Date(dueDate);
+    }
+    
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
