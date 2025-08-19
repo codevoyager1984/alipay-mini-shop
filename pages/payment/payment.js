@@ -165,13 +165,16 @@ Page({
       console.log('支付结果:', payResult);
 
       if (payResult.resultCode === '9000') {
-        // 支付成功
+        // 支付成功，跳转到支付状态检查页面
         this.setData({ 
           paymentStatus: 'success',
           loading: false 
         });
         
-        this.showPaymentSuccess();
+        // 跳转到支付状态检查页面
+        my.navigateTo({
+          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${this.data.orderInfo.amount}`
+        });
       } else if (payResult.resultCode === '8000') {
         // 支付处理中
         this.setData({ 

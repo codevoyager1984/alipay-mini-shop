@@ -1,0 +1,275 @@
+.payment-status-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 40rpx 30rpx;
+}
+
+/* 状态图标区域 */
+.status-icon-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 60rpx;
+  margin-top: 100rpx;
+}
+
+.status-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.status-icon.checking {
+  background-color: #1677ff;
+}
+
+.status-icon.success {
+  background-color: #52c41a;
+}
+
+.status-icon.failed {
+  background-color: #ff4d4f;
+}
+
+.status-icon.timeout {
+  background-color: #faad14;
+}
+
+.status-icon .icon {
+  font-size: 60rpx;
+  color: white;
+  font-weight: bold;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border-top: 4rpx solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 状态信息区域 */
+.status-info-section {
+  flex: 1;
+  margin-bottom: 40rpx;
+}
+
+.status-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #262626;
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.order-info {
+  background-color: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item .label {
+  font-size: 28rpx;
+  color: #8c8c8c;
+}
+
+.order-item .value {
+  font-size: 28rpx;
+  color: #262626;
+  font-weight: 500;
+}
+
+.order-item .amount {
+  color: #ff4d4f;
+  font-weight: 600;
+  font-size: 32rpx;
+}
+
+/* 倒计时提示 */
+.countdown-tip {
+  background-color: #fff7e6;
+  border: 1rpx solid #ffd666;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.complete-tip {
+  background-color: #f6ffed;
+  border: 1rpx solid #b7eb8f;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.tip-text {
+  font-size: 26rpx;
+  color: #595959;
+  text-align: center;
+  display: block;
+}
+
+/* 操作按钮区域 */
+.action-section {
+  margin-bottom: 40rpx;
+}
+
+.success-actions,
+.failed-actions,
+.timeout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.action-btn {
+  height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-btn.primary {
+  background-color: #1677ff;
+  color: white;
+}
+
+.action-btn.primary:active {
+  background-color: #0958d9;
+}
+
+.action-btn.secondary {
+  background-color: white;
+  color: #1677ff;
+  border: 2rpx solid #1677ff;
+}
+
+.action-btn.secondary:active {
+  background-color: #f0f8ff;
+}
+
+/* 进度指示器 */
+.progress-section {
+  margin-top: auto;
+  padding-top: 20rpx;
+}
+
+.progress-bar {
+  height: 6rpx;
+  background-color: #f0f0f0;
+  border-radius: 3rpx;
+  overflow: hidden;
+  margin-bottom: 16rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #1677ff;
+  border-radius: 3rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+}
+
+.progress-text text {
+  font-size: 24rpx;
+  color: #8c8c8c;
+}
+
+/* 后台检查指示器 */
+.background-check-section {
+  margin-top: 20rpx;
+  padding: 20rpx;
+}
+
+.background-check-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 20rpx;
+  background-color: #f6ffed;
+  border: 1rpx solid #b7eb8f;
+  border-radius: 12rpx;
+}
+
+.pulse-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background-color: #52c41a;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+.background-text {
+  font-size: 24rpx;
+  color: #52c41a;
+  font-weight: 500;
+}
+
+/* 响应式适配 */
+@media (max-height: 800rpx) {
+  .status-icon-section {
+    margin-top: 60rpx;
+    margin-bottom: 40rpx;
+  }
+  
+  .status-icon {
+    width: 100rpx;
+    height: 100rpx;
+  }
+  
+  .status-icon .icon {
+    font-size: 50rpx;
+  }
+  
+  .loading-spinner {
+    width: 32rpx;
+    height: 32rpx;
+  }
+}
