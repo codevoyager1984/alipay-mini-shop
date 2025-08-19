@@ -26,6 +26,12 @@ const config = {
         list: '/api/orders',
         detail: '/api/orders',  // 详情接口会拼接 /{id}
         cancel: '/api/orders'   // 取消接口会拼接 /{id}/cancel
+      },
+      // 支付相关
+      payment: {
+        create: '/api/payment/create',
+        notify: '/api/payment/notify',
+        status: '/api/payment/status'  // 状态接口会拼接 /{order_id}
       }
     }
   },

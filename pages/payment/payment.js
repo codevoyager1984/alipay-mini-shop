@@ -150,11 +150,13 @@ Page({
         loading: true 
       });
 
+      // 先调用支付创建接口获取支付参数
+      const paymentParams = await this.createPayment();
+      
       // 调用支付宝小程序支付接口
       const payResult = await new Promise((resolve, reject) => {
         my.tradePay({
-          // 这里需要从后端获取支付参数，目前先模拟
-          orderStr: this.generateOrderString(),
+          tradeNO: paymentParams.tradeNO,
           success: resolve,
           fail: reject
         });
@@ -209,9 +211,20 @@ Page({
         loading: false 
       });
       
+      // 区分不同类型的错误
+      let errorTitle = '支付失败';
+      let errorContent = '支付过程中发生错误，请稍后重试';
+      
+      if (error.message && error.message.includes('创建支付订单失败')) {
+        errorTitle = '创建支付失败';
+        errorContent = error.message;
+      } else if (error.message) {
+        errorContent = error.message;
+      }
+      
       my.showModal({
-        title: '支付失败',
-        content: '支付过程中发生错误，请稍后重试',
+        title: errorTitle,
+        content: errorContent,
         confirmText: '重新支付',
         cancelText: '取消',
         success: (result) => {
@@ -221,6 +234,76 @@ Page({
         }
       });
     }
+  },
+
+  // 创建支付订单，获取支付参数
+  async createPayment() {
+    try {
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+      
+      const response = await new Promise((resolve, reject) => {
+        my.request({
+          url: `${config.api.baseUrl}${config.api.endpoints.payment.create}`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          data: {
+            order_id: this.data.orderInfo.orderId,
+            installment_no: this.data.orderInfo.currentInstallmentNo
+          },
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      if (response.statusCode === 200 && response.data) {
+        console.log('支付参数:', response.data);
+        // 构建支付宝支付所需的订单字符串
+        return {
+          tradeNO: response.data.trade_no,
+          outTradeNo: response.data.out_trade_no,
+          totalAmount: response.data.total_amount,
+          subject: response.data.subject,
+          body: response.data.body
+        };
+      } else {
+        throw new Error((response.data && response.data.message) || '创建支付订单失败');
+      }
+    } catch (error) {
+      console.error('创建支付订单失败:', error);
+      throw new Error(error.message || '创建支付订单失败，请稍后重试');
+    }
+  },
+
+  // 构建支付宝订单字符串
+  buildOrderString(paymentData) {
+    // 根据支付宝SDK要求构建订单字符串
+    // 实际项目中，这个字符串应该由后端完整生成，包含签名等安全信息
+    const params = {
+      app_id: '2021000000000000', // 实际应用中应该从配置获取
+      method: 'alipay.trade.app.pay',
+      charset: 'UTF-8',
+      sign_type: 'RSA2',
+      timestamp: new Date().toISOString().replace(/[T]/g, ' ').replace(/\..+/, ''),
+      version: '1.0',
+      biz_content: JSON.stringify({
+        out_trade_no: paymentData.out_trade_no,
+        total_amount: paymentData.total_amount,
+        subject: paymentData.subject,
+        body: paymentData.body,
+        product_code: 'QUICK_MSECURITY_PAY'
+      })
+    };
+
+    // 构建参数字符串
+    const paramStr = Object.keys(params)
+      .sort()
+      .map(key => `${key}=${encodeURIComponent(params[key])}`)
+      .join('&');
+
+    return paramStr + '&sign=mock_signature'; // 实际项目中签名应该由后端生成
   },
 
   // 生成订单字符串（实际项目中应该从后端获取）

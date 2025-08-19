@@ -1385,6 +1385,24 @@
                 "summary": "Create Order",
                 "description": "创建订单",
                 "operationId": "create_order_api_orders_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1447,22 +1465,6 @@
                         }
                     },
                     {
-                        "name": "user_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ],
-                            "title": "User Id"
-                        }
-                    },
-                    {
                         "name": "status",
                         "in": "query",
                         "required": false,
@@ -1492,6 +1494,22 @@
                                 }
                             ],
                             "title": "Search"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
                         }
                     }
                 ],
@@ -1536,6 +1554,22 @@
                             "type": "integer",
                             "title": "Order Id"
                         }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
                     }
                 ],
                 "responses": {
@@ -1578,6 +1612,159 @@
                         "schema": {
                             "type": "integer",
                             "title": "Order Id"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/create": {
+            "post": {
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Create Payment",
+                "description": "创建支付订单",
+                "operationId": "create_payment_api_payment_create_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentCreateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/notify": {
+            "post": {
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Payment Notify",
+                "description": "支付宝异步通知接口",
+                "operationId": "payment_notify_api_payment_notify_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/status/{order_id}": {
+            "get": {
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Get Payment Status",
+                "description": "查询订单支付状态",
+                "operationId": "get_payment_status_api_payment_status__order_id__get",
+                "parameters": [
+                    {
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Order Id"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Authorization"
                         }
                     }
                 ],
@@ -2344,10 +2531,6 @@
                         "type": "integer",
                         "title": "Product Id"
                     },
-                    "user_id": {
-                        "type": "integer",
-                        "title": "User Id"
-                    },
                     "remark": {
                         "anyOf": [
                             {
@@ -2362,8 +2545,7 @@
                 },
                 "type": "object",
                 "required": [
-                    "product_id",
-                    "user_id"
+                    "product_id"
                 ],
                 "title": "OrderCreateRequest"
             },
@@ -2540,6 +2722,63 @@
                     "status"
                 ],
                 "title": "OrderResponse"
+            },
+            "PaymentCreateRequest": {
+                "properties": {
+                    "order_id": {
+                        "type": "integer",
+                        "title": "Order Id"
+                    },
+                    "installment_no": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Installment No"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "order_id"
+                ],
+                "title": "PaymentCreateRequest"
+            },
+            "PaymentCreateResponse": {
+                "properties": {
+                    "trade_no": {
+                        "type": "string",
+                        "title": "Trade No"
+                    },
+                    "out_trade_no": {
+                        "type": "string",
+                        "title": "Out Trade No"
+                    },
+                    "total_amount": {
+                        "type": "string",
+                        "title": "Total Amount"
+                    },
+                    "subject": {
+                        "type": "string",
+                        "title": "Subject"
+                    },
+                    "body": {
+                        "type": "string",
+                        "title": "Body"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "trade_no",
+                    "out_trade_no",
+                    "total_amount",
+                    "subject",
+                    "body"
+                ],
+                "title": "PaymentCreateResponse"
             },
             "ProductCreateRequest": {
                 "properties": {
@@ -2916,9 +3155,9 @@
                         "type": "integer",
                         "title": "Id"
                     },
-                    "alipay_user_id": {
+                    "alipay_open_id": {
                         "type": "string",
-                        "title": "Alipay User Id"
+                        "title": "Alipay Open Id"
                     },
                     "nickname": {
                         "type": "string",
@@ -2950,7 +3189,7 @@
                 "type": "object",
                 "required": [
                     "id",
-                    "alipay_user_id",
+                    "alipay_open_id",
                     "nickname"
                 ],
                 "title": "UserInfo"
@@ -2961,9 +3200,9 @@
                         "type": "integer",
                         "title": "Id"
                     },
-                    "alipay_user_id": {
+                    "alipay_open_id": {
                         "type": "string",
-                        "title": "Alipay User Id"
+                        "title": "Alipay Open Id"
                     },
                     "nickname": {
                         "type": "string",
@@ -3033,7 +3272,7 @@
                 "type": "object",
                 "required": [
                     "id",
-                    "alipay_user_id",
+                    "alipay_open_id",
                     "nickname"
                 ],
                 "title": "UserProfileResponse"
