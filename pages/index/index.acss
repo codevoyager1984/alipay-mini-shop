@@ -160,12 +160,20 @@
   line-height: 30rpx;
 }
 
-/* 车辆列表 */
-.vehicle-list {
+/* 加载状态 */
+.loading-state {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #666;
+  font-size: 28rpx;
+}
+
+/* 产品列表 */
+.product-list {
   margin: 0 30rpx;
 }
 
-.vehicle-item {
+.product-item {
   background: #fff;
   border-radius: 20rpx;
   margin-bottom: 20rpx;
@@ -175,7 +183,7 @@
   box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
 }
 
-.vehicle-image {
+.product-image {
   width: 140rpx;
   height: 100rpx;
   border-radius: 15rpx;
@@ -183,19 +191,19 @@
   background: #f5f5f5;
 }
 
-.vehicle-info {
+.product-info {
   flex: 1;
   margin-right: 20rpx;
 }
 
-.vehicle-name {
+.product-name {
   font-size: 30rpx;
   color: #333;
   margin-bottom: 10rpx;
   font-weight: 500;
 }
 
-.vehicle-price {
+.product-price {
   display: flex;
   align-items: baseline;
 }
@@ -228,7 +236,7 @@
 }
 
 /* 空状态 */
-.empty-state {
+.empty-state, .no-products-state {
   text-align: center;
   padding: 100rpx 0;
   color: #999;
@@ -237,19 +245,19 @@
 
 /* 响应式调整 */
 @media screen and (max-width: 375px) {
-  .vehicle-item {
+  .product-item {
     flex-direction: column;
     align-items: flex-start;
   }
   
-  .vehicle-image {
+  .product-image {
     width: 100%;
     height: 180rpx;
     margin-right: 0;
     margin-bottom: 20rpx;
   }
   
-  .vehicle-info {
+  .product-info {
     margin-right: 0;
     margin-bottom: 20rpx;
     width: 100%;

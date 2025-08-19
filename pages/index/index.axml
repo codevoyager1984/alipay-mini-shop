@@ -51,14 +51,19 @@
     </view>
   </view>
 
-  <!-- 电瓶车列表 -->
-  <view class="vehicle-list">
-    <block a:for="{{filteredVehicles}}" a:key="id">
-      <view class="vehicle-item">
-        <image class="vehicle-image" src="{{item.image}}" mode="aspectFill" />
-        <view class="vehicle-info">
-          <view class="vehicle-name">{{item.name}}</view>
-          <view class="vehicle-price">
+  <!-- 加载状态 -->
+  <view class="loading-state" a:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 产品列表 -->
+  <view class="product-list" a:if="{{!loading}}">
+    <block a:for="{{filteredProducts}}" a:key="id">
+      <view class="product-item">
+        <image class="product-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-price">
             <text class="price">¥ {{item.price}}</text>
             <text class="unit">/月</text>
           </view>
@@ -71,7 +76,12 @@
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" a:if="{{filteredVehicles.length === 0 && searchKeyword}}">
-    <text>未找到相关车辆</text>
+  <view class="empty-state" a:if="{{!loading && filteredProducts.length === 0 && searchKeyword}}">
+    <text>未找到相关产品</text>
+  </view>
+
+  <!-- 无产品状态 -->
+  <view class="no-products-state" a:if="{{!loading && products.length === 0 && !searchKeyword}}">
+    <text>暂无产品</text>
   </view>
 </view>

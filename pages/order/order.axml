@@ -1,15 +1,15 @@
 <view class="order-container">
-  <!-- 车辆图片 -->
-  <view class="vehicle-hero">
-    <image class="vehicle-main-image" src="{{vehicleInfo.image}}" mode="aspectFill" />
+  <!-- 产品图片 -->
+  <view class="product-hero">
+    <image class="product-main-image" src="{{productInfo.image}}" mode="aspectFill" />
   </view>
 
-  <!-- 车辆信息 -->
-  <view class="vehicle-info-card">
-    <view class="vehicle-title">{{vehicleInfo.name}}</view>
-    <view class="vehicle-price">
+  <!-- 产品信息 -->
+  <view class="product-info-card">
+    <view class="product-title">{{productInfo.name}}</view>
+    <view class="product-price">
       <text class="price-symbol">¥</text>
-      <text class="price-amount">{{vehicleInfo.price}}</text>
+      <text class="price-amount">{{productInfo.price}}</text>
       <text class="price-unit">/月</text>
     </view>
     

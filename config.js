@@ -14,6 +14,11 @@ const config = {
         bindPhone: '/api/auth/bind-phone',
         certifyInitialize: '/api/auth/certify/initialize',
         certifyQuery: '/api/auth/certify/query'
+      },
+      // 产品相关
+      products: {
+        list: '/api/products',
+        detail: '/api/products'  // 详情接口会拼接 /{id}
       }
     }
   },
