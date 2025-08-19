@@ -9,13 +9,8 @@
   <!-- 店铺信息 -->
   <view class="shop-info">
     <view class="shop-card">
-      <view class="shop-title">倍受信赖的以租代购平台</view>
-      <view class="shop-subtitle">0首付 租满送</view>
-      
+      <view class="shop-title">{{globalConfig.about_us}}</view>      
       <view class="shop-details">
-        <view class="detail-item">
-          <text class="shop-name">{{shopInfo.name}}</text>
-        </view>
         <view class="detail-item">
           <text class="time">{{shopInfo.time}}</text>
         </view>

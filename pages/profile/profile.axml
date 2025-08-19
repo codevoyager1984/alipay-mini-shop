@@ -77,14 +77,6 @@
   <view class="function-section">
     <view class="section-title">其他功能</view>
     
-    <view class="menu-item" onTap="viewProfile">
-      <view class="item-left">
-        <text class="item-icon">👨‍💼</text>
-        <text class="item-text">个人资料</text>
-      </view>
-      <text class="item-arrow">></text>
-    </view>
-    
     <view class="menu-item" onTap="contactService">
       <view class="item-left">
         <text class="item-icon">🎧</text>

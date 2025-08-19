@@ -5,12 +5,15 @@ Page({
     // Logo 图片路径 - 使用占位符
     logoUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiIGZpbGw9IiNmZmYiLz4KPHN2ZyB4PSIyNSIgeT0iMjUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRMMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDAgMCAxIDAtMS40MTRsMi0yYTEgMSAwIDAgMSAxLjQxNCAwIi8+Cjwvc3ZnPgo8L3N2Zz4K',
     
-    // 店铺信息
+    // 店铺信息 - 将从配置接口动态获取
     shopInfo: {
       name: '微小租新能源',
       time: '09:00-18:00',
       address: '浙江省 温州市龙湾区雁荡西路267号鸿福家园',
     },
+    
+    // 全局配置信息
+    globalConfig: null,
     
     // 搜索关键词
     searchKeyword: '',
@@ -28,6 +31,7 @@ Page({
   onLoad(query) {
     // 页面加载
     console.info(`Page onLoad with query: ${JSON.stringify(query)}`);
+    this.loadGlobalConfig();
     this.loadProducts();
   },
 
@@ -53,6 +57,9 @@ Page({
 
   onPullDownRefresh() {
     // 页面被下拉刷新
+    // 清除配置缓存，重新加载配置
+    config.clearConfigCache();
+    this.loadGlobalConfig();
     this.loadProducts().finally(() => {
       my.stopPullDownRefresh();
     });
@@ -64,9 +71,14 @@ Page({
 
   onShareAppMessage() {
     // 返回自定义分享信息
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的关于我们信息作为描述
+    const desc = globalConfig ? globalConfig.about_us : '倍受信赖的以租代购平台';
+    
     return {
       title: '微小租新能源',
-      desc: '倍受信赖的以租代购平台',
+      desc: desc,
       path: 'pages/index/index',
     };
   },
@@ -83,6 +95,29 @@ Page({
   // 搜索按钮点击
   onSearch() {
     this.filterProducts(this.data.searchKeyword);
+  },
+
+  // 加载全局配置
+  async loadGlobalConfig() {
+    try {
+      const globalConfig = await config.getGlobalConfig();
+      
+      // 更新店铺信息
+      const shopInfo = {
+        name: '微小租新能源', // 应用名称保持不变
+        time: globalConfig.business_hours,
+        address: globalConfig.location_text,
+      };
+
+      this.setData({
+        globalConfig: globalConfig,
+        shopInfo: shopInfo
+      });
+
+      console.log('全局配置加载成功:', globalConfig);
+    } catch (error) {
+      console.error('加载全局配置失败:', error);
+    }
   },
 
   // 加载产品列表
@@ -164,11 +199,17 @@ Page({
 
   // 导航功能
   onNavigate() {
+    const { globalConfig, shopInfo } = this.data;
+    
+    // 使用动态配置的坐标，如果没有配置则使用默认值
+    const latitude = globalConfig ? parseFloat(globalConfig.location_latitude) : 27.9925;
+    const longitude = globalConfig ? parseFloat(globalConfig.location_longitude) : 120.6994;
+
     my.openLocation({
-      latitude: 27.9925,
-      longitude: 120.6994,
-      name: this.data.shopInfo.name,
-      address: this.data.shopInfo.address,
+      latitude: latitude,
+      longitude: longitude,
+      name: shopInfo.name,
+      address: shopInfo.address,
       success: () => {
         console.log('导航成功');
       },
@@ -184,8 +225,13 @@ Page({
 
   // 拨打电话
   onCall() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的联系方式，如果没有配置则使用默认值
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+
     my.makePhoneCall({
-      number: '400-123-4567',
+      number: phoneNumber,
       success: () => {
         console.log('拨打电话成功');
       },

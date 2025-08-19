@@ -13,6 +13,9 @@ Page({
     paymentStatus: 'checking', // checking, success, failed, timeout
     statusText: '正在确认支付状态...',
     
+    // 全局配置信息
+    globalConfig: null,
+    
     // 倒计时
     countdown: 600, // 10分钟 = 600秒
     countdownText: '',
@@ -32,6 +35,9 @@ Page({
 
   onLoad(query) {
     console.log('Payment status page onLoad with query:', query);
+    
+    // 加载全局配置
+    this.loadGlobalConfig();
     
     // 获取订单参数
     if (query.orderId && query.orderNo && query.installmentNo) {
@@ -336,10 +342,28 @@ Page({
     });
   },
 
+  // 加载全局配置
+  async loadGlobalConfig() {
+    try {
+      const globalConfig = await config.getGlobalConfig();
+      this.setData({
+        globalConfig: globalConfig
+      });
+      console.log('PaymentStatus页面全局配置加载成功:', globalConfig);
+    } catch (error) {
+      console.error('PaymentStatus页面加载全局配置失败:', error);
+    }
+  },
+
   // 联系客服
   contactService() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的联系方式
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+
     my.makePhoneCall({
-      number: '400-123-4567',
+      number: phoneNumber,
       success: () => {
         console.log('拨打客服电话成功');
       },

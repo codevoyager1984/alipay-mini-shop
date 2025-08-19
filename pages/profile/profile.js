@@ -19,11 +19,15 @@ Page({
     },
 
     // 打码的手机号
-    maskedPhone: ''
+    maskedPhone: '',
+    
+    // 全局配置信息
+    globalConfig: null
   },
 
   onLoad(query) {
     console.info(`Profile page onLoad with query: ${JSON.stringify(query)}`);
+    this.loadGlobalConfig();
     this.loadUserInfo();
   },
 
@@ -33,6 +37,7 @@ Page({
 
   onShow() {
     // 页面显示时重新加载用户信息
+    this.loadGlobalConfig();
     this.loadUserInfo();
   },
 
@@ -50,6 +55,9 @@ Page({
 
   onPullDownRefresh() {
     // 页面被下拉
+    // 清除配置缓存，重新加载配置
+    config.clearConfigCache();
+    this.loadGlobalConfig();
     this.loadUserInfo();
     setTimeout(() => {
       my.stopPullDownRefresh();
@@ -61,11 +69,29 @@ Page({
   },
 
   onShareAppMessage() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的关于我们信息作为描述
+    const desc = globalConfig ? globalConfig.about_us : '倍受信赖的以租代购平台';
+    
     return {
-      title: '伟小保电瓶车租赁',
-      desc: '倍受信赖的以租代购平台',
+      title: '微小租新能源',
+      desc: desc,
       path: 'pages/index/index',
     };
+  },
+
+  // 加载全局配置
+  async loadGlobalConfig() {
+    try {
+      const globalConfig = await config.getGlobalConfig();
+      this.setData({
+        globalConfig: globalConfig
+      });
+      console.log('Profile页面全局配置加载成功:', globalConfig);
+    } catch (error) {
+      console.error('Profile页面加载全局配置失败:', error);
+    }
   },
 
   // 加载用户信息
@@ -532,15 +558,21 @@ Page({
 
   // 联系客服
   contactService() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的联系方式和工作时间
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+    const businessHours = globalConfig ? globalConfig.business_hours : '09:00-18:00';
+
     my.showModal({
       title: '联系客服',
-      content: '客服电话：400-123-4567\n工作时间：09:00-18:00',
+      content: `客服电话：${phoneNumber}\n工作时间：${businessHours}`,
       confirmText: '拨打电话',
       cancelText: '取消',
       success: (result) => {
         if (result.confirm) {
           my.makePhoneCall({
-            number: '400-123-4567',
+            number: phoneNumber,
             success: () => {
               console.log('拨打客服电话成功');
             },
@@ -559,9 +591,17 @@ Page({
 
   // 关于我们
   about() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的信息
+    const aboutUs = globalConfig ? globalConfig.about_us : '微小租新能源\n倍受信赖的以租代购平台';
+    const address = globalConfig ? globalConfig.location_text : '浙江省 温州市龙湾区雁荡西路267号鸿福家园';
+    const businessHours = globalConfig ? globalConfig.business_hours : '09:00-18:00';
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+
     my.showModal({
       title: '关于我们',
-      content: '微小租新能源\n倍受信赖的以租代购平台\n\n地址：浙江省 温州市龙湾区雁荡西路267号鸿福家园\n营业时间：09:00-18:00\n客服电话：400-123-4567',
+      content: `${aboutUs}\n\n地址：${address}\n营业时间：${businessHours}\n客服电话：${phoneNumber}`,
       showCancel: false,
       confirmText: '知道了'
     });

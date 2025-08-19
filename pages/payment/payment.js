@@ -19,6 +19,9 @@ Page({
       isPaymentDue: false
     },
     
+    // 全局配置信息
+    globalConfig: null,
+    
     // 支付状态
     paymentStatus: 'pending', // pending, processing, success, failed
     
@@ -28,6 +31,9 @@ Page({
 
   onLoad(query) {
     console.info(`Payment page onLoad with query: ${JSON.stringify(query)}`);
+    
+    // 加载全局配置
+    this.loadGlobalConfig();
     
     // 获取订单参数
     if (query.orderId && query.orderNo && query.amount) {
@@ -406,10 +412,28 @@ Page({
     });
   },
 
+  // 加载全局配置
+  async loadGlobalConfig() {
+    try {
+      const globalConfig = await config.getGlobalConfig();
+      this.setData({
+        globalConfig: globalConfig
+      });
+      console.log('Payment页面全局配置加载成功:', globalConfig);
+    } catch (error) {
+      console.error('Payment页面加载全局配置失败:', error);
+    }
+  },
+
   // 联系客服
   contactService() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的联系方式
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+
     my.makePhoneCall({
-      number: '400-123-4567',
+      number: phoneNumber,
       success: () => {
         console.log('拨打客服电话成功');
       },

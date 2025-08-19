@@ -9,11 +9,15 @@ Page({
     // 分页参数
     currentPage: 1,
     pageSize: 20,
-    hasMore: true
+    hasMore: true,
+    
+    // 全局配置信息
+    globalConfig: null
   },
 
   onLoad(query) {
     console.info(`Orders page onLoad with query: ${JSON.stringify(query)}`);
+    this.loadGlobalConfig();
     this.loadOrders(true);
   },
 
@@ -320,9 +324,27 @@ Page({
     });
   },
 
+  // 加载全局配置
+  async loadGlobalConfig() {
+    try {
+      const globalConfig = await config.getGlobalConfig();
+      this.setData({
+        globalConfig: globalConfig
+      });
+      console.log('Orders页面全局配置加载成功:', globalConfig);
+    } catch (error) {
+      console.error('Orders页面加载全局配置失败:', error);
+    }
+  },
+
   // 联系客服
   contactService(e) {
     const order = e.currentTarget.dataset.order;
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的联系方式
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+
     my.showModal({
       title: '联系客服',
       content: `需要咨询订单 ${order.orderNo} 相关问题吗？`,
@@ -331,7 +353,7 @@ Page({
       success: (result) => {
         if (result.confirm) {
           my.makePhoneCall({
-            number: '400-123-4567',
+            number: phoneNumber,
             success: () => {
               console.log('拨打客服电话成功');
             },
