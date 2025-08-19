@@ -21,11 +21,14 @@ Page({
     // 订单确认弹窗状态
     showOrderConfirm: false,
     
+    // 订单确认弹窗数据加载状态
+    orderConfirmLoading: false,
+    
     // 订单配置信息
     orderConfig: {
       rentalDays: 30,          // 租期：固定30天
       paymentMethod: '先用后付',  // 支付方式：固定先用后付
-      supportedInstallments: 6, // 支持期数：从接口获取
+      supportedInstallments: null, // 支持期数：从接口获取
       rentalPlan: '长租'        // 租赁方案：固定长租
     }
   },
@@ -124,8 +127,8 @@ Page({
         
         this.setData({
           productInfo: productInfo,
-          // 从API获取支持期数，如果没有则使用默认值
-          'orderConfig.supportedInstallments': response.data.supported_installments || 6
+          // 从API获取支持期数，使用rental_period字段
+          'orderConfig.supportedInstallments': response.data.rental_period || null
         });
       }
     } catch (error) {
@@ -136,6 +139,14 @@ Page({
       });
     } finally {
       this.setData({ loading: false });
+    }
+  },
+
+  // 确保产品数据已加载
+  async ensureProductDataLoaded() {
+    // 如果支持期数还没有加载，重新加载产品信息
+    if (this.data.orderConfig.supportedInstallments === null && this.data.productInfo.id) {
+      await this.loadProductInfo(this.data.productInfo.id);
     }
   },
 
@@ -170,7 +181,7 @@ Page({
   },
 
   // 确认下单
-  confirmOrder() {
+  async confirmOrder() {
     // 先检查登录状态
     if (!this.checkLoginStatus()) {
       my.showModal({
@@ -209,16 +220,26 @@ Page({
       return;
     }
 
-    // 显示订单确认界面
+    // 显示订单确认界面，先显示loading
     this.setData({
-      showOrderConfirm: true
+      showOrderConfirm: true,
+      orderConfirmLoading: true
+    });
+
+    // 确保产品数据已加载（特别是支持期数）
+    await this.ensureProductDataLoaded();
+    
+    // 数据加载完成，隐藏loading
+    this.setData({
+      orderConfirmLoading: false
     });
   },
 
   // 关闭订单确认弹窗
   closeOrderConfirm() {
     this.setData({
-      showOrderConfirm: false
+      showOrderConfirm: false,
+      orderConfirmLoading: false
     });
   },
 

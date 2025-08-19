@@ -107,7 +107,9 @@
         <view class="config-item">
           <text class="config-label">支持期数</text>
           <view class="config-value">
-            <text class="config-text">{{orderConfig.supportedInstallments}}期</text>
+            <text class="config-text" a:if="{{!orderConfirmLoading && orderConfig.supportedInstallments}}">{{orderConfig.supportedInstallments}}期</text>
+            <text class="config-text loading-text" a:elif="{{orderConfirmLoading}}">加载中...</text>
+            <text class="config-text" a:else>暂无数据</text>
           </view>
         </view>
         

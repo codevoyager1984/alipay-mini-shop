@@ -376,6 +376,11 @@
   border: 1rpx solid #e8e8e8;
 }
 
+.loading-text {
+  color: #999 !important;
+  background: #f0f0f0 !important;
+}
+
 /* 服务协议 */
 .service-agreement {
   text-align: center;
