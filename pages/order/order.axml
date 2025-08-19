@@ -66,4 +66,73 @@
   <view class="bottom-action">
     <button class="order-btn" onTap="confirmOrder">立即下单</button>
   </view>
+
+  <!-- 订单确认弹窗 -->
+  <view class="order-confirm-modal" a:if="{{showOrderConfirm}}">
+    <view class="modal-mask" onTap="closeOrderConfirm"></view>
+    <view class="modal-content">
+      <!-- 关闭按钮 -->
+      <view class="modal-close" onTap="closeOrderConfirm">✕</view>
+      
+      <!-- 产品信息 -->
+      <view class="confirm-product">
+        <image class="confirm-product-image" src="{{productInfo.image}}" mode="aspectFill" />
+        <view class="confirm-product-info">
+          <view class="confirm-product-name">{{productInfo.name}}</view>
+          <view class="confirm-product-desc">x1</view>
+        </view>
+      </view>
+      
+      <!-- 特别提醒 -->
+      <view class="confirm-warning">
+        <text class="confirm-warning-text">特别提醒：本租赁订单经过公证处公证，逾期直接法院执行，请谨慎下单。</text>
+      </view>
+      
+      <!-- 订单配置 -->
+      <view class="order-config">
+        <view class="config-item">
+          <text class="config-label">租期</text>
+          <view class="config-value">
+            <text class="config-text">{{orderConfig.rentalDays}}天</text>
+          </view>
+        </view>
+        
+        <view class="config-item">
+          <text class="config-label">支付方式</text>
+          <view class="config-value">
+            <text class="config-text">{{orderConfig.paymentMethod}}</text>
+          </view>
+        </view>
+        
+        <view class="config-item">
+          <text class="config-label">支持期数</text>
+          <view class="config-value">
+            <text class="config-text">{{orderConfig.supportedInstallments}}期</text>
+          </view>
+        </view>
+        
+        <view class="config-item">
+          <text class="config-label">租赁方案</text>
+          <view class="config-value">
+            <text class="config-text">{{orderConfig.rentalPlan}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 服务协议 -->
+      <view class="service-agreement">
+        <text class="agreement-text">点击"确认下单"，即表示同意《服务协议》</text>
+      </view>
+      
+      <!-- 价格和确认按钮 -->
+      <view class="confirm-bottom">
+        <view class="confirm-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-amount">{{productInfo.price}}</text>
+          <text class="price-unit">/月</text>
+        </view>
+        <button class="confirm-btn" onTap="submitOrder">确认下单</button>
+      </view>
+    </view>
+  </view>
 </view>

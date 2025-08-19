@@ -238,3 +238,199 @@
   font-size: 28rpx;
   color: #999;
 }
+
+/* 订单确认弹窗 */
+.order-confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  position: relative;
+  background: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  width: 100%;
+  max-height: 80vh;
+  padding: 40rpx 30rpx 30rpx;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 20rpx;
+  right: 30rpx;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #999;
+  z-index: 1001;
+}
+
+/* 确认弹窗中的产品信息 */
+.confirm-product {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 30rpx;
+}
+
+.confirm-product-image {
+  width: 120rpx;
+  height: 80rpx;
+  border-radius: 10rpx;
+  margin-right: 20rpx;
+}
+
+.confirm-product-info {
+  flex: 1;
+}
+
+.confirm-product-name {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.confirm-product-desc {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 确认弹窗中的警告信息 */
+.confirm-warning {
+  background: #fff9f0;
+  border: 1rpx solid #ffd591;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.confirm-warning-text {
+  font-size: 24rpx;
+  color: #d48806;
+  line-height: 1.5;
+}
+
+/* 订单配置项 */
+.order-config {
+  margin-bottom: 30rpx;
+}
+
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.config-item:last-child {
+  border-bottom: none;
+}
+
+.config-label {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.config-value {
+  display: flex;
+  align-items: center;
+}
+
+.config-text {
+  font-size: 28rpx;
+  color: #666;
+  background: #f8f8f8;
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid #e8e8e8;
+}
+
+/* 服务协议 */
+.service-agreement {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.agreement-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 确认弹窗底部 */
+.confirm-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.confirm-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.confirm-price .price-symbol {
+  font-size: 28rpx;
+  color: #ff4757;
+  font-weight: bold;
+  margin-right: 5rpx;
+}
+
+.confirm-price .price-amount {
+  font-size: 40rpx;
+  color: #ff4757;
+  font-weight: bold;
+}
+
+.confirm-price .price-unit {
+  font-size: 24rpx;
+  color: #ff4757;
+  margin-left: 8rpx;
+}
+
+.confirm-btn {
+  background: #ff4757;
+  color: #fff;
+  border: none;
+  border-radius: 30rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  min-width: 200rpx;
+}
+
+.confirm-btn:active {
+  background: #ff3838;
+}
