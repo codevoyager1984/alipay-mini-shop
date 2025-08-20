@@ -103,7 +103,7 @@
       <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
         立即支付 ¥{{orderInfo.amount}}
       </button>
-      <button class="contact-btn" onTap="contactService">联系客服</button>
+
     </view>
     
     <!-- 支付成功状态 -->
@@ -117,13 +117,13 @@
       <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
         重新支付 ¥{{orderInfo.amount}}
       </button>
-      <button class="secondary-btn" onTap="contactService">联系客服</button>
+
     </view>
     
     <!-- 支付处理中状态 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'processing'}}">
       <button class="secondary-btn" onTap="goToOrders">查看订单</button>
-      <button class="secondary-btn" onTap="contactService">联系客服</button>
+
     </view>
   </view>
 </view>

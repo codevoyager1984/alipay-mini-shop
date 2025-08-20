@@ -207,7 +207,8 @@ Page({
             avatar: user.avatar_url || avatarUrl,
             phone: user.phone,
             alipayUserId: user.alipay_user_id,
-            userId: user.id
+            userId: user.id,
+            isVerified: user.is_certified || false
           };
           
           // 保存access_token到本地存储

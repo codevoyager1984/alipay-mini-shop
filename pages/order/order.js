@@ -30,7 +30,13 @@ Page({
       paymentMethod: '先用后付',  // 支付方式：固定先用后付
       supportedInstallments: null, // 支持期数：从接口获取
       rentalPlan: '长租'        // 租赁方案：固定长租
-    }
+    },
+    
+    // 合同相关状态
+    showContractModal: false,  // 是否显示合同弹窗
+    countdown: 10,             // 倒计时秒数（10秒）
+    isAgreed: false,          // 是否同意协议
+    countdownTimer: null      // 倒计时定时器
   },
 
   onLoad(query) {
@@ -74,6 +80,10 @@ Page({
 
   onUnload() {
     // 页面被关闭
+    // 清理倒计时定时器
+    if (this.data.countdownTimer) {
+      clearInterval(this.data.countdownTimer);
+    }
   },
 
   onTitleClick() {
@@ -180,7 +190,70 @@ Page({
     }
   },
 
-  // 确认下单
+  // 显示合同弹窗
+  showContract() {
+    // 显示合同弹窗并开始倒计时
+    this.setData({
+      showContractModal: true,
+      countdown: 10,
+      isAgreed: false
+    });
+    
+    this.startCountdown();
+  },
+
+  // 关闭合同弹窗
+  closeContract() {
+    this.setData({
+      showContractModal: false,
+      countdown: 10,
+      isAgreed: false
+    });
+    
+    // 清理倒计时定时器
+    if (this.data.countdownTimer) {
+      clearInterval(this.data.countdownTimer);
+      this.setData({
+        countdownTimer: null
+      });
+    }
+  },
+
+  // 开始倒计时
+  startCountdown() {
+    const timer = setInterval(() => {
+      const currentCountdown = this.data.countdown;
+      if (currentCountdown > 0) {
+        this.setData({
+          countdown: currentCountdown - 1
+        });
+      } else {
+        // 倒计时结束，清理定时器
+        clearInterval(timer);
+        this.setData({
+          countdownTimer: null
+        });
+      }
+    }, 1000);
+    
+    this.setData({
+      countdownTimer: timer
+    });
+  },
+
+  // 切换协议同意状态
+  toggleAgreement() {
+    // 只有倒计时结束后才能切换同意状态
+    if (this.data.countdown === 0) {
+      this.setData({
+        isAgreed: !this.data.isAgreed
+      });
+    }
+  },
+
+
+
+  // 确认下单（显示订单确认弹窗）
   async confirmOrder() {
     // 先检查登录状态
     if (!this.checkLoginStatus()) {
@@ -245,6 +318,11 @@ Page({
 
   // 提交订单
   async submitOrder() {
+    // 检查是否满足提交条件
+    if (this.data.countdown > 0 || !this.data.isAgreed) {
+      return;
+    }
+
     try {
       my.showLoading({
         content: '正在创建订单...'
@@ -279,10 +357,19 @@ Page({
       my.hideLoading();
 
       if (response.statusCode === 200 && response.data) {
-        // 订单创建成功，关闭确认弹窗
+        // 订单创建成功，关闭合同弹窗和订单确认弹窗
         this.setData({
+          showContractModal: false,
           showOrderConfirm: false
         });
+
+        // 清理倒计时定时器
+        if (this.data.countdownTimer) {
+          clearInterval(this.data.countdownTimer);
+          this.setData({
+            countdownTimer: null
+          });
+        }
 
         // 跳转到支付页面
         my.navigateTo({

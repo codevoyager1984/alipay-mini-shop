@@ -67,7 +67,7 @@
     <button class="order-btn" onTap="confirmOrder">立即下单</button>
   </view>
 
-  <!-- 订单确认弹窗 -->
+  <!-- 订单确认弹窗（包含协议内容） -->
   <view class="order-confirm-modal" a:if="{{showOrderConfirm}}">
     <view class="modal-mask" onTap="closeOrderConfirm"></view>
     <view class="modal-content">
@@ -133,7 +133,103 @@
           <text class="price-amount">{{productInfo.price}}</text>
           <text class="price-unit">/月</text>
         </view>
-        <button class="confirm-btn" onTap="submitOrder">确认下单</button>
+        <button class="confirm-btn" onTap="showContract">确认下单</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务协议弹窗 -->
+  <view class="order-confirm-modal" a:if="{{showContractModal}}">
+    <view class="modal-mask" onTap="closeContract"></view>
+    <view class="modal-content">
+      <!-- 关闭按钮 -->
+      <view class="modal-close" onTap="closeContract">✕</view>
+      
+      <!-- 标题 -->
+      <view class="contract-title">
+        <text class="contract-title-text">服务协议</text>
+        <text class="contract-subtitle">请仔细阅读以下条款</text>
+      </view>
+      
+      <!-- 合同内容 -->
+      <scroll-view class="contract-scroll" scroll-y="true">
+        <view class="contract-text">
+          <text class="contract-heading">租赁合同</text>
+          
+          <text class="contract-party">甲方（出租方）：微小租新能源（贵州）有限公司</text>
+          
+          <text class="contract-warning">特别提醒：在此特别提示您阅读本合同的各个条款，尤其是以粗体并下划线标示的条款，包括第七条租转售条款、第八条违约责任条款、第十条争议解决及区块链存证条款、第十一条通知及送达条款等可能限制或影响您责任的相应条款。如您通过点击确认、勾选同意等方式在平台或其他客户端确认本合同，或通过电子签名的方式在电子合同平台签署本合同，即视为您已阅读并同意本合同所有条款，并对本合同条款的含义及相应的法律后果已全部通晓并充分理解，同意接受本合同的约束。</text>
+          
+          <text class="contract-section-title">重要注意事项</text>
+          
+          <text class="contract-subsection">一、租赁物相关注意事项</text>
+          <text class="contract-item">1. 本合同约定的租赁物指甲方在租赁平台登记由甲方合法拥有的产品或提供的租赁服务（包括不限于汽车、电动车（含两轮、三轮、四轮）、摩托车、电池（含充、换电服务）、配送装备、零配件、3C数码、家电、家具等商品或服务）。</text>
+          <text class="contract-item">2. 承租方应在合同约定的租赁起始日到达约定提货站点提取租赁物，未按时提货的，租期不予顺延。</text>
+          <text class="contract-item">3. 承租方在提货时应仔细检查确认租赁物是否完好，当承租方在平台点击确认提货或以其他方式确认提货后，将视为其认可所取租赁物不存在任何异常。</text>
+          
+          <text class="contract-subsection">二、租金及费用注意事项</text>
+          <text class="contract-item">1. 承租方的租金支付应严格按照租金支付计划进行支付，每期租金须在约定支付之日前准备充足。</text>
+          <text class="contract-item">2. 承租方明确授权甲方可在合同约定的账单日/支付日自动从承租方注册账户所绑定的支付方式中扣减应缴纳的租金、违约金、损害赔偿及其他服务费用和合理支出等。</text>
+          
+          <text class="contract-subsection">三、违约责任及处罚条款</text>
+          <text class="contract-highlight">1. 拖欠租金违约金：若拖欠租金，承租方须自应付租金之日起算，每日按支付月租金1%的标准向甲方支付违约金。违约超过30个自然日触发租转售条款的，违约金则按照租赁物销售价格的30%收取。</text>
+          <text class="contract-highlight">2. 损坏赔偿：若租赁物因非自然损坏或碰撞、事故等导致损毁的，承租方应按本合同订单信息约定的租赁物销售金额的价款对甲方进行赔偿。</text>
+          <text class="contract-item">3. 提前退租折旧费：若承租方承租全新租赁物要求提前退租，则承租方需归还租赁物并向甲方额外支付折旧费，租赁旧租赁物不需要折旧费，付清已产生租金及归还租赁物即可。</text>
+          <text class="contract-item">4. 遗失赔偿：若租赁物遗失，承租方在15天内提供报警回执的，赔偿金相当于剩余租金；承租方在15天内无法提供报警回执的，赔偿金为租赁物销售价格。</text>
+          <text class="contract-item">5. 毁坏赔偿：若租赁物毁坏以致无法使用，承租方需按照租赁物实际销售价格进行赔偿，已支付租金不可作为赔偿款抵扣。</text>
+          
+          <text class="contract-subsection">四、租转售条款</text>
+          <text class="contract-highlight">重要提醒：承租方同意并知晓，在发生以下情况或条件成就之日起，所租赁物将直接由租转售，且甲方无需再另行通知承租方：</text>
+          <text class="contract-item">1. 租赁期间内，承租方逾期支付租金超过30个自然日；</text>
+          <text class="contract-item">2. 以任何原因租赁期限提前终止，承租方逾期归还租赁物超过30个自然日；</text>
+          <text class="contract-item">3. 因承租方原因导致租赁物在租赁期间遗失、灭失、报废、实质性损坏，或承租方自行修理或添改租赁物等，使得租赁物无法归还或不符合本合同约定的正常使用性能；</text>
+          <text class="contract-item">4. 其它应当买断租赁物的情形。</text>
+          
+          <text class="contract-subsection">五、承租方义务及禁止事项</text>
+          <text class="contract-item">1. 使用限制：承租方不得买卖、抵押、质押、转租、转借租赁物；不得擅自变动、修理、添改租赁物硬件任何部位或部件。</text>
+          <text class="contract-item">2. 车辆使用规定：（适用于租赁物是车辆的情况下）</text>
+          <text class="contract-sub-item">- 遵守《道路交通安全法》等相关法律、法规的规定</text>
+          <text class="contract-sub-item">- 驾驶车辆前不得饮酒、醉酒</text>
+          <text class="contract-sub-item">- 不得为任何非法目的而使用租赁服务</text>
+          <text class="contract-sub-item">- 需保管好车辆行驶证正本，如有缺失，需支付补办费</text>
+          <text class="contract-sub-item">- 车牌缺失，需支付补办费</text>
+          <text class="contract-item">3. 安全责任：对于甲方提供的租赁物，承租方在使用过程中的一切风险和法律责任（包括但不限于承租方在使用租赁物过程中造成的承租方自身或他人的人身损害、财产损失等）均由承租方承担，与甲方无关。</text>
+          
+          <text class="contract-final-warning">重要声明：本合同条款涉及承租方重要权利义务，请仔细阅读并充分理解后再行签署。</text>
+        </view>
+      </scroll-view>
+      
+      <!-- 倒计时和同意区域 -->
+      <view class="agreement-area">
+        <view class="countdown-section">
+          <text class="countdown-text" a:if="{{countdown > 0}}">请仔细阅读条款（{{countdown}}s）</text>
+          <text class="countdown-text" a:else>已完成阅读，可以继续下一步</text>
+        </view>
+        
+        <view class="agreement-section">
+          <view class="checkbox-wrapper" onTap="toggleAgreement">
+            <view class="checkbox {{isAgreed ? 'checked' : ''}}">
+              <text class="checkmark" a:if="{{isAgreed}}">✓</text>
+            </view>
+            <text class="checkbox-label">我已阅读并同意《服务协议》</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 价格和确认按钮 -->
+      <view class="confirm-bottom">
+        <view class="confirm-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-amount">{{productInfo.price}}</text>
+          <text class="price-unit">/月</text>
+        </view>
+        <button 
+          class="confirm-btn {{countdown === 0 && isAgreed ? 'enabled' : 'disabled'}}" 
+          onTap="submitOrder"
+          disabled="{{countdown > 0 || !isAgreed}}"
+        >
+          确认提交订单
+        </button>
       </view>
     </view>
   </view>
