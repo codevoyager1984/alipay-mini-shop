@@ -59,6 +59,13 @@
   margin-left: 8rpx;
 }
 
+.service-fee {
+  font-size: 24rpx;
+  color: #666;
+  margin-left: 10rpx;
+  font-weight: normal;
+}
+
 /* 特别提醒 */
 .warning-notice {
   background: #fff9f0;
@@ -425,6 +432,13 @@
   font-size: 24rpx;
   color: #ff4757;
   margin-left: 8rpx;
+}
+
+.confirm-price .service-fee {
+  font-size: 20rpx;
+  color: #666;
+  margin-left: 8rpx;
+  font-weight: normal;
 }
 
 .confirm-btn {

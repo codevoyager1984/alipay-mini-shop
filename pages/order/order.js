@@ -32,7 +32,7 @@ Page({
       rentalPlan: '长租'        // 租赁方案：固定长租
     },
     
-    // 合同相关状态
+    // 合同相关状态（保留以备兼容）
     showContractModal: false,  // 是否显示合同弹窗
     countdown: 10,             // 倒计时秒数（10秒）
     isAgreed: false,          // 是否同意协议
@@ -130,6 +130,7 @@ Page({
           id: response.data.id,
           name: response.data.name,
           price: response.data.monthly_price.toString(),
+          service_fee: response.data.service_fee,
           image: response.data.cover_image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ci8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iI2Y0NDMzNiIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPHN2ZyB4PSI5MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjYiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRsMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDQgMCAwIDEgMC0xLjQxNGwyLTJhMSAxIDAgMCAxIDEuNDE0IDAiLz4KPC9zdmc+CjwvdGV4dD4K',
           rentalPeriod: response.data.rental_period,
           description: response.data.description
@@ -316,7 +317,68 @@ Page({
     });
   },
 
-  // 提交订单
+  // 直接提交订单（不显示协议弹窗）
+  async submitOrderDirect() {
+    try {
+      my.showLoading({
+        content: '正在创建订单...'
+      });
+
+      // 获取用户信息
+      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+      
+      if (!userInfo.data || !userInfo.data.userId) {
+        throw new Error('用户信息获取失败，请重新登录');
+      }
+
+      // 调用订单创建API
+      const response = await new Promise((resolve, reject) => {
+        my.request({
+          url: `${config.api.baseUrl}${config.api.endpoints.orders.create}`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          data: {
+            product_id: this.data.productInfo.id,
+            remark: null
+          },
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      my.hideLoading();
+
+      if (response.statusCode === 200 && response.data) {
+        // 订单创建成功，关闭订单确认弹窗
+        this.setData({
+          showOrderConfirm: false
+        });
+
+        // 跳转到支付页面
+        my.navigateTo({
+          url: `/pages/payment/payment?orderId=${response.data.id}&orderNo=${response.data.order_no}&amount=${response.data.total_amount}`
+        });
+      } else {
+        throw new Error((response.data && response.data.message) ? response.data.message : '订单创建失败');
+      }
+    } catch (error) {
+      my.hideLoading();
+      console.error('创建订单失败:', error);
+      
+      my.showModal({
+        title: '订单创建失败',
+        content: error.message || '网络错误，请稍后重试',
+        confirmText: '知道了',
+        showCancel: false
+      });
+    }
+  },
+
+  // 提交订单（保留原方法以备兼容）
   async submitOrder() {
     // 检查是否满足提交条件
     if (this.data.countdown > 0 || !this.data.isAgreed) {

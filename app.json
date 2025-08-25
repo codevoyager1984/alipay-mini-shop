@@ -44,5 +44,11 @@
     "requestReferrerStyle": "full",
     "requestDefaultEnableCookie": true,
     "connectSocketDefaultMultiple": true
+  },
+  "plugins": {
+    "esign": {
+      "version": "*",
+      "provider": "2021001115656413"
+    }
   }
 }

@@ -3,7 +3,7 @@ const config = {
   // API相关配置
   api: {
     // API基础域名
-    baseUrl: 'https://weixiaozu.farmbot.me/',
+    baseUrl: 'http://45.78.228.239:8000',
     
     // API端点
     endpoints: {

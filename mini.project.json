@@ -1,3 +1,7 @@
 {
-  "format": 2
+  "format": 2,
+  "compnent2": true,
+  "compileOptions": {
+    "component2": true
+  }
 }
