@@ -8,6 +8,7 @@ Page({
     installmentNo: null,
     productName: '',
     amount: 0,
+    paymentType: 'installment', // installment 或 serviceFee
     
     // 支付状态
     paymentStatus: 'checking', // checking, success, failed, timeout
@@ -46,7 +47,16 @@ Page({
         orderNo: query.orderNo,
         installmentNo: parseInt(query.installmentNo),
         productName: query.productName || '商品',
-        amount: parseFloat(query.amount) || 0
+        amount: parseFloat(query.amount) || 0,
+        paymentType: query.paymentType || 'installment'
+      });
+      
+      // 设置初始状态文本
+      const initialStatusText = this.data.paymentType === 'serviceFee' ? 
+        '正在确认服务费支付状态...' : 
+        '正在确认分期支付状态...';
+      this.setData({
+        statusText: initialStatusText
       });
       
       // 开始轮询支付状态
@@ -111,9 +121,17 @@ Page({
     try {
       const accessToken = my.getStorageSync({ key: 'access_token' });
       
+      // 根据支付类型选择不同的接口
+      let statusUrl;
+      if (this.data.paymentType === 'serviceFee') {
+        statusUrl = `${config.api.baseUrl}${config.api.endpoints.payment.serviceFeeStatus}/${this.data.orderId}`;
+      } else {
+        statusUrl = `${config.api.baseUrl}${config.api.endpoints.payment.status}/${this.data.orderId}/${this.data.installmentNo}`;
+      }
+      
       const response = await new Promise((resolve, reject) => {
         my.request({
-          url: `${config.api.baseUrl}${config.api.endpoints.payment.status}/${this.data.orderId}/${this.data.installmentNo}`,
+          url: statusUrl,
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${accessToken.data}`
@@ -136,9 +154,12 @@ Page({
           // 支付成功
           this.handlePaymentSuccess();
         } else if (is_paid === false) {
-          // 继续等未开始完成
+          // 继续等待支付完成
+          const statusText = this.data.paymentType === 'serviceFee' ? 
+            '服务费支付确认中，请稍候...' : 
+            '分期支付确认中，请稍候...';
           this.setData({
-            statusText: '支付确认中，请稍候...'
+            statusText: statusText
           });
         }
         // 注意：新接口似乎只返回 is_paid 布尔值，不再有明确的失败状态
@@ -218,13 +239,36 @@ Page({
   handlePaymentSuccess() {
     this.clearTimers();
     
+    const statusText = this.data.paymentType === 'serviceFee' ? 
+      '服务费支付成功！' : 
+      '分期支付成功！';
+    
     this.setData({
       paymentStatus: 'success',
-      statusText: '支付成功！',
+      statusText: statusText,
       loading: false,
       countdownText: '支付确认完成',
       isTimeout: false
     });
+
+    // 根据支付类型执行不同的后续操作
+    if (this.data.paymentType === 'serviceFee') {
+      // 服务费支付成功，开启电子签流程
+      this.setData({
+        statusText: '服务费支付成功！正在准备合同签署...'
+      });
+      setTimeout(() => {
+        this.startEsignProcess();
+      }, 500);
+    } else {
+      // 分期支付成功，3秒后跳转到订单页面
+      this.setData({
+        statusText: '分期支付成功！3秒后自动跳转到订单页面...'
+      });
+      setTimeout(() => {
+        this.goToOrders();
+      }, 1000);
+    }
   },
 
   // 支付失败处理
@@ -372,6 +416,103 @@ Page({
         my.showToast({
           content: '拨打电话失败',
           type: 'fail'
+        });
+      }
+    });
+  },
+
+  // 开启电子签流程
+  async startEsignProcess() {
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        my.showToast({
+          content: '登录状态失效，请重新登录',
+          type: 'fail'
+        });
+        return;
+      }
+
+      my.showLoading({
+        content: '正在准备合同签署...'
+      });
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.esign.start,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        data: {
+          order_id: this.data.orderId
+        },
+        success: (response) => {
+          my.hideLoading();
+          console.log('电子签开启成功:', response);
+          
+          if (response.statusCode === 200 && response.data && response.data.url) {
+            // 使用webview打开电子签页面
+            this.openEsignWebview(response.data.url);
+          } else {
+            throw new Error('电子签接口返回格式错误');
+          }
+        },
+        fail: (error) => {
+          my.hideLoading();
+          console.error('开启电子签流程失败:', error);
+          
+          this.setData({
+            statusText: '服务费支付成功！但合同签署准备失败，请稍后重试'
+          });
+          
+          my.showModal({
+            title: '合同签署准备失败',
+            content: '无法准备合同签署，请稍后重试或联系客服',
+            confirmText: '重试',
+            cancelText: '稍后处理',
+            success: (result) => {
+              if (result.confirm) {
+                this.startEsignProcess();
+              } else {
+                this.goToOrders();
+              }
+            }
+          });
+        }
+      });
+    } catch (e) {
+      my.hideLoading();
+      console.error('电子签流程异常:', e);
+      this.setData({
+        statusText: '服务费支付成功！但合同签署准备失败'
+      });
+      my.showToast({
+        content: '操作失败，请稍后重试',
+        type: 'fail'
+      });
+    }
+  },
+
+  // 打开电子签webview
+  openEsignWebview(url) {
+    my.navigateTo({
+      url: `/pages/webview/webview?url=${encodeURIComponent(url)}&title=${encodeURIComponent('合同签署')}`,
+      success: () => {
+        console.log('跳转到电子签webview成功');
+      },
+      fail: (error) => {
+        console.error('跳转失败:', error);
+        
+        // 如果跳转失败，给用户提示
+        my.showModal({
+          title: '合同签署',
+          content: '无法打开合同签署页面，请稍后重试或联系客服',
+          confirmText: '返回订单',
+          showCancel: false,
+          success: () => {
+            this.goToOrders();
+          }
         });
       }
     });

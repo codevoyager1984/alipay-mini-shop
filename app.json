@@ -8,7 +8,8 @@
     "pages/auth/auth",
     "pages/payment/payment",
     "pages/payment-status/payment-status",
-    "pages/contact-edit/contact-edit"
+    "pages/contact-edit/contact-edit",
+    "pages/webview/webview"
   ],
   "window": {
     "defaultTitle": "微小租新能源"

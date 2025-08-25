@@ -353,9 +353,14 @@ Page({
           loading: false 
         });
         
+        // 判断是否为服务费支付，确定跳转参数
+        const isServiceFeePayment = this.data.orderInfo.service_fee_amount > 0 && !this.data.orderInfo.service_fee_paid;
+        const paymentAmount = isServiceFeePayment ? this.data.orderInfo.service_fee_amount : this.data.orderInfo.amount;
+        const paymentType = isServiceFeePayment ? 'serviceFee' : 'installment';
+        
         // 跳转到支付状态确认页面
         my.navigateTo({
-          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&installmentNo=${this.data.orderInfo.currentInstallmentNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${this.data.orderInfo.amount}`
+          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&installmentNo=${this.data.orderInfo.currentInstallmentNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${paymentAmount}&paymentType=${paymentType}`
         });
       } else {
         // 支付失败或取消
@@ -413,9 +418,8 @@ Page({
     try {
       const accessToken = my.getStorageSync({ key: 'access_token' });
       
-      // 判断支付类型：服务费支付 > 初始支付 > 分期支付
+      // 判断支付类型：服务费支付 或 分期支付
       const isServiceFeePayment = this.data.orderInfo.service_fee_amount > 0 && !this.data.orderInfo.service_fee_paid;
-      const isInitialPayment = !isServiceFeePayment && this.data.orderInfo.totalInstallments === 0;
       
       console.log('支付调试信息:', {
         totalInstallments: this.data.orderInfo.totalInstallments,
@@ -423,7 +427,6 @@ Page({
         service_fee_amount: this.data.orderInfo.service_fee_amount,
         service_fee_paid: this.data.orderInfo.service_fee_paid,
         isServiceFeePayment: isServiceFeePayment,
-        isInitialPayment: isInitialPayment,
         orderId: this.data.orderInfo.orderId,
         currentInstallmentNo: this.data.orderInfo.currentInstallmentNo
       });
@@ -431,8 +434,6 @@ Page({
       let endpoint;
       if (isServiceFeePayment) {
         endpoint = config.api.endpoints.payment.serviceFee;
-      } else if (isInitialPayment) {
-        endpoint = config.api.endpoints.payment.initial;
       } else {
         endpoint = config.api.endpoints.payment.create;
       }
@@ -444,8 +445,8 @@ Page({
         order_id: this.data.orderInfo.orderId
       };
       
-      // 如果不是服务费支付且不是初始支付，需要传入分期号
-      if (!isServiceFeePayment && !isInitialPayment) {
+      // 如果不是服务费支付，需要传入分期号
+      if (!isServiceFeePayment) {
         requestData.installment_no = this.data.orderInfo.currentInstallmentNo;
       }
       
