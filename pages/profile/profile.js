@@ -21,6 +21,28 @@ Page({
     // 打码的手机号
     maskedPhone: '',
     
+    // 联系信息
+    contactInfo: {
+      email: '',
+      contact_address: '',
+      emergency_contact_name: '',
+      emergency_contact_phone: '',
+      social_account: '',
+      isComplete: false
+    },
+    
+    // 联系信息表单
+    contactForm: {
+      email: '',
+      contact_address: '',
+      emergency_contact_name: '',
+      emergency_contact_phone: '',
+      social_account: ''
+    },
+    
+    // 联系信息弹窗显示状态
+    showContactModal: false,
+    
     // 全局配置信息
     globalConfig: null
   },
@@ -107,6 +129,7 @@ Page({
         // 如果用户已登录，尝试从后端获取最新用户信息
         if (userInfo.data.isLogin) {
           this.getUserProfile();
+          this.loadContactInfo();
         }
       }
     } catch (e) {
@@ -644,5 +667,237 @@ Page({
         }
       }
     });
+  },
+
+  // 加载联系信息
+  loadContactInfo() {
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        console.log('未找到access_token，跳过获取联系信息');
+        return;
+      }
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.auth.profile,
+        method: 'GET',
+        headers: {
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        success: (response) => {
+          console.log('获取联系信息成功:', response);
+          
+          if (response.statusCode === 200 && response.data) {
+            const userProfile = response.data;
+            
+            // 检查联系信息是否完整（必填字段都已填写）
+            const isComplete = !!(
+              userProfile.contact_address && 
+              userProfile.emergency_contact_name && 
+              userProfile.emergency_contact_phone
+            );
+            
+            const contactInfo = {
+              email: userProfile.email || '',
+              contact_address: userProfile.contact_address || '',
+              emergency_contact_name: userProfile.emergency_contact_name || '',
+              emergency_contact_phone: userProfile.emergency_contact_phone || '',
+              social_account: userProfile.social_account || '',
+              isComplete: isComplete
+            };
+            
+            this.setData({
+              contactInfo: contactInfo,
+              contactForm: { ...contactInfo }
+            });
+          }
+        },
+        fail: (error) => {
+          console.error('获取联系信息失败:', error);
+        }
+      });
+    } catch (e) {
+      console.error('加载联系信息时发生错误:', e);
+    }
+  },
+
+  // 编辑联系信息
+  editContactInfo() {
+    if (!this.data.userInfo.isLogin) {
+      my.showToast({
+        content: '请先登录',
+        type: 'fail'
+      });
+      return;
+    }
+
+    // 初始化表单数据
+    this.setData({
+      contactForm: { ...this.data.contactInfo },
+      showContactModal: true
+    });
+  },
+
+  // 关闭联系信息弹窗
+  closeContactModal() {
+    this.setData({
+      showContactModal: false
+    });
+  },
+
+  // 阻止弹窗内部点击事件冒泡
+  stopPropagation(e) {
+    // 阻止事件冒泡，防止点击弹窗内容时关闭弹窗
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
+    return false;
+  },
+
+  // 联系信息表单输入处理
+  onContactFormInput(e) {
+    const { field } = e.target.dataset;
+    const { value } = e.detail;
+    
+    this.setData({
+      [`contactForm.${field}`]: value
+    });
+  },
+
+  // 保存联系信息
+  saveContactInfo() {
+    const { contactForm } = this.data;
+    
+    // 验证必填字段
+    if (!contactForm.contact_address || !contactForm.contact_address.trim()) {
+      my.showToast({
+        content: '请填写联系地址',
+        type: 'fail'
+      });
+      return;
+    }
+    
+    if (!contactForm.emergency_contact_name || !contactForm.emergency_contact_name.trim()) {
+      my.showToast({
+        content: '请填写紧急联系人姓名',
+        type: 'fail'
+      });
+      return;
+    }
+    
+    if (!contactForm.emergency_contact_phone || !contactForm.emergency_contact_phone.trim()) {
+      my.showToast({
+        content: '请填写紧急联系人电话',
+        type: 'fail'
+      });
+      return;
+    }
+    
+    // 验证紧急联系人电话格式（必填字段）
+    if (!this.validatePhone(contactForm.emergency_contact_phone)) {
+      my.showToast({
+        content: '请输入正确的紧急联系人电话格式',
+        type: 'fail'
+      });
+      return;
+    }
+    
+    // 验证邮箱格式（如果填写了邮箱）
+    if (contactForm.email && !this.validateEmail(contactForm.email)) {
+      my.showToast({
+        content: '请输入正确的邮箱格式',
+        type: 'fail'
+      });
+      return;
+    }
+
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        my.showToast({
+          content: '请重新登录',
+          type: 'fail'
+        });
+        return;
+      }
+
+      my.showLoading({
+        content: '保存中...'
+      });
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.auth.contactInfo,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        data: contactForm,
+        success: (response) => {
+          my.hideLoading();
+          console.log('保存联系信息成功:', response);
+          
+          if (response.statusCode === 200) {
+            // 检查联系信息是否完整（必填字段都已填写）
+            const isComplete = !!(
+              contactForm.contact_address && 
+              contactForm.emergency_contact_name && 
+              contactForm.emergency_contact_phone
+            );
+            
+            const contactInfo = {
+              ...contactForm,
+              isComplete: isComplete
+            };
+            
+            this.setData({
+              contactInfo: contactInfo,
+              showContactModal: false
+            });
+            
+            my.showToast({
+              content: '联系信息保存成功！',
+              type: 'success'
+            });
+          } else {
+            throw new Error('保存响应数据格式错误');
+          }
+        },
+        fail: (error) => {
+          my.hideLoading();
+          console.error('保存联系信息失败:', error);
+          
+          let errorMessage = '保存失败，请稍后重试';
+          if (error.status === 401) {
+            errorMessage = '登录已过期，请重新登录';
+            this.logout();
+          }
+          
+          my.showToast({
+            content: errorMessage,
+            type: 'fail'
+          });
+        }
+      });
+    } catch (e) {
+      my.hideLoading();
+      console.error('保存联系信息时发生错误:', e);
+      my.showToast({
+        content: '操作失败，请稍后重试',
+        type: 'fail'
+      });
+    }
+  },
+
+  // 验证邮箱格式
+  validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  },
+
+  // 验证手机号格式
+  validatePhone(phone) {
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    return phoneRegex.test(phone);
   }
 });

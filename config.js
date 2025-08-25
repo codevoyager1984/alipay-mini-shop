@@ -13,7 +13,8 @@ const config = {
         profile: '/api/auth/profile',
         bindPhone: '/api/auth/bind-phone',
         certifyInitialize: '/api/auth/certify/initialize',
-        certifyQuery: '/api/auth/certify/query'
+        certifyQuery: '/api/auth/certify/query',
+        contactInfo: '/api/auth/contact-info'
       },
       // 产品相关
       products: {
