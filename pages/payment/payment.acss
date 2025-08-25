@@ -588,8 +588,8 @@
 /* 联系信息卡片 */
 .contact-info-card {
   background: #fff;
-  margin: 20rpx;
-  border-radius: 15rpx;
+  margin: 20rpx 30rpx;
+  border-radius: 20rpx;
   padding: 30rpx;
   box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
 }

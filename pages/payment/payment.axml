@@ -67,38 +67,6 @@
     </view>
   </view>
 
-  <!-- 支付状态 -->
-  <view class="payment-status-card" a:if="{{paymentStatus !== 'pending' || (orderInfo.service_fee_amount <= 0 || orderInfo.service_fee_paid)}}">
-    
-    <!-- 支付处理中 -->
-    <view class="status-content" a:if="{{paymentStatus === 'processing'}}">
-      <view class="status-icon processing">⏳</view>
-      <view class="status-title">支付处理中</view>
-      <view class="status-desc">支付正在处理中，请稍候...</view>
-    </view>
-    
-    <!-- 支付成功 -->
-    <view class="status-content" a:if="{{paymentStatus === 'success'}}">
-      <view class="status-icon success">✅</view>
-      <view class="status-title">支付成功</view>
-      <!-- 服务费支付成功 -->
-      <view class="status-desc" a:if="{{orderInfo.service_fee_amount > 0 && !orderInfo.service_fee_paid}}">
-        服务费支付成功，我们将尽快为您安排发货
-      </view>
-      <!-- 分期或普通支付成功 -->
-      <view class="status-desc" a:else>
-        订单支付成功，我们将尽快为您安排发货
-      </view>
-    </view>
-    
-    <!-- 支付失败 -->
-    <view class="status-content" a:if="{{paymentStatus === 'failed'}}">
-      <view class="status-icon failed">❌</view>
-      <view class="status-title">支付失败</view>
-      <view class="status-desc">支付未完成，您可以重新尝试支付</view>
-    </view>
-  </view>
-
   <!-- 联系信息 -->
   <view class="contact-info-card">
     <view class="card-title">联系信息</view>
@@ -138,6 +106,38 @@
         <view class="method-desc">安全快捷的在线支付</view>
       </view>
       <view class="method-selected">✓</view>
+    </view>
+  </view>
+
+  <!-- 支付状态 -->
+  <view class="payment-status-card" a:if="{{paymentStatus !== 'pending' || (orderInfo.service_fee_amount <= 0 || orderInfo.service_fee_paid)}}">
+    
+    <!-- 支付处理中 -->
+    <view class="status-content" a:if="{{paymentStatus === 'processing'}}">
+      <view class="status-icon processing">⏳</view>
+      <view class="status-title">支付处理中</view>
+      <view class="status-desc">支付正在处理中，请稍候...</view>
+    </view>
+    
+    <!-- 支付成功 -->
+    <view class="status-content" a:if="{{paymentStatus === 'success'}}">
+      <view class="status-icon success">✅</view>
+      <view class="status-title">支付成功</view>
+      <!-- 服务费支付成功 -->
+      <view class="status-desc" a:if="{{orderInfo.service_fee_amount > 0 && !orderInfo.service_fee_paid}}">
+        服务费支付成功，我们将尽快为您安排发货
+      </view>
+      <!-- 分期或普通支付成功 -->
+      <view class="status-desc" a:else>
+        订单支付成功，我们将尽快为您安排发货
+      </view>
+    </view>
+    
+    <!-- 支付失败 -->
+    <view class="status-content" a:if="{{paymentStatus === 'failed'}}">
+      <view class="status-icon failed">❌</view>
+      <view class="status-title">支付失败</view>
+      <view class="status-desc">支付未完成，您可以重新尝试支付</view>
     </view>
   </view>
 
