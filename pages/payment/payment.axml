@@ -186,7 +186,6 @@
     <!-- 支付处理中状态 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'processing'}}">
       <button class="secondary-btn" onTap="goToOrders">查看订单</button>
-
     </view>
   </view>
 </view>
