@@ -584,3 +584,115 @@
   color: #ad6800;
   line-height: 1.6;
 }
+
+/* 联系信息卡片 */
+.contact-info-card {
+  background: #fff;
+  margin: 20rpx;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 联系信息内容 */
+.contact-content {
+  padding-top: 20rpx;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+  padding: 15rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.contact-item:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.contact-label {
+  font-size: 28rpx;
+  color: #666;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.contact-value {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+/* 未配置联系信息样式 */
+.contact-not-configured {
+  padding-top: 20rpx;
+}
+
+.not-configured-content {
+  display: flex;
+  align-items: center;
+  padding: 25rpx;
+  background: #fff3cd;
+  border: 1rpx solid #ffeaa7;
+  border-radius: 10rpx;
+}
+
+.warning-icon {
+  font-size: 36rpx;
+  margin-right: 15rpx;
+  flex-shrink: 0;
+}
+
+.warning-text {
+  flex: 1;
+  margin-right: 15rpx;
+}
+
+.warning-title {
+  font-size: 28rpx;
+  color: #856404;
+  font-weight: 500;
+  margin-bottom: 5rpx;
+}
+
+.warning-desc {
+  font-size: 24rpx;
+  color: #856404;
+  line-height: 1.4;
+}
+
+.config-btn {
+  background: #ff4757;
+  color: #fff;
+  border: none;
+  border-radius: 20rpx;
+  padding: 10rpx 20rpx;
+  font-size: 26rpx;
+  flex-shrink: 0;
+  height: auto;
+  line-height: 1.2;
+}
+
+.config-btn:active {
+  background: #e84142;
+}
+
+/* 联系信息警告提示 */
+.contact-warning {
+  margin-top: 15rpx;
+  padding: 15rpx 20rpx;
+  background: #fff3cd;
+  border: 1rpx solid #ffeaa7;
+  border-radius: 8rpx;
+  text-align: center;
+}
+
+.contact-warning .warning-text {
+  font-size: 24rpx;
+  color: #856404;
+  line-height: 1.4;
+}

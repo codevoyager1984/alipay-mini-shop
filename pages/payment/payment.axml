@@ -99,6 +99,35 @@
     </view>
   </view>
 
+  <!-- 联系信息 -->
+  <view class="contact-info-card">
+    <view class="card-title">联系信息</view>
+    
+    <!-- 已配置联系信息 -->
+    <view class="contact-content" a:if="{{contactInfo.isConfigured}}">
+      <view class="contact-item">
+        <view class="contact-label">联系地址</view>
+        <view class="contact-value">{{contactInfo.contact_address}}</view>
+      </view>
+      <view class="contact-item">
+        <view class="contact-label">紧急联系人</view>
+        <view class="contact-value">{{contactInfo.emergency_contact_name}} {{contactInfo.emergency_contact_phone}}</view>
+      </view>
+    </view>
+    
+    <!-- 未配置联系信息 -->
+    <view class="contact-not-configured" a:else>
+      <view class="not-configured-content">
+        <view class="warning-icon">⚠️</view>
+        <view class="warning-text">
+          <view class="warning-title">请完善联系信息</view>
+          <view class="warning-desc">为了更好地为您服务，请先完善您的联系信息</view>
+        </view>
+        <button class="config-btn" onTap="goToProfile">去配置</button>
+      </view>
+    </view>
+  </view>
+
   <!-- 支付方式 -->
   <view class="payment-method-card" a:if="{{paymentStatus === 'pending'}}">
     <view class="card-title">支付方式</view>
@@ -116,16 +145,24 @@
   <view class="bottom-action">
     <!-- 服务费支付按钮 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'pending' && orderInfo.service_fee_amount > 0 && !orderInfo.service_fee_paid}}">
-      <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
+      <button class="pay-btn" onTap="startPayment" disabled="{{loading || !contactInfo.isConfigured}}">
         提交订单
       </button>
+      <!-- 联系信息未配置提示 -->
+      <view class="contact-warning" a:if="{{!contactInfo.isConfigured}}">
+        <text class="warning-text">请先完善联系信息后再提交订单</text>
+      </view>
     </view>
     
     <!-- 分期或普通支付按钮 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'pending' && (orderInfo.service_fee_amount <= 0 || orderInfo.service_fee_paid)}}">
-      <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
+      <button class="pay-btn" onTap="startPayment" disabled="{{loading || !contactInfo.isConfigured}}">
         立即支付 ¥{{orderInfo.amount}}
       </button>
+      <!-- 联系信息未配置提示 -->
+      <view class="contact-warning" a:if="{{!contactInfo.isConfigured}}">
+        <text class="warning-text">请先完善联系信息后再支付</text>
+      </view>
     </view>
     
     <!-- 支付成功状态 -->
@@ -137,9 +174,13 @@
     <!-- 支付失败状态 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'failed'}}">
       <!-- 分期或普通重新支付按钮 -->
-      <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
+      <button class="pay-btn" onTap="startPayment" disabled="{{loading || !contactInfo.isConfigured}}">
         重新支付 ¥{{orderInfo.amount}}
       </button>
+      <!-- 联系信息未配置提示 -->
+      <view class="contact-warning" a:if="{{!contactInfo.isConfigured}}">
+        <text class="warning-text">请先完善联系信息后再支付</text>
+      </view>
     </view>
     
     <!-- 支付处理中状态 -->

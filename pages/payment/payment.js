@@ -33,6 +33,14 @@ Page({
     // 全局配置信息
     globalConfig: null,
     
+    // 联系信息
+    contactInfo: {
+      contact_address: '',
+      emergency_contact_name: '',
+      emergency_contact_phone: '',
+      isConfigured: false
+    },
+    
     // 支付状态
     paymentStatus: 'pending', // pending, processing, success, failed
     
@@ -45,6 +53,9 @@ Page({
     
     // 加载全局配置
     this.loadGlobalConfig();
+    
+    // 加载联系信息
+    this.loadContactInfo();
     
     // 获取订单参数
     if (query.orderId && query.orderNo && query.amount) {
@@ -74,7 +85,8 @@ Page({
   },
 
   onShow() {
-    // 页面显示
+    // 页面显示时重新加载联系信息（可能用户刚从profile页面配置完回来）
+    this.loadContactInfo();
   },
 
   onHide() {
@@ -248,6 +260,22 @@ Page({
 
   // 发起支付
   async startPayment() {
+    // 检查联系信息是否已配置
+    if (!this.data.contactInfo.isConfigured) {
+      my.showModal({
+        title: '联系信息未完善',
+        content: '为了保障您的权益，请先完善联系信息再进行支付。',
+        confirmText: '去完善',
+        cancelText: '取消',
+        success: (result) => {
+          if (result.confirm) {
+            this.goToProfile();
+          }
+        }
+      });
+      return;
+    }
+    
     // 检查是否到了支付时间
     if (!this.data.orderInfo.isPaymentDue) {
       const daysUntil = this.getDaysUntilPayment(this.data.orderInfo.dueDate);
@@ -485,6 +513,90 @@ Page({
         console.error('拨打客服电话失败', error);
         my.showToast({
           content: '拨打电话失败',
+          type: 'fail'
+        });
+      }
+    });
+  },
+
+  // 加载联系信息
+  loadContactInfo() {
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        console.log('未找到access_token，跳过获取联系信息');
+        return;
+      }
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.auth.profile,
+        method: 'GET',
+        headers: {
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        success: (response) => {
+          console.log('获取用户联系信息成功:', response);
+          
+          if (response.statusCode === 200 && response.data) {
+            const userProfile = response.data;
+            
+            // 检查联系信息是否已配置（必填字段都已填写）
+            const isConfigured = !!(
+              userProfile.contact_address && 
+              userProfile.emergency_contact_name && 
+              userProfile.emergency_contact_phone
+            );
+            
+            const contactInfo = {
+              contact_address: userProfile.contact_address || '',
+              emergency_contact_name: userProfile.emergency_contact_name || '',
+              emergency_contact_phone: userProfile.emergency_contact_phone || '',
+              isConfigured: isConfigured
+            };
+            
+            this.setData({
+              contactInfo: contactInfo
+            });
+          }
+        },
+        fail: (error) => {
+          console.error('获取联系信息失败:', error);
+          // 如果获取失败，设置为未配置状态
+          this.setData({
+            contactInfo: {
+              contact_address: '',
+              emergency_contact_name: '',
+              emergency_contact_phone: '',
+              isConfigured: false
+            }
+          });
+        }
+      });
+    } catch (e) {
+      console.error('加载联系信息时发生错误:', e);
+      // 如果出现异常，设置为未配置状态
+      this.setData({
+        contactInfo: {
+          contact_address: '',
+          emergency_contact_name: '',
+          emergency_contact_phone: '',
+          isConfigured: false
+        }
+      });
+    }
+  },
+
+  // 跳转到联系信息编辑页面
+  goToProfile() {
+    my.navigateTo({
+      url: '/pages/contact-edit/contact-edit',
+      success: () => {
+        console.log('跳转到联系信息编辑页面成功');
+      },
+      fail: (error) => {
+        console.error('跳转失败:', error);
+        my.showToast({
+          content: '跳转失败，请稍后重试',
           type: 'fail'
         });
       }

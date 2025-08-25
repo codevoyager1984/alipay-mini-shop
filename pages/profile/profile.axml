@@ -77,7 +77,7 @@
   <view class="contact-section" a:if="{{userInfo.isLogin}}">
     <view class="section-title">联系信息</view>
     
-    <view class="menu-item" onTap="editContactInfo">
+    <view class="menu-item" onTap="goToContactEdit">
       <view class="item-left">
         <text class="item-icon">📋</text>
         <text class="item-text">完善联系信息</text>
@@ -132,43 +132,6 @@
     <button class="logout-btn" onTap="logout">退出登录</button>
   </view>
 
-  <!-- 联系信息编辑弹窗 -->
-  <view class="modal-overlay" a:if="{{showContactModal}}" onTap="closeContactModal">
-    <view class="contact-modal" catchTap="stopPropagation">
-      <view class="modal-title">完善联系信息</view>
-      <view class="modal-content">
-        
-        <view class="form-item">
-          <text class="form-label required">联系地址 *</text>
-          <textarea class="form-textarea" placeholder="请输入详细地址（必填）" value="{{contactForm.contact_address}}" onInput="onContactFormInput" data-field="contact_address" />
-        </view>
-        
-        <view class="form-item">
-          <text class="form-label required">紧急联系人姓名 *</text>
-          <input class="form-input" type="text" placeholder="请输入紧急联系人姓名（必填）" value="{{contactForm.emergency_contact_name}}" onInput="onContactFormInput" data-field="emergency_contact_name" />
-        </view>
-        
-        <view class="form-item">
-          <text class="form-label required">紧急联系人电话 *</text>
-          <input class="form-input" type="number" placeholder="请输入紧急联系人电话（必填）" value="{{contactForm.emergency_contact_phone}}" onInput="onContactFormInput" data-field="emergency_contact_phone" />
-        </view>
-        
-        <view class="form-item">
-          <text class="form-label">社交账号（可选）</text>
-          <input class="form-input" type="text" placeholder="微信号/QQ号等（可选）" value="{{contactForm.social_account}}" onInput="onContactFormInput" data-field="social_account" />
-        </view>
 
-        <view class="form-item">
-          <text class="form-label">邮箱地址（可选）</text>
-          <input class="form-input" type="text" placeholder="请输入邮箱地址（可选）" value="{{contactForm.email}}" onInput="onContactFormInput" data-field="email" />
-        </view>
-      </view>
-      
-      <view class="modal-actions">
-        <button class="modal-btn cancel" onTap="closeContactModal">取消</button>
-        <button class="modal-btn confirm" onTap="saveContactInfo">保存</button>
-      </view>
-    </view>
-  </view>
 
 </view>
