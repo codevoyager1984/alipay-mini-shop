@@ -500,6 +500,10 @@ Page({
       url: `/pages/webview/webview?url=${encodeURIComponent(url)}&title=${encodeURIComponent('合同签署')}`,
       success: () => {
         console.log('跳转到电子签webview成功');
+        // 更新状态文本
+        this.setData({
+          statusText: '请在合同页面完成签署...'
+        });
       },
       fail: (error) => {
         console.error('跳转失败:', error);
@@ -516,5 +520,96 @@ Page({
         });
       }
     });
+  },
+
+  // 处理电子签结果回调 - 从webview页面调用
+  handleEsignResult(result, data = {}) {
+    console.log('收到电子签结果:', result, data);
+    
+    switch (result) {
+      case 'success':
+        // 签署成功
+        this.setData({
+          statusText: '合同签署成功！即将跳转到订单页面...'
+        });
+        
+        my.showToast({
+          content: '合同签署完成！',
+          type: 'success'
+        });
+        
+        // 2秒后跳转到订单页面
+        setTimeout(() => {
+          this.goToOrders();
+        }, 2000);
+        break;
+        
+      case 'fail':
+        // 签署失败
+        this.setData({
+          statusText: '合同签署失败，您可以重新尝试或联系客服'
+        });
+        
+        my.showModal({
+          title: '签署失败',
+          content: '合同签署失败，是否重新尝试？',
+          confirmText: '重新签署',
+          cancelText: '稍后处理',
+          success: (modalResult) => {
+            if (modalResult.confirm) {
+              // 重新开启电子签流程
+              this.startEsignProcess();
+            } else {
+              // 跳转到订单页面
+              this.goToOrders();
+            }
+          }
+        });
+        break;
+        
+      case 'revoke':
+        // 签署撤销
+        this.setData({
+          statusText: '合同签署流程已被撤销'
+        });
+        
+        my.showModal({
+          title: '签署撤销',
+          content: '合同签署流程已被撤销，请联系客服了解详情',
+          confirmText: '返回订单',
+          showCancel: false,
+          success: () => {
+            this.goToOrders();
+          }
+        });
+        break;
+        
+      case 'refuse':
+        // 用户拒签
+        this.setData({
+          statusText: '您已拒绝签署合同'
+        });
+        
+        my.showModal({
+          title: '拒绝签署',
+          content: '您已拒绝签署合同，如需继续请重新操作',
+          confirmText: '重新签署',
+          cancelText: '返回订单',
+          success: (modalResult) => {
+            if (modalResult.confirm) {
+              // 重新开启电子签流程
+              this.startEsignProcess();
+            } else {
+              // 跳转到订单页面
+              this.goToOrders();
+            }
+          }
+        });
+        break;
+        
+      default:
+        console.log('未知的电子签结果:', result);
+        break;
+    }
   }
 });

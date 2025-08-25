@@ -77,35 +77,201 @@ Page({
     });
   },
 
-  // 接收webview消息
-  onWebViewMessage(e) {
-    console.log('收到webview消息:', e);
+  // 接收webview消息 - 基于esign-zfb-demo优化
+  onWebViewMessage(message) {
+    console.log('onWebViewMessage>>>>>', message);
     
-    // 处理来自webview的消息
-    const { data } = e.detail;
-    
-    if (data && data.type === 'esign_complete') {
-      // 电子签完成
-      my.showToast({
-        content: '合同签署完成！',
-        type: 'success'
-      });
-      
-      // 延迟返回上一页
-      setTimeout(() => {
+    const {
+      detail: {
+        type,
+        token,
+        url,
+        authFlowId,
+        orderId,
+        signId
+      }
+    } = message;
+
+    switch (type) {
+      case 'IDENTITY_ALI_FACE_AWAKE':
+        // 拉起支付宝刷脸认证
+        my.startAPVerify({
+          url,
+          certifyId: token,
+          success: (res) => {
+            console.log('支付宝刷脸认证成功:', res);
+          },
+          fail: (res) => {
+            console.log('支付宝刷脸认证失败:', res);
+            my.showToast({
+              content: '身份认证失败，请重试',
+              type: 'fail'
+            });
+          },
+          complete: (res) => {
+            console.log('支付宝刷脸认证完成:', res);
+          }
+        });
+        break;
+        
+      case 'RN_DONE':
+        // 实名认证完成
+        console.log('实名认证完成');
+        my.showToast({
+          content: '实名认证完成',
+          type: 'success'
+        });
+        break;
+        
+      case 'E_AUTH_FINISHED':
+        // 授权认证完成
+        console.log('授权认证完成, authFlowId:', authFlowId);
+        my.showToast({
+          content: '授权认证完成',
+          type: 'success'
+        });
+        break;
+        
+      case 'SIGN_SUCCESS':
+        // 签署成功
+        console.log('合同签署成功, orderId:', orderId, 'signId:', signId);
+        this.handleSignSuccess(orderId, signId);
+        break;
+        
+      case 'SIGN_FAIL':
+        // 签署失败
+        console.log('合同签署失败');
+        this.handleSignFail();
+        break;
+        
+      case 'SEAL_EXAMINE':
+        // 等待用印审批
+        console.log('等待用印审批');
+        my.showToast({
+          content: '已提交用印申请，等待审批',
+          type: 'none'
+        });
+        break;
+        
+      case 'REVOKE':
+        // 签署流程撤销
+        console.log('签署流程撤销');
+        this.handleSignRevoke();
+        break;
+        
+      case 'REFUSE':
+        // 拒签
+        console.log('用户拒签');
+        this.handleSignRefuse();
+        break;
+        
+      default:
+        // 兼容旧的消息格式
+        console.log('未知消息类型或旧格式消息:', type);
+        this.handleLegacyMessage(message);
+        break;
+    }
+  },
+
+  // 处理签署成功
+  handleSignSuccess(orderId, signId) {
+    my.showModal({
+      title: '签署成功',
+      content: '合同签署完成！即将跳转到订单页面',
+      confirmText: '确定',
+      showCancel: false,
+      success: () => {
+        // 返回到订单页面，并传递签署成功的信息
+        const pages = getCurrentPages();
+        const prevPage = pages[pages.length - 2]; // 获取上一个页面
+        
+        if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
+          // 如果上一页是payment-status，通知签署结果
+          prevPage.handleEsignResult('success', { orderId, signId });
+        }
+        
+        // 返回上一页
         my.navigateBack();
-      }, 2000);
-    } else if (data && data.type === 'esign_cancel') {
-      // 用户取消签署
-      my.showModal({
-        title: '签署取消',
-        content: '您已取消合同签署，是否返回订单页面？',
-        confirmText: '返回',
-        showCancel: false,
-        success: () => {
+      }
+    });
+  },
+
+  // 处理签署失败
+  handleSignFail() {
+    my.showModal({
+      title: '签署失败',
+      content: '合同签署失败，请稍后重试或联系客服',
+      confirmText: '重试',
+      cancelText: '返回',
+      success: (result) => {
+        if (result.confirm) {
+          // 重新加载页面
+          this.setData({
+            loading: true
+          });
+          // 可以考虑重新调用电子签接口或刷新当前页面
+        } else {
+          const pages = getCurrentPages();
+          const prevPage = pages[pages.length - 2];
+          
+          if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
+            prevPage.handleEsignResult('fail');
+          }
+          
           my.navigateBack();
         }
-      });
+      }
+    });
+  },
+
+  // 处理签署撤销
+  handleSignRevoke() {
+    my.showModal({
+      title: '签署撤销',
+      content: '签署流程已被撤销',
+      confirmText: '确定',
+      showCancel: false,
+      success: () => {
+        const pages = getCurrentPages();
+        const prevPage = pages[pages.length - 2];
+        
+        if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
+          prevPage.handleEsignResult('revoke');
+        }
+        
+        my.navigateBack();
+      }
+    });
+  },
+
+  // 处理拒签
+  handleSignRefuse() {
+    my.showModal({
+      title: '拒绝签署',
+      content: '您已拒绝签署合同',
+      confirmText: '确定',
+      showCancel: false,
+      success: () => {
+        const pages = getCurrentPages();
+        const prevPage = pages[pages.length - 2];
+        
+        if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
+          prevPage.handleEsignResult('refuse');
+        }
+        
+        my.navigateBack();
+      }
+    });
+  },
+
+  // 处理旧版本的消息格式（兼容性）
+  handleLegacyMessage(message) {
+    const { data } = message.detail || {};
+    
+    if (data && data.type === 'esign_complete') {
+      this.handleSignSuccess(data.orderId, data.signId);
+    } else if (data && data.type === 'esign_cancel') {
+      this.handleSignRefuse();
     }
   }
 });
