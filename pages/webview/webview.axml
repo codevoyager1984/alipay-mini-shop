@@ -1,0 +1,18 @@
+<view class="webview-container">
+  <!-- 加载状态 -->
+  <view class="loading-overlay" a:if="{{loading}}">
+    <view class="loading-content">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">正在加载合同页面...</text>
+    </view>
+  </view>
+
+  <!-- webview -->
+  <web-view 
+    src="{{url}}" 
+    onMessage="onWebViewMessage"
+    onLoad="onWebViewLoad"
+    onError="onWebViewError"
+    class="webview"
+  />
+</view>

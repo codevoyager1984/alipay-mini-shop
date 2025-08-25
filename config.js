@@ -39,6 +39,10 @@ const config = {
       // 配置相关
       config: {
         get: '/api/config'
+      },
+      // 电子签相关
+      esign: {
+        start: '/api/esign/start'
       }
     }
   },
@@ -47,6 +51,12 @@ const config = {
   app: {
     name: '微小租新能源',
     version: '1.0.0'
+  },
+
+  // 支付配置
+  payment: {
+    // 跳过支付宝支付API调用（开发/测试环境使用）
+    skipAlipayApi: true
   },
 
   // 全局应用配置缓存

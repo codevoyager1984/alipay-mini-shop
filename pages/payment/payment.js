@@ -310,28 +310,42 @@ Page({
       // 先调用支付创建接口获取支付参数
       const paymentParams = await this.createPayment();
       
-      // 调用支付宝小程序支付接口
-      const payResult = await new Promise((resolve, reject) => {
-        my.tradePay({
-          tradeNO: paymentParams.tradeNO,
-          success: resolve,
-          fail: reject
+      let payResult;
+      
+      // 检查是否跳过支付宝API调用
+      if (config.payment.skipAlipayApi) {
+        console.log('跳过支付宝API调用，模拟支付成功');
+        
+        // 模拟支付宝API返回的成功结果
+        payResult = {
+          resultCode: '8000',
+          memo: '支付处理中（模拟）'
+        };
+        
+        // 模拟API调用时间
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      } else {
+        // 调用真实的支付宝小程序支付接口
+        payResult = await new Promise((resolve, reject) => {
+          my.tradePay({
+            tradeNO: paymentParams.tradeNO,
+            success: resolve,
+            fail: reject
+          });
         });
-      });
+      }
 
       console.log('支付结果:', payResult);
 
       if (payResult.resultCode === '9000') {
-        // 支付提交成功，跳转到支付状态页面进行确认
+        // 支付提交成功，开启电子签流程
         this.setData({ 
-          paymentStatus: 'processing',
+          paymentStatus: 'success',
           loading: false 
         });
         
-        // 跳转到支付状态确认页面
-        my.navigateTo({
-          url: `/pages/payment-status/payment-status?orderId=${this.data.orderInfo.orderId}&orderNo=${this.data.orderInfo.orderNo}&installmentNo=${this.data.orderInfo.currentInstallmentNo}&productName=${encodeURIComponent(this.data.orderInfo.productName)}&amount=${this.data.orderInfo.amount}`
-        });
+        // 开启电子签流程
+        this.startEsignProcess();
       } else if (payResult.resultCode === '8000') {
         // 支付处理中，也跳转到状态页面
         this.setData({ 
@@ -598,6 +612,99 @@ Page({
         my.showToast({
           content: '跳转失败，请稍后重试',
           type: 'fail'
+        });
+      }
+    });
+  },
+
+  // 开启电子签流程
+  async startEsignProcess() {
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        my.showToast({
+          content: '登录状态失效，请重新登录',
+          type: 'fail'
+        });
+        return;
+      }
+
+      my.showLoading({
+        content: '正在准备合同签署...'
+      });
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.esign.start,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        data: {
+          order_id: this.data.orderInfo.orderId
+        },
+        success: (response) => {
+          my.hideLoading();
+          console.log('电子签开启成功:', response);
+          
+          if (response.statusCode === 200 && response.data && response.data.url) {
+            // 使用webview打开电子签页面
+            this.openEsignWebview(response.data.url);
+          } else {
+            throw new Error('电子签接口返回格式错误');
+          }
+        },
+        fail: (error) => {
+          my.hideLoading();
+          console.error('开启电子签流程失败:', error);
+          
+          my.showModal({
+            title: '合同签署准备失败',
+            content: '无法准备合同签署，请稍后重试或联系客服',
+            confirmText: '重试',
+            cancelText: '稍后处理',
+            success: (result) => {
+              if (result.confirm) {
+                this.startEsignProcess();
+              }
+            }
+          });
+        }
+      });
+    } catch (e) {
+      my.hideLoading();
+      console.error('电子签流程异常:', e);
+      my.showToast({
+        content: '操作失败，请稍后重试',
+        type: 'fail'
+      });
+    }
+  },
+
+  // 打开电子签webview
+  openEsignWebview(url) {
+    my.navigateTo({
+      url: `/pages/webview/webview?url=${encodeURIComponent(url)}&title=${encodeURIComponent('合同签署')}`,
+      success: () => {
+        console.log('跳转到电子签webview成功');
+      },
+      fail: (error) => {
+        console.error('跳转失败:', error);
+        
+        // 如果跳转失败，尝试使用系统浏览器打开
+        my.showModal({
+          title: '合同签署',
+          content: '即将跳转到合同签署页面，请在浏览器中完成签署',
+          confirmText: '继续',
+          showCancel: false,
+          success: () => {
+            // 注意：小程序可能不支持直接打开外部链接
+            // 这里提供一个备用方案的思路
+            my.showToast({
+              content: '请稍后，正在准备合同页面',
+              type: 'success'
+            });
+          }
         });
       }
     });
