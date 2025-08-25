@@ -371,19 +371,29 @@ Page({
     try {
       const accessToken = my.getStorageSync({ key: 'access_token' });
       
-      // 判断是否为初始支付（没有分期信息）
-      const isInitialPayment = this.data.orderInfo.totalInstallments === 0;
+      // 判断支付类型：服务费支付 > 初始支付 > 分期支付
+      const isServiceFeePayment = this.data.orderInfo.service_fee_amount > 0 && !this.data.orderInfo.service_fee_paid;
+      const isInitialPayment = !isServiceFeePayment && this.data.orderInfo.totalInstallments === 0;
+      
       console.log('支付调试信息:', {
         totalInstallments: this.data.orderInfo.totalInstallments,
         plannedInstallments: this.data.orderInfo.plannedInstallments,
+        service_fee_amount: this.data.orderInfo.service_fee_amount,
+        service_fee_paid: this.data.orderInfo.service_fee_paid,
+        isServiceFeePayment: isServiceFeePayment,
         isInitialPayment: isInitialPayment,
         orderId: this.data.orderInfo.orderId,
         currentInstallmentNo: this.data.orderInfo.currentInstallmentNo
       });
       
-      const endpoint = isInitialPayment 
-        ? config.api.endpoints.payment.initial 
-        : config.api.endpoints.payment.create;
+      let endpoint;
+      if (isServiceFeePayment) {
+        endpoint = config.api.endpoints.payment.serviceFee;
+      } else if (isInitialPayment) {
+        endpoint = config.api.endpoints.payment.initial;
+      } else {
+        endpoint = config.api.endpoints.payment.create;
+      }
       
       console.log('使用的支付接口:', endpoint);
       
@@ -392,8 +402,8 @@ Page({
         order_id: this.data.orderInfo.orderId
       };
       
-      // 如果不是初始支付，需要传入分期号
-      if (!isInitialPayment) {
+      // 如果不是服务费支付且不是初始支付，需要传入分期号
+      if (!isServiceFeePayment && !isInitialPayment) {
         requestData.installment_no = this.data.orderInfo.currentInstallmentNo;
       }
       

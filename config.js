@@ -31,6 +31,7 @@ const config = {
       payment: {
         create: '/api/payment/create',
         initial: '/api/payment/initial',
+        serviceFee: '/api/payment/service-fee',
         notify: '/api/payment/notify',
         status: '/api/payment/status'  // 状态接口会拼接 /{order_id}
       },
