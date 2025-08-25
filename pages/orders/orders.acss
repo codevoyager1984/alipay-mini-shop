@@ -42,7 +42,7 @@
   flex: 1;
   text-align: center;
   padding: 30rpx 0;
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #666;
   position: relative;
 }
@@ -117,6 +117,11 @@
 .order-status.completed {
   background: #f0f0f0;
   color: #666;
+}
+
+.order-status.overdue {
+  background: #fff2f0;
+  color: #ff4d4f;
 }
 
 /* 订单内容 */
@@ -256,17 +261,10 @@
 }
 
 .go-rent-btn {
-  background: #ff4757;
-  color: #fff;
-  border: none;
-  border-radius: 30rpx;
-  padding: 20rpx 40rpx;
-  font-size: 28rpx;
+  margin-top: 10rpx;
 }
 
-.go-rent-btn:active {
-  background: #ff3838;
-}
+
 
 /* 加载更多提示 */
 .load-more {

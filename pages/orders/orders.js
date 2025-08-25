@@ -113,7 +113,7 @@ Page({
             item.rental_period
           );
           
-          return {
+          const mappedOrder = {
             id: item.id,
             orderNo: item.order_no,
             vehicleName: item.product_name,
@@ -131,6 +131,14 @@ Page({
             statusText: this.getStatusText(item.status),
             rawData: item // 保存原始数据，方便后续使用
           };
+          
+          // 检查订单是否逾期，如果逾期则更新状态
+          if (this.isOrderOverdue(mappedOrder)) {
+            mappedOrder.status = 'overdue';
+            mappedOrder.statusText = '已逾期';
+          }
+          
+          return mappedOrder;
         });
 
         // 合并订单数据（用于分页加载）
@@ -343,11 +351,40 @@ Page({
       filtered = this.data.orders.filter(order => 
         order.status === 'completed'
       );
+    } else if (this.data.activeTab === 'overdue') {
+      filtered = this.data.orders.filter(order => 
+        this.isOrderOverdue(order)
+      );
     }
     
     this.setData({
       filteredOrders: filtered
     });
+  },
+
+  // 判断订单是否逾期
+  isOrderOverdue(order) {
+    // 只有进行中的订单才可能逾期
+    if (order.status !== 'inprogress' && order.status !== 'ongoing') {
+      return false;
+    }
+    
+    // 如果没有下次支付日期，不算逾期
+    if (!order.nextPaymentDate) {
+      return false;
+    }
+    
+    try {
+      // 获取当前日期（只考虑年月日）
+      const today = new Date();
+      const currentDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      
+      // 比较日期
+      return order.nextPaymentDate < currentDateStr;
+    } catch (error) {
+      console.error('判断订单逾期状态失败:', error);
+      return false;
+    }
   },
 
   // 加载全局配置

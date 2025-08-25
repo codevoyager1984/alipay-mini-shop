@@ -16,6 +16,13 @@
       进行中
     </view>
     <view 
+      class="tab-item {{activeTab === 'overdue' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="overdue"
+    >
+      已逾期
+    </view>
+    <view 
       class="tab-item {{activeTab === 'completed' ? 'active' : ''}}" 
       onTap="switchTab" 
       data-tab="completed"
@@ -105,6 +112,23 @@
           >
             查看详情
           </button>
+          
+          <button 
+            class="action-btn secondary" 
+            onTap="viewOrderDetail" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'overdue'}}"
+          >
+            查看详情
+          </button>
+          <button 
+            class="action-btn primary" 
+            onTap="payOrder" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'overdue'}}"
+          >
+            立即支付
+          </button>
         </view>
       </view>
     </block>
@@ -121,9 +145,9 @@
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" a:if="{{!loading && filteredOrders.length === 0}}">
+  <view class="empty-state" a:if="{{!loading && filteredOrders.length === 0 && orders.length === 0}}">
     <text class="empty-icon">📋</text>
-    <text class="empty-text">暂无{{activeTab === 'all' ? '' : activeTab === 'ongoing' ? '进行中的' : '已完成的'}}订单</text>
-    <button class="go-rent-btn" onTap="goToRent">去租车</button>
+    <text class="empty-text">暂无订单</text>
+    <button class="action-btn primary go-rent-btn" onTap="goToRent">去租车</button>
   </view>
 </view>
