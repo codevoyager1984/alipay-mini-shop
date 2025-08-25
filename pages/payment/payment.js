@@ -16,7 +16,18 @@ Page({
       plannedInstallments: 0, // 计划的分期总数（用于页面显示）
       // 支付时间相关
       dueDate: null,
-      isPaymentDue: false
+      isPaymentDue: false,
+      // 服务费相关
+      service_fee_amount: 0,
+      service_fee_paid: false,
+      // 门店信息
+      shopName: '',
+      shopAddress: '',
+      // 租金信息
+      monthlyPrice: 0,
+      // 平台信息
+      customerService: '',
+      serviceTime: ''
     },
     
     // 全局配置信息
@@ -110,6 +121,16 @@ Page({
           'orderInfo.plannedInstallments': installmentInfo.plannedInstallments, // 计划分期总数（用于页面显示）
           'orderInfo.dueDate': this.formatDueDate(installmentInfo.dueDate),
           'orderInfo.isPaymentDue': installmentInfo.isPaymentDue,
+          // 服务费相关字段
+          'orderInfo.service_fee_amount': response.data.service_fee_amount || 0,
+          'orderInfo.service_fee_paid': response.data.service_fee_paid || false,
+          // 门店和租金信息
+          'orderInfo.shopName': response.data.shop_name || '',
+          'orderInfo.shopAddress': response.data.shop_address || '',
+          'orderInfo.monthlyPrice': response.data.monthly_price || 0,
+          // 平台信息
+          'orderInfo.customerService': response.data.customer_service || '',
+          'orderInfo.serviceTime': response.data.service_time || '',
           // 更新支付金额为当前分期金额
           'orderInfo.amount': installmentInfo.currentAmount
         });

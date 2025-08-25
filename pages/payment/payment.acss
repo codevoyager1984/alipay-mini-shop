@@ -120,6 +120,145 @@
   font-weight: 500;
 }
 
+.service-fee-info {
+  font-size: 26rpx;
+  color: #ff7a00;
+  font-weight: 500;
+}
+
+/* 租赁信息卡片 */
+.rental-info-card, .platform-info-card, .remark-card, .credit-service-card {
+  background: #fff;
+  margin: 20rpx 30rpx;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.title-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.contact-shop {
+  background: #e8f5ff;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.contact-text {
+  font-size: 24rpx;
+  color: #1890ff;
+}
+
+/* 信息表格 */
+.info-table {
+  border-radius: 16rpx;
+  overflow: hidden;
+  border: 1rpx solid #f0f0f0;
+}
+
+.table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background: #fff;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.row-label {
+  font-size: 28rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.row-value {
+  font-size: 28rpx;
+  color: #333;
+  text-align: right;
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.phone-number {
+  color: #1890ff;
+}
+
+/* 备注卡片 */
+.remark-input {
+  margin-top: 20rpx;
+}
+
+.remark-field {
+  width: 100%;
+  padding: 20rpx;
+  border: 1rpx solid #e8e8e8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  background: #fafafa;
+}
+
+/* 增信服务 */
+.service-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.service-checkbox {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: #1890ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4rpx;
+}
+
+.checkmark {
+  font-size: 20rpx;
+  color: #fff;
+}
+
+.service-info {
+  flex: 1;
+}
+
+.service-title {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 8rpx;
+}
+
+.service-desc {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.4;
+}
+
+.service-price {
+  font-size: 28rpx;
+  color: #ff4757;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
 .amount-section {
   display: flex;
   justify-content: space-between;
@@ -251,6 +390,77 @@
   padding: 20rpx 30rpx;
   box-shadow: 0 -2rpx 20rpx rgba(0, 0, 0, 0.1);
   z-index: 100;
+}
+
+/* 服务费支付场景的底部区域 */
+.service-fee-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.agreement-section {
+  padding: 0;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  line-height: 1.4;
+}
+
+.checkbox {
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid #d9d9d9;
+  border-radius: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.checkbox.checked {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.checkbox .checkmark {
+  font-size: 20rpx;
+  color: #fff;
+}
+
+.agreement-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.agreement-link {
+  font-size: 24rpx;
+  color: #1890ff;
+  margin-left: 8rpx;
+}
+
+.submit-order-btn {
+  width: 100%;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border: none;
+  margin-top: 10rpx;
+}
+
+.submit-order-btn.enabled {
+  background: #1890ff;
+  color: #fff;
+}
+
+.submit-order-btn.disabled {
+  background: #f5f5f5;
+  color: #bbb;
 }
 
 .action-buttons {

@@ -9,7 +9,7 @@
 
   <!-- 订单信息 -->
   <view class="order-info-card">
-    <view class="card-title">订单信息</view>
+    <view class="card-title">商品信息</view>
     
     <view class="order-detail">
       <image class="product-image" src="{{orderInfo.productImage}}" mode="aspectFill" a:if="{{orderInfo.productImage}}" />
@@ -20,27 +20,42 @@
       <view class="product-info">
         <view class="product-name">{{orderInfo.productName || '商品名称'}}</view>
         <view class="order-no">订单号：{{orderInfo.orderNo}}</view>
-        <view class="installment-info" a:if="{{orderInfo.plannedInstallments > 0}}">
-          第{{orderInfo.currentInstallmentNo}}期 / 共{{orderInfo.plannedInstallments}}期
-        </view>
       </view>
     </view>
+
+  </view>
+
+  <!-- 租赁信息（服务费支付时显示） -->
+  <view class="rental-info-card" a:if="{{orderInfo.service_fee_amount > 0 && !orderInfo.service_fee_paid}}">
+    <view class="card-title">
+      <text class="title-text">租赁信息</text>
+    </view>
     
-    <view class="amount-section">
-      <view class="amount-label">
-        <text a:if="{{orderInfo.plannedInstallments > 0}}">本期支付金额</text>
-        <text a:else>支付金额</text>
+    <view class="info-table">
+      <view class="table-row">
+        <view class="row-label">账单周期</view>
+        <view class="row-value">1月</view>
       </view>
-      <view class="amount-value">
-        <text class="currency">¥</text>
-        <text class="amount">{{orderInfo.amount}}</text>
-        <text class="amount-unit" a:if="{{orderInfo.plannedInstallments > 0}}">/期</text>
+      
+      <view class="table-row">
+        <view class="row-label">期数</view>
+        <view class="row-value">{{orderInfo.plannedInstallments}}</view>
+      </view>
+      
+      <view class="table-row">
+        <view class="row-label">每期租金</view>
+        <view class="row-value">¥{{orderInfo.monthlyPrice}}/月</view>
+      </view>
+      
+      <view class="table-row">
+        <view class="row-label">手续费</view>
+        <view class="row-value">¥{{orderInfo.service_fee_amount}}</view>
       </view>
     </view>
   </view>
 
-  <!-- 支付时间提醒 -->
-  <view class="payment-time-notice" a:if="{{!orderInfo.isPaymentDue && orderInfo.dueDate}}">
+  <!-- 支付时间提醒（仅分期支付时显示） -->
+  <view class="payment-time-notice" a:if="{{!orderInfo.isPaymentDue && orderInfo.dueDate && (orderInfo.service_fee_amount <= 0 || orderInfo.service_fee_paid)}}">
     <view class="notice-content">
       <view class="notice-icon">📅</view>
       <view class="notice-text">
@@ -53,13 +68,7 @@
   </view>
 
   <!-- 支付状态 -->
-  <view class="payment-status-card">
-    <!-- 等未开始 -->
-    <view class="status-content" a:if="{{paymentStatus === 'pending'}}">
-      <view class="status-icon pending">⏱</view>
-      <view class="status-title">未完成支付</view>
-      <view class="status-desc">请点击下方按钮完成支付</view>
-    </view>
+  <view class="payment-status-card" a:if="{{paymentStatus !== 'pending' || (orderInfo.service_fee_amount <= 0 || orderInfo.service_fee_paid)}}">
     
     <!-- 支付处理中 -->
     <view class="status-content" a:if="{{paymentStatus === 'processing'}}">
@@ -72,7 +81,14 @@
     <view class="status-content" a:if="{{paymentStatus === 'success'}}">
       <view class="status-icon success">✅</view>
       <view class="status-title">支付成功</view>
-      <view class="status-desc">订单支付成功，我们将尽快为您安排发货</view>
+      <!-- 服务费支付成功 -->
+      <view class="status-desc" a:if="{{orderInfo.service_fee_amount > 0 && !orderInfo.service_fee_paid}}">
+        服务费支付成功，我们将尽快为您安排发货
+      </view>
+      <!-- 分期或普通支付成功 -->
+      <view class="status-desc" a:else>
+        订单支付成功，我们将尽快为您安排发货
+      </view>
     </view>
     
     <!-- 支付失败 -->
@@ -98,12 +114,18 @@
 
   <!-- 底部操作区域 -->
   <view class="bottom-action">
-    <!-- 等未开始状态 -->
-    <view class="action-buttons" a:if="{{paymentStatus === 'pending'}}">
+    <!-- 服务费支付按钮 -->
+    <view class="action-buttons" a:if="{{paymentStatus === 'pending' && orderInfo.service_fee_amount > 0 && !orderInfo.service_fee_paid}}">
+      <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
+        提交订单
+      </button>
+    </view>
+    
+    <!-- 分期或普通支付按钮 -->
+    <view class="action-buttons" a:if="{{paymentStatus === 'pending' && (orderInfo.service_fee_amount <= 0 || orderInfo.service_fee_paid)}}">
       <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
         立即支付 ¥{{orderInfo.amount}}
       </button>
-
     </view>
     
     <!-- 支付成功状态 -->
@@ -114,10 +136,10 @@
     
     <!-- 支付失败状态 -->
     <view class="action-buttons" a:if="{{paymentStatus === 'failed'}}">
+      <!-- 分期或普通重新支付按钮 -->
       <button class="pay-btn" onTap="startPayment" disabled="{{loading}}">
         重新支付 ¥{{orderInfo.amount}}
       </button>
-
     </view>
     
     <!-- 支付处理中状态 -->
