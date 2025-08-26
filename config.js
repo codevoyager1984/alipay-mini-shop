@@ -3,7 +3,7 @@ const config = {
   // API相关配置
   api: {
     // API基础域名
-    baseUrl: 'http://45.78.228.239:8000',
+    baseUrl: 'http://weixiaozu.farmbot.me',
     
     // API端点
     endpoints: {
@@ -56,7 +56,7 @@ const config = {
   // 支付配置
   payment: {
     // 跳过支付宝支付API调用（开发/测试环境使用）
-    skipAlipayApi: true
+    skipAlipayApi: false
   },
 
   // 全局应用配置缓存
