@@ -23,8 +23,23 @@
     </view>
   </view>
 
+  <!-- 合同待签订提示 -->
+  <view class="contract-pending-card" a:if="{{!loading && orderDetail && orderDetail.status === 'contract_pending'}}">
+    <view class="card-title">
+      <text class="title-text">合同签订</text>
+    </view>
+    
+    <view class="contract-notice">
+      <view class="notice-icon">📝</view>
+      <view class="notice-content">
+        <text class="notice-title">需要签订合同</text>
+        <text class="notice-desc">请先完成合同签订，签订完成后即可查看分期付款详情</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 分期付款详情 -->
-  <view class="installments-card" a:if="{{!loading && installments.length > 0}}">
+  <view class="installments-card" a:if="{{!loading && installments.length > 0 && orderDetail && orderDetail.status !== 'contract_pending'}}">
     <view class="card-title">
       <text class="title-text">分期付款详情</text>
       <text class="title-desc">共{{installments.length}}期</text>

@@ -97,8 +97,11 @@ Page({
           createTime: this.formatDateTime(response.data.created_at),
           rentalPeriod: `${response.data.rental_period}个月`,
           totalAmount: response.data.total_amount.toFixed(2),
-          status: this.mapOrderStatus(response.data.status),
-          statusText: this.getStatusText(response.data.status)
+          // 合同签订状态
+          signStatus: response.data.sign_status,
+          status: this.mapOrderStatus(response.data.status, response.data.sign_status),
+          statusText: this.getStatusText(response.data.status, response.data.sign_status),
+          rawData: response.data
         };
         
         // 处理分期信息
@@ -218,7 +221,12 @@ Page({
   },
 
   // 映射订单状态
-  mapOrderStatus(apiStatus) {
+  mapOrderStatus(apiStatus, signStatus) {
+    // 如果合同签订状态不是 SUCCESS（包括空值），则优先显示合同相关状态
+    if (!signStatus || signStatus !== 'SUCCESS') {
+      return 'contract_pending';
+    }
+    
     const statusMap = {
       'pending': 'pending',
       'paid': 'completed',
@@ -231,14 +239,20 @@ Page({
   },
 
   // 获取订单状态文本
-  getStatusText(apiStatus) {
+  getStatusText(apiStatus, signStatus) {
+    // 如果合同签订状态不是 SUCCESS（包括空值），则优先显示合同相关状态
+    if (!signStatus || signStatus !== 'SUCCESS') {
+      return '待签合同';
+    }
+    
     const statusTextMap = {
         'pending': '未开始',
         'paid': '已完成',
         'ongoing': '租赁中',
         'completed': '已完成',
         'cancelled': '已取消',
-        "inprogress": "进行中"
+        "inprogress": "进行中",
+        'contract_pending': '待签合同'
       };
     return statusTextMap[apiStatus] || '未知状态';
   },
