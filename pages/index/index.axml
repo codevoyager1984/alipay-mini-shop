@@ -46,8 +46,16 @@
     </view>
   </view>
 
+  <!-- 刷新状态 -->
+  <view class="refresh-state" a:if="{{refreshing}}">
+    <view class="refresh-indicator">
+      <text class="refresh-icon">🔄</text>
+      <text class="refresh-text">正在刷新数据...</text>
+    </view>
+  </view>
+
   <!-- 加载状态 -->
-  <view class="loading-state" a:if="{{loading}}">
+  <view class="loading-state" a:if="{{loading && !refreshing}}">
     <text>加载中...</text>
   </view>
 

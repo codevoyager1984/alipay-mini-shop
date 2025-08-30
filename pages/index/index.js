@@ -25,7 +25,10 @@ Page({
     filteredProducts: [],
     
     // 加载状态
-    loading: false
+    loading: false,
+    
+    // 刷新状态
+    refreshing: false
   },
 
   onLoad(query) {
@@ -57,10 +60,40 @@ Page({
 
   onPullDownRefresh() {
     // 页面被下拉刷新
-    // 清除配置缓存，重新加载配置
+    console.log('开始下拉刷新');
+    
+    this.setData({ refreshing: true });
+    
+    // 显示刷新提示
+    my.showToast({
+      content: '正在刷新...',
+      type: 'loading',
+      duration: 1000
+    });
+    
+    // 清除配置缓存，重新加载配置和产品
     config.clearConfigCache();
-    this.loadGlobalConfig();
-    this.loadProducts().finally(() => {
+    
+    // 并行加载配置和产品数据
+    Promise.all([
+      this.loadGlobalConfig(),
+      this.loadProducts()
+    ]).then(() => {
+      console.log('下拉刷新完成');
+      my.showToast({
+        content: '刷新成功',
+        type: 'success',
+        duration: 1500
+      });
+    }).catch((error) => {
+      console.error('下拉刷新失败:', error);
+      my.showToast({
+        content: '刷新失败，请稍后重试',
+        type: 'fail',
+        duration: 2000
+      });
+    }).finally(() => {
+      this.setData({ refreshing: false });
       my.stopPullDownRefresh();
     });
   },

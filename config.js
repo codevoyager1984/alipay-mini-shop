@@ -3,7 +3,7 @@ const config = {
   // API相关配置
   api: {
     // API基础域名
-    baseUrl: 'http://weixiaozu.farmbot.me',
+    baseUrl: 'http://45.78.228.239:8001',
     
     // API端点
     endpoints: {
@@ -42,7 +42,8 @@ const config = {
       },
       // 电子签相关
       esign: {
-        start: '/api/esign/start'
+        start: '/api/esign/start',
+        status: '/api/esign/status'  // 状态接口会拼接 /{signFlowId}
       }
     }
   },

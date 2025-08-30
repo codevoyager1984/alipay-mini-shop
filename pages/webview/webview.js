@@ -2,7 +2,9 @@ Page({
   data: {
     url: '',
     title: '合同签署',
-    loading: true
+    loading: true,
+    orderId: '',    // 存储订单ID
+    signFlowId: ''  // 存储签署流程ID
   },
 
   onLoad(query) {
@@ -23,6 +25,19 @@ Page({
       // 设置页面标题
       my.setNavigationBar({
         title: decodeURIComponent(query.title)
+      });
+    }
+    
+    // 获取订单ID、签署ID和签署流程ID参数
+    if (query.orderId) {
+      this.setData({
+        orderId: query.orderId
+      });
+    }
+
+    if (query.signFlowId) {
+      this.setData({
+        signFlowId: query.signFlowId
       });
     }
   },
@@ -88,7 +103,6 @@ Page({
         url,
         authFlowId,
         orderId,
-        signId
       }
     } = message;
 
@@ -125,7 +139,7 @@ Page({
         
       case 'E_AUTH_FINISHED':
         // 授权认证完成
-        console.log('授权认证完成, authFlowId:', authFlowId);
+        console.log('授权认证完成');
         my.showToast({
           content: '授权认证完成',
           type: 'success'
@@ -134,8 +148,8 @@ Page({
         
       case 'SIGN_SUCCESS':
         // 签署成功
-        console.log('合同签署成功, orderId:', orderId, 'signId:', signId);
-        this.handleSignSuccess(orderId, signId);
+        console.log('合同签署成功');
+        this.handleSignSuccess();
         break;
         
       case 'SIGN_FAIL':
@@ -174,7 +188,7 @@ Page({
   },
 
   // 处理签署成功
-  handleSignSuccess(orderId, signId) {
+  handleSignSuccess() {
     my.showModal({
       title: '签署成功',
       content: '合同签署完成！即将跳转到订单页面',
@@ -187,9 +201,11 @@ Page({
         
         if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
           // 如果上一页是payment-status，通知签署结果
-          prevPage.handleEsignResult('success', { orderId, signId });
+          prevPage.handleEsignResult('success', { 
+            orderId: this.data.orderId, 
+            signFlowId: this.data.signFlowId
+          });
         }
-        
         // 返回上一页
         my.navigateBack();
       }
@@ -215,7 +231,10 @@ Page({
           const prevPage = pages[pages.length - 2];
           
           if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-            prevPage.handleEsignResult('fail');
+            prevPage.handleEsignResult('fail', {
+              orderId: this.data.orderId,
+              signFlowId: this.data.signFlowId
+            });
           }
           
           my.navigateBack();
@@ -236,7 +255,10 @@ Page({
         const prevPage = pages[pages.length - 2];
         
         if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-          prevPage.handleEsignResult('revoke');
+          prevPage.handleEsignResult('revoke', {
+            orderId: this.data.orderId,
+            signFlowId: this.data.signFlowId
+          });
         }
         
         my.navigateBack();
@@ -256,7 +278,10 @@ Page({
         const prevPage = pages[pages.length - 2];
         
         if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-          prevPage.handleEsignResult('refuse');
+          prevPage.handleEsignResult('refuse', {
+            orderId: this.data.orderId,
+            signFlowId: this.data.signFlowId
+          });
         }
         
         my.navigateBack();
@@ -269,7 +294,8 @@ Page({
     const { data } = message.detail || {};
     
     if (data && data.type === 'esign_complete') {
-      this.handleSignSuccess(data.orderId, data.signId);
+      // 传递消息中的ID，如果没有则会在handleSignSuccess中使用页面参数的ID
+      this.handleSignSuccess();
     } else if (data && data.type === 'esign_cancel') {
       this.handleSignRefuse();
     }

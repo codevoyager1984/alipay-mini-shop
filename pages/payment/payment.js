@@ -337,21 +337,12 @@ Page({
 
       console.log('支付结果:', payResult);
 
-      if (payResult.resultCode === '9000') {
+      if (payResult.resultCode === '9000' || payResult.resultCode === '8000') {
         // 支付提交成功，开启电子签流程
-        this.setData({ 
-          paymentStatus: 'success',
-          loading: false 
-        });
-        
-        // 开启电子签流程
-        this.startEsignProcess();
-      } else if (payResult.resultCode === '8000') {
-        // 支付处理中，也跳转到状态页面
-        this.setData({ 
-          paymentStatus: 'processing',
-          loading: false 
-        });
+        // this.setData({ 
+        //   paymentStatus: 'success',
+        //   loading: false 
+        // });
         
         // 判断是否为服务费支付，确定跳转参数
         const isServiceFeePayment = this.data.orderInfo.service_fee_amount > 0 && !this.data.orderInfo.service_fee_paid;
@@ -649,8 +640,8 @@ Page({
           console.log('电子签开启成功:', response);
           
           if (response.statusCode === 200 && response.data && response.data.url) {
-            // 使用webview打开电子签页面
-            this.openEsignWebview(response.data.url);
+            // 使用webview打开电子签页面，传递url和sign_flow_id
+            this.openEsignWebview(response.data.url, response.data.sign_flow_id);
           } else {
             throw new Error('电子签接口返回格式错误');
           }
@@ -683,9 +674,20 @@ Page({
   },
 
   // 打开电子签webview
-  openEsignWebview(url) {
+  openEsignWebview(url, signFlowId) {
+    const params = new URLSearchParams({
+      url: url,
+      title: '合同签署',
+      orderId: this.data.orderInfo.orderId
+    });
+    
+    // 如果有 signFlowId，添加到参数中
+    if (signFlowId) {
+      params.set('signFlowId', signFlowId);
+    }
+    
     my.navigateTo({
-      url: `/pages/webview/webview?url=${encodeURIComponent(url)}&title=${encodeURIComponent('合同签署')}`,
+      url: `/pages/webview/webview?${params.toString()}`,
       success: () => {
         console.log('跳转到电子签webview成功');
       },

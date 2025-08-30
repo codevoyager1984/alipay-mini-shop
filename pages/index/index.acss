@@ -160,6 +160,42 @@
   line-height: 30rpx;
 }
 
+/* 刷新状态 */
+.refresh-state {
+  text-align: center;
+  padding: 40rpx 0;
+  background: #fff;
+  margin: 0 30rpx 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+.refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+}
+
+.refresh-icon {
+  font-size: 32rpx;
+  animation: rotate 1s linear infinite;
+}
+
+.refresh-text {
+  color: #666;
+  font-size: 28rpx;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* 加载状态 */
 .loading-state {
   text-align: center;
