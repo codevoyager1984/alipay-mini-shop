@@ -434,7 +434,7 @@ Page({
       }
 
       my.showLoading({
-        content: '正在准备合同签署...'
+        content: '正在准备合同签署，请勿关闭页面'
       });
 
       my.request({
@@ -496,19 +496,16 @@ Page({
 
   // 打开电子签webview
   openEsignWebview(url, signFlowId) {
-    const params = new URLSearchParams({
-      url: url,
-      title: '合同签署',
-      orderId: this.data.orderId
-    });
+    // 手动构建查询参数字符串，避免使用 URLSearchParams
+    let queryParams = `url=${encodeURIComponent(url)}&title=${encodeURIComponent('合同签署')}&orderId=${this.data.orderId}`;
     
     // 如果有 signFlowId，添加到参数中
     if (signFlowId) {
-      params.set('signFlowId', signFlowId);
+      queryParams += `&signFlowId=${encodeURIComponent(signFlowId)}`;
     }
     
     my.navigateTo({
-      url: `/pages/webview/webview?${params.toString()}`,
+      url: `/pages/webview/webview?${queryParams}`,
       success: () => {
         console.log('跳转到电子签webview成功');
         // 更新状态文本
