@@ -10,10 +10,13 @@ Page({
       id: 2,
       name: '雅迪电动车',
       price: '2',
-      image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ci8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iI2Y0NDMzNiIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI9MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPHN2ZyB4PSI5MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjYiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRsMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDQgMCAwIDEgMC0xLjQxNGwyLTJhMSAxIDAgMCAxIDEuNDE0IDAiLz4KPC9zdmc+CjwvdGV4dD4K',
+      image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjVmNWY1Ci8+CjxwYXRoIGQ9Im02MCA4MCAyMC0yMGgyOGw4LThoMjBsOCA4aDI4bDIwIDIwdjEwSDYweiIgZmlsbD0iI2Y0NDMzNiIvPgo8Y2lyY2xlIGN4PSI3MCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iIzMzMyIvPgo8Y2lyY2xlIGN4PSIxNTAiIGN5PSI5MCIgcj0iMTAiIGZpbGw9IiMzMzMiLz4KPHN2ZyB4PSI5MCIgeT0iNDAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjYiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im0xMiAzLTEuOTEyIDUuODEzYS4xMDIuMTAyIDAgMCAxLS4wOTYuMDY5SDE1YTEgMSAwIDAgMSAuNzA3IDEuNzA3bC0yIDJhMSAxIDAgMCAwIDAgMS40MTRsMTYgMTZhMSAxIDAgMCAxLS43MDcuNzA3bC00IDRhMSAxIDAgMCAxLTEuNDE0IDAtNGE0IDQgMCAwIDEgMC0xLjQxNGwyLTJhMSAxIDAgMCAxIDEuNDE0IDAiLz4KPC9zdmc+CjwvdGV4dD4K',
       rentalPeriod: 12,
       description: null
     },
+    
+    // 解析后的商品介绍内容
+    parsedDescription: [],
     
     // 加载状态
     loading: false,
@@ -141,6 +144,9 @@ Page({
           // 从API获取支持期数，使用rental_period字段
           'orderConfig.supportedInstallments': response.data.rental_period || null
         });
+        
+        // 解析商品描述的 markdown 内容
+        this.parseMarkdownDescription(productInfo.description);
       }
     } catch (error) {
       console.error('加载产品信息失败:', error);
@@ -167,6 +173,196 @@ Page({
     this.setData({
       activeTab: tab
     });
+  },
+
+  // 解析 Markdown 内容为可渲染的数据结构
+  parseMarkdownDescription(markdown) {
+    if (!markdown) {
+      this.setData({
+        parsedDescription: []
+      });
+      return;
+    }
+
+    const lines = markdown.split('\n');
+    const parsed = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmedLine = line.trim();
+      
+      if (!trimmedLine) {
+        // 空行作为段落分隔
+        parsed.push({
+          type: 'br',
+          content: '',
+          indent: 0
+        });
+        continue;
+      }
+      
+      // 标题 (# ## ### 等)
+      const headingMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const content = this.parseInlineElements(headingMatch[2]);
+        parsed.push({
+          type: 'heading',
+          level: level,
+          content: content,
+          indent: 0
+        });
+        continue;
+      }
+      
+      // 分割线 (--- 或 ***)
+      if (trimmedLine.match(/^[-*]{3,}$/)) {
+        parsed.push({
+          type: 'hr',
+          content: '',
+          indent: 0
+        });
+        continue;
+      }
+      
+      // 图片 (![alt](src))
+      const imageMatch = trimmedLine.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+      if (imageMatch) {
+        parsed.push({
+          type: 'image',
+          alt: imageMatch[1],
+          src: imageMatch[2],
+          indent: 0
+        });
+        continue;
+      }
+      
+      // 无序列表项 (- 或 *)
+      const ulMatch = line.match(/^(\s*)[-*]\s+(.+)$/);
+      if (ulMatch) {
+        const indent = this.getIndentLevel(ulMatch[1]);
+        const content = this.parseInlineElements(ulMatch[2]);
+        parsed.push({
+          type: 'ul',
+          content: content,
+          indent: indent
+        });
+        continue;
+      }
+      
+      // 有序列表项 (1. 2. 等)
+      const olMatch = line.match(/^(\s*)\d+\.\s+(.+)$/);
+      if (olMatch) {
+        const indent = this.getIndentLevel(olMatch[1]);
+        const content = this.parseInlineElements(olMatch[2]);
+        parsed.push({
+          type: 'ol',
+          content: content,
+          indent: indent
+        });
+        continue;
+      }
+      
+      // 普通文本段落
+      const content = this.parseInlineElements(trimmedLine);
+      parsed.push({
+        type: 'text',
+        content: content,
+        indent: 0
+      });
+    }
+    
+    this.setData({
+      parsedDescription: parsed
+    });
+  },
+
+  // 解析行内元素（加粗、斜体、代码、链接等）
+  parseInlineElements(text) {
+    const elements = [];
+    let currentText = text;
+    let position = 0;
+
+    while (position < currentText.length) {
+      // 查找下一个特殊标记
+      const patterns = [
+        { regex: /\*\*([^*]+)\*\*/, type: 'bold' },      // **加粗**
+        { regex: /\*([^*]+)\*/, type: 'italic' },        // *斜体*
+        { regex: /`([^`]+)`/, type: 'code' },            // `代码`
+        { regex: /\[([^\]]+)\]\(([^)]+)\)/, type: 'link' } // [文字](链接)
+      ];
+
+      let nearestMatch = null;
+      let nearestIndex = currentText.length;
+
+      // 找到最近的匹配
+      for (const pattern of patterns) {
+        const match = currentText.slice(position).match(pattern.regex);
+        if (match && match.index + position < nearestIndex) {
+          nearestMatch = {
+            ...pattern,
+            match: match,
+            index: match.index + position
+          };
+          nearestIndex = match.index + position;
+        }
+      }
+
+      if (nearestMatch) {
+        // 添加匹配前的普通文本
+        if (nearestMatch.index > position) {
+          const plainText = currentText.slice(position, nearestMatch.index);
+          if (plainText) {
+            elements.push({
+              type: 'plain',
+              text: plainText
+            });
+          }
+        }
+
+        // 添加特殊元素
+        if (nearestMatch.type === 'link') {
+          elements.push({
+            type: 'link',
+            text: nearestMatch.match[1],
+            url: nearestMatch.match[2]
+          });
+        } else {
+          elements.push({
+            type: nearestMatch.type,
+            text: nearestMatch.match[1]
+          });
+        }
+
+        position = nearestMatch.index + nearestMatch.match[0].length;
+      } else {
+        // 没有更多特殊标记，添加剩余文本
+        const remainingText = currentText.slice(position);
+        if (remainingText) {
+          elements.push({
+            type: 'plain',
+            text: remainingText
+          });
+        }
+        break;
+      }
+    }
+
+    return elements.length > 0 ? elements : [{ type: 'plain', text: text }];
+  },
+
+  // 获取缩进级别
+  getIndentLevel(spaces) {
+    if (!spaces) return 0;
+    let indent = 0;
+    for (let i = 0; i < spaces.length; i++) {
+      if (spaces[i] === ' ') {
+        indent++;
+      } else if (spaces[i] === '\t') {
+        indent += 4; // tab 按 4 个空格计算
+      }
+    }
+    return Math.floor(indent / 4); // 每 4 个空格为一个缩进级别
   },
 
   // 检查登录状态

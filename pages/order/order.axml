@@ -41,7 +41,48 @@
     
     <view class="tab-content">
       <view class="intro-content" a:if="{{activeTab === 'intro'}}">
-        <view class="empty-intro">
+        <view class="markdown-content" a:if="{{parsedDescription.length > 0}}">
+          <view 
+            class="markdown-item markdown-{{item.type}} indent-{{item.indent}}" 
+            a:for="{{parsedDescription}}" 
+            a:key="{{index}}"
+          >
+            <!-- 标题 -->
+            <view class="markdown-heading level-{{item.level}}" a:if="{{item.type === 'heading'}}">
+              <text 
+                class="markdown-inline-element inline-{{element.type}}" 
+                a:for="{{item.content}}" 
+                a:for-item="element" 
+                a:key="{{index}}"
+              >{{element.text}}</text>
+            </view>
+            
+            <!-- 分割线 -->
+            <view class="markdown-hr" a:elif="{{item.type === 'hr'}}"></view>
+            
+            <!-- 图片 -->
+            <view class="markdown-image-container" a:elif="{{item.type === 'image'}}">
+              <image class="markdown-image" src="{{item.src}}" mode="widthFix" />
+              <text class="markdown-image-alt" a:if="{{item.alt}}">{{item.alt}}</text>
+            </view>
+            
+            <!-- 换行 -->
+            <view class="markdown-br" a:elif="{{item.type === 'br'}}"></view>
+            
+            <!-- 列表和普通文本 -->
+            <view class="markdown-text-container" a:else>
+              <text 
+                class="markdown-inline-element inline-{{element.type}}" 
+                a:for="{{item.content}}" 
+                a:for-item="element" 
+                a:key="{{index}}"
+                onTap="{{element.type === 'link' ? 'handleLinkTap' : ''}}"
+                data-url="{{element.url}}"
+              >{{element.text}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="empty-intro" a:else>
           <text class="empty-text">暂无介绍</text>
         </view>
       </view>

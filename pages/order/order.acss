@@ -124,19 +124,97 @@
 
 /* 商品介绍内容 */
 .intro-content {
+  min-height: 300rpx;
+}
+
+.empty-intro {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 300rpx;
-}
-
-.empty-intro {
   text-align: center;
 }
 
 .empty-text {
   font-size: 28rpx;
   color: #999;
+}
+
+/* Markdown 内容样式 */
+.markdown-content {
+  padding: 0;
+}
+
+.markdown-item {
+  margin-bottom: 20rpx;
+  line-height: 1.6;
+}
+
+.markdown-text {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* 无序列表样式 */
+.markdown-ul {
+  position: relative;
+  padding-left: 40rpx;
+}
+
+.markdown-ul::before {
+  content: '•';
+  position: absolute;
+  left: 20rpx;
+  color: #666;
+  font-weight: bold;
+}
+
+/* 有序列表样式 */
+.markdown-ol {
+  position: relative;
+  padding-left: 40rpx;
+  counter-increment: list-counter;
+}
+
+.markdown-ol::before {
+  content: counter(list-counter) '.';
+  position: absolute;
+  left: 0;
+  color: #666;
+  font-weight: bold;
+  width: 30rpx;
+}
+
+/* 重置计数器 */
+.markdown-content {
+  counter-reset: list-counter;
+}
+
+/* 普通文本样式 */
+.markdown-text {
+  display: block;
+}
+
+/* 缩进样式 */
+.indent-0 {
+  margin-left: 0;
+}
+
+.indent-1 {
+  margin-left: 40rpx;
+}
+
+.indent-2 {
+  margin-left: 80rpx;
+}
+
+.indent-3 {
+  margin-left: 120rpx;
+}
+
+.indent-4 {
+  margin-left: 160rpx;
 }
 
 /* 下单须知内容 */
