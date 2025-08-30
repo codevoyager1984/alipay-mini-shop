@@ -447,22 +447,100 @@ Page({
   },
 
   // 签订合同
-  signContract(e) {
+  async signContract(e) {
     const order = e.currentTarget.dataset.order;
-    
-    // 这里可以跳转到合同签订页面，或者调用合同签订的API
-    my.showModal({
-      title: '签订合同',
-      content: `订单 ${order.orderNo} 需要签订合同，是否前往签订？`,
-      confirmText: '去签订',
-      cancelText: '取消',
-      success: (result) => {
-        if (result.confirm) {
-          // 可以跳转到合同签订页面或webview
-          my.navigateTo({
-            url: `/pages/webview/webview?url=${encodeURIComponent('https://contract.example.com/sign')}&title=签订合同&orderId=${order.id}`
+    this.startEsignProcess(order);
+  },
+
+  // 开启电子签流程
+  async startEsignProcess(order) {
+    try {
+      const tokenResult = my.getStorageSync({ key: 'access_token' });
+      if (!tokenResult.data) {
+        my.showToast({
+          content: '登录状态失效，请重新登录',
+          type: 'fail'
+        });
+        return;
+      }
+
+      my.showLoading({
+        content: '正在准备合同签署，请勿关闭页面'
+      });
+
+      my.request({
+        url: config.api.baseUrl + config.api.endpoints.esign.start,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        data: {
+          order_id: order.id
+        },
+        success: (response) => {
+          my.hideLoading();
+          console.log('电子签开启成功:', response);
+          
+          if (response.statusCode === 200 && response.data && response.data.url) {
+            // 使用webview打开电子签页面，传递url和sign_flow_id
+            this.openEsignWebview(response.data.url, response.data.sign_flow_id, order.id);
+          } else {
+            throw new Error('电子签接口返回格式错误');
+          }
+        },
+        fail: (error) => {
+          my.hideLoading();
+          console.error('开启电子签流程失败:', error);
+          
+          my.showModal({
+            title: '合同签署准备失败',
+            content: '无法准备合同签署，请稍后重试或联系客服',
+            confirmText: '重试',
+            cancelText: '稍后处理',
+            success: (result) => {
+              if (result.confirm) {
+                this.startEsignProcess(order);
+              }
+            }
           });
         }
+      });
+    } catch (e) {
+      my.hideLoading();
+      console.error('电子签流程异常:', e);
+      my.showToast({
+        content: '操作失败，请稍后重试',
+        type: 'fail'
+      });
+    }
+  },
+
+  // 打开电子签webview
+  openEsignWebview(url, signFlowId, orderId) {
+    // 手动构建查询参数字符串，避免使用 URLSearchParams
+    let queryParams = `url=${encodeURIComponent(url)}&title=${encodeURIComponent('合同签署')}&orderId=${orderId}`;
+    
+    // 如果有 signFlowId，添加到参数中
+    if (signFlowId) {
+      queryParams += `&signFlowId=${encodeURIComponent(signFlowId)}`;
+    }
+    
+    my.navigateTo({
+      url: `/pages/webview/webview?${queryParams}`,
+      success: () => {
+        console.log('跳转到电子签webview成功');
+      },
+      fail: (error) => {
+        console.error('跳转失败:', error);
+        
+        // 如果跳转失败，给用户提示
+        my.showModal({
+          title: '合同签署',
+          content: '无法打开合同签署页面，请稍后重试或联系客服',
+          confirmText: '知道了',
+          showCancel: false
+        });
       }
     });
   },

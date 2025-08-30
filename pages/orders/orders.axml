@@ -52,7 +52,6 @@
             <text class="vehicle-name">{{item.vehicleName}}</text>
             <text class="order-time">下单时间：{{item.createTime}}</text>
             <text class="rental-period">租赁期限：{{item.rentalPeriod}}</text>
-            <text class="installment-status" a:if="{{item.status !== 'contract_pending'}}">{{item.installmentStatus}}</text>
             <text class="next-payment-date" a:if="{{item.status === 'inprogress' && item.nextPaymentDate}}">下次支付：{{item.nextPaymentDate}}</text>
           </view>
           <view class="order-price">

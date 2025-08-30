@@ -1,3 +1,5 @@
+const config = require('../../config.js');
+
 Page({
   data: {
     url: '',
@@ -188,28 +190,37 @@ Page({
   },
 
   // 处理签署成功
-  handleSignSuccess() {
-    my.showModal({
-      title: '签署成功',
-      content: '合同签署完成！即将跳转到订单页面',
-      confirmText: '确定',
-      showCancel: false,
-      success: () => {
-        // 返回到订单页面，并传递签署成功的信息
-        const pages = getCurrentPages();
-        const prevPage = pages[pages.length - 2]; // 获取上一个页面
-        
-        if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-          // 如果上一页是payment-status，通知签署结果
-          prevPage.handleEsignResult('success', { 
-            orderId: this.data.orderId, 
-            signFlowId: this.data.signFlowId
-          });
-        }
-        // 返回上一页
-        my.navigateBack();
-      }
+  async handleSignSuccess() {
+    // 如果没有signFlowId，无法查询状态，直接跳转
+    if (!this.data.signFlowId) {
+      console.error('缺少signFlowId，无法查询电子签状态');
+      this.goToOrdersWithMessage('合同签署完成！');
+      return;
+    }
+    
+    // 显示加载状态
+    my.showLoading({
+      content: '正在确认签署状态...'
     });
+    
+    try {
+      // 调用电子签状态查询接口
+      const statusResult = await this.checkEsignStatus(this.data.signFlowId);
+      
+      my.hideLoading();
+      
+      if (statusResult.success) {
+        // 签署成功
+        this.handleEsignSuccess();
+      } else {
+        // 签署失败
+        this.handleEsignFailure();
+      }
+    } catch (error) {
+      my.hideLoading();
+      console.error('查询电子签状态失败:', error);
+      this.handleEsignError('查询签署状态失败，请稍后重试');
+    }
   },
 
   // 处理签署失败
@@ -217,28 +228,10 @@ Page({
     my.showModal({
       title: '签署失败',
       content: '合同签署失败，请稍后重试或联系客服',
-      confirmText: '重试',
-      cancelText: '返回',
-      success: (result) => {
-        if (result.confirm) {
-          // 重新加载页面
-          this.setData({
-            loading: true
-          });
-          // 可以考虑重新调用电子签接口或刷新当前页面
-        } else {
-          const pages = getCurrentPages();
-          const prevPage = pages[pages.length - 2];
-          
-          if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-            prevPage.handleEsignResult('fail', {
-              orderId: this.data.orderId,
-              signFlowId: this.data.signFlowId
-            });
-          }
-          
-          my.navigateBack();
-        }
+      confirmText: '返回订单',
+      showCancel: false,
+      success: () => {
+        this.goToOrders();
       }
     });
   },
@@ -248,20 +241,10 @@ Page({
     my.showModal({
       title: '签署撤销',
       content: '签署流程已被撤销',
-      confirmText: '确定',
+      confirmText: '返回订单',
       showCancel: false,
       success: () => {
-        const pages = getCurrentPages();
-        const prevPage = pages[pages.length - 2];
-        
-        if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-          prevPage.handleEsignResult('revoke', {
-            orderId: this.data.orderId,
-            signFlowId: this.data.signFlowId
-          });
-        }
-        
-        my.navigateBack();
+        this.goToOrders();
       }
     });
   },
@@ -271,20 +254,10 @@ Page({
     my.showModal({
       title: '拒绝签署',
       content: '您已拒绝签署合同',
-      confirmText: '确定',
+      confirmText: '返回订单',
       showCancel: false,
       success: () => {
-        const pages = getCurrentPages();
-        const prevPage = pages[pages.length - 2];
-        
-        if (prevPage && prevPage.route === 'pages/payment-status/payment-status') {
-          prevPage.handleEsignResult('refuse', {
-            orderId: this.data.orderId,
-            signFlowId: this.data.signFlowId
-          });
-        }
-        
-        my.navigateBack();
+        this.goToOrders();
       }
     });
   },
@@ -299,5 +272,94 @@ Page({
     } else if (data && data.type === 'esign_cancel') {
       this.handleSignRefuse();
     }
+  },
+
+  // 查询电子签状态
+  async checkEsignStatus(signFlowId) {
+    const tokenResult = my.getStorageSync({ key: 'access_token' });
+    if (!tokenResult.data) {
+      throw new Error('登录状态失效');
+    }
+    
+    return new Promise((resolve, reject) => {
+      my.request({
+        url: `${config.api.baseUrl}${config.api.endpoints.esign.status}/${signFlowId}`,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `Bearer ${tokenResult.data}`
+        },
+        success: (response) => {
+          console.log('电子签状态查询结果:', response);
+          
+          if (response.statusCode === 200 && response.data) {
+            resolve(response.data);
+          } else {
+            reject(new Error('接口返回异常'));
+          }
+        },
+        fail: (error) => {
+          reject(error);
+        }
+      });
+    });
+  },
+  
+  // 处理签署成功
+  handleEsignSuccess() {
+    my.showModal({
+      title: '签署成功',
+      content: '合同签署完成！即将跳转到订单页面',
+      confirmText: '确定',
+      showCancel: false,
+      success: () => {
+        this.goToOrders();
+      }
+    });
+  },
+  
+  // 处理签署失败
+  handleEsignFailure() {
+    my.showModal({
+      title: '签署失败',
+      content: '合同签署失败，请稍后重试或联系客服',
+      confirmText: '返回订单',
+      showCancel: false,
+      success: () => {
+        this.goToOrders();
+      }
+    });
+  },
+  
+  // 处理签署错误
+  handleEsignError(errorMessage) {
+    my.showModal({
+      title: '状态确认失败',
+      content: errorMessage || '无法确认签署状态，请稍后重试或联系客服',
+      confirmText: '返回订单',
+      showCancel: false,
+      success: () => {
+        this.goToOrders();
+      }
+    });
+  },
+
+  // 跳转到订单页面
+  goToOrders() {
+    my.reLaunch({
+      url: '/pages/orders/orders'
+    });
+  },
+
+  // 带消息跳转到订单页面
+  goToOrdersWithMessage(message) {
+    my.showToast({
+      content: message,
+      type: 'success'
+    });
+    
+    setTimeout(() => {
+      this.goToOrders();
+    }, 1500);
   }
 });
