@@ -124,6 +124,11 @@
   color: #ff4d4f;
 }
 
+.order-status.contract_pending {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
 /* 订单内容 */
 .order-content {
   display: flex;

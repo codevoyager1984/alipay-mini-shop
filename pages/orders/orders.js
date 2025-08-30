@@ -127,8 +127,10 @@ Page({
             totalInstallments: installmentInfo.totalCount, // 总期数
             installmentStatus: installmentInfo.status, // 分期状态文本
             nextPaymentDate: installmentInfo.nextPaymentDate, // 下次支付日期
-            status: this.mapOrderStatus(item.status),
-            statusText: this.getStatusText(item.status),
+            // 合同签订状态
+            signStatus: item.sign_status,
+            status: this.mapOrderStatus(item.status, item.sign_status),
+            statusText: this.getStatusText(item.status, item.sign_status),
             rawData: item // 保存原始数据，方便后续使用
           };
           
@@ -303,7 +305,12 @@ Page({
   },
 
   // 映射订单状态
-  mapOrderStatus(apiStatus) {
+  mapOrderStatus(apiStatus, signStatus) {
+    // 如果合同签订状态不是 SUCCESS（包括空值），则优先显示合同相关状态
+    if (!signStatus || signStatus !== 'SUCCESS') {
+      return 'contract_pending';
+    }
+    
     const statusMap = {
       'pending': 'pending',      // 未开始
       'paid': 'ongoing',         // 已支付 -> 租赁中
@@ -317,14 +324,20 @@ Page({
   },
 
   // 获取状态文本
-  getStatusText(apiStatus) {
+  getStatusText(apiStatus, signStatus) {
+    // 如果合同签订状态不是 SUCCESS（包括空值），则优先显示合同相关状态
+    if (!signStatus || signStatus !== 'SUCCESS') {
+      return '待签合同';
+    }
+    
     const statusTextMap = {
       'pending': '未开始',
       'paid': '已完成',
       'ongoing': '租赁中',
       'completed': '已完成',
       'cancelled': '已取消',
-      "inprogress": "进行中"
+      "inprogress": "进行中",
+      'contract_pending': '待签合同'
     };
     
     return statusTextMap[apiStatus] || '未知状态';
@@ -345,7 +358,7 @@ Page({
     
     if (this.data.activeTab === 'ongoing') {
       filtered = this.data.orders.filter(order => 
-        order.status === 'ongoing' || order.status === 'pending' || order.status === 'inprogress'
+        order.status === 'ongoing' || order.status === 'pending' || order.status === 'inprogress' || order.status === 'contract_pending'
       );
     } else if (this.data.activeTab === 'completed') {
       filtered = this.data.orders.filter(order => 
@@ -427,6 +440,27 @@ Page({
                 type: 'fail'
               });
             }
+          });
+        }
+      }
+    });
+  },
+
+  // 签订合同
+  signContract(e) {
+    const order = e.currentTarget.dataset.order;
+    
+    // 这里可以跳转到合同签订页面，或者调用合同签订的API
+    my.showModal({
+      title: '签订合同',
+      content: `订单 ${order.orderNo} 需要签订合同，是否前往签订？`,
+      confirmText: '去签订',
+      cancelText: '取消',
+      success: (result) => {
+        if (result.confirm) {
+          // 可以跳转到合同签订页面或webview
+          my.navigateTo({
+            url: `/pages/webview/webview?url=${encodeURIComponent('https://contract.example.com/sign')}&title=签订合同&orderId=${order.id}`
           });
         }
       }
