@@ -44,6 +44,9 @@ Page({
     // 支付状态
     paymentStatus: 'pending', // pending, processing, success, failed
     
+    // 支付类型
+    paymentType: '', // serviceFee, installment
+    
     // 加载状态
     loading: false
   },
@@ -58,12 +61,19 @@ Page({
     this.loadContactInfo();
     
     // 获取订单参数
-    if (query.orderId && query.orderNo && query.amount) {
+    if (query.orderId && query.orderNo) {
       this.setData({
         'orderInfo.orderId': parseInt(query.orderId),
         'orderInfo.orderNo': query.orderNo,
-        'orderInfo.amount': parseFloat(query.amount)
+        'orderInfo.amount': query.amount ? parseFloat(query.amount) : 0
       });
+      
+      // 如果有paymentType参数，记录支付类型
+      if (query.paymentType) {
+        this.setData({
+          paymentType: query.paymentType
+        });
+      }
       
       // 加载订单详情
       this.loadOrderDetail(query.orderId);
@@ -143,8 +153,10 @@ Page({
           // 平台信息
           'orderInfo.customerService': response.data.customer_service || '',
           'orderInfo.serviceTime': response.data.service_time || '',
-          // 更新支付金额为当前分期金额
-          'orderInfo.amount': installmentInfo.currentAmount
+          // 根据支付类型更新支付金额
+          'orderInfo.amount': this.data.paymentType === 'serviceFee' ? 
+            (response.data.service_fee_amount || 0) : 
+            installmentInfo.currentAmount
         });
       }
     } catch (error) {

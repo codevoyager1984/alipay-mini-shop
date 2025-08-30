@@ -29,6 +29,20 @@
     >
       已完成
     </view>
+    <view 
+      class="tab-item {{activeTab === 'service_fee_pending' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="service_fee_pending"
+    >
+      服务费
+    </view>
+    <view 
+      class="tab-item {{activeTab === 'contract_pending' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="contract_pending"
+    >
+      待签合同
+    </view>
   </view>
 
   <!-- 加载状态 -->
@@ -61,6 +75,24 @@
         </view>
         
         <view class="order-actions">
+          <!-- 服务费待支付状态 -->
+          <button 
+            class="action-btn secondary" 
+            onTap="viewOrderDetail" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'service_fee_pending'}}"
+          >
+            查看详情
+          </button>
+          <button 
+            class="action-btn primary" 
+            onTap="payServiceFee" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'service_fee_pending'}}"
+          >
+            支付服务费
+          </button>
+          
           <!-- 合同待签订状态 -->
           <button 
             class="action-btn secondary" 

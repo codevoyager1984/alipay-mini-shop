@@ -99,8 +99,10 @@ Page({
           totalAmount: response.data.total_amount.toFixed(2),
           // 合同签订状态
           signStatus: response.data.sign_status,
-          status: this.mapOrderStatus(response.data.status, response.data.sign_status),
-          statusText: this.getStatusText(response.data.status, response.data.sign_status),
+          // 服务费支付状态
+          serviceFeePaid: response.data.service_fee_paid,
+          status: this.mapOrderStatus(response.data.status, response.data.sign_status, response.data.service_fee_paid),
+          statusText: this.getStatusText(response.data.status, response.data.sign_status, response.data.service_fee_paid),
           rawData: response.data
         };
         
@@ -221,8 +223,15 @@ Page({
   },
 
   // 映射订单状态
-  mapOrderStatus(apiStatus, signStatus) {
-    // 如果合同签订状态不是 SUCCESS（包括空值），则优先显示合同相关状态
+  mapOrderStatus(apiStatus, signStatus, serviceFeePaid) {
+    // 优先级：服务费 > 合同签订 > 订单状态
+    
+    // 如果服务费未支付，则优先显示服务费相关状态
+    if (serviceFeePaid === null || serviceFeePaid === false) {
+      return 'service_fee_pending';
+    }
+    
+    // 如果合同签订状态不是 SUCCESS（包括空值），则显示合同相关状态
     if (!signStatus || signStatus !== 'SUCCESS') {
       return 'contract_pending';
     }
@@ -239,8 +248,15 @@ Page({
   },
 
   // 获取订单状态文本
-  getStatusText(apiStatus, signStatus) {
-    // 如果合同签订状态不是 SUCCESS（包括空值），则优先显示合同相关状态
+  getStatusText(apiStatus, signStatus, serviceFeePaid) {
+    // 优先级：服务费 > 合同签订 > 订单状态
+    
+    // 如果服务费未支付，则优先显示服务费相关状态
+    if (serviceFeePaid === null || serviceFeePaid === false) {
+      return '服务费';
+    }
+    
+    // 如果合同签订状态不是 SUCCESS（包括空值），则显示合同相关状态
     if (!signStatus || signStatus !== 'SUCCESS') {
       return '待签合同';
     }
@@ -252,7 +268,8 @@ Page({
         'completed': '已完成',
         'cancelled': '已取消',
         "inprogress": "进行中",
-        'contract_pending': '待签合同'
+        'contract_pending': '待签合同',
+        'service_fee_pending': '服务费'
       };
     return statusTextMap[apiStatus] || '未知状态';
   },

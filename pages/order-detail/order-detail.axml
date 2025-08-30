@@ -23,6 +23,21 @@
     </view>
   </view>
 
+  <!-- 服务费待支付提示 -->
+  <view class="service-fee-pending-card" a:if="{{!loading && orderDetail && orderDetail.status === 'service_fee_pending'}}">
+    <view class="card-title">
+      <text class="title-text">服务费支付</text>
+    </view>
+    
+    <view class="service-fee-notice">
+      <view class="notice-icon">💰</view>
+      <view class="notice-content">
+        <text class="notice-title">需要支付服务费</text>
+        <text class="notice-desc">请先完成服务费支付，支付完成后即可进行合同签订</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 合同待签订提示 -->
   <view class="contract-pending-card" a:if="{{!loading && orderDetail && orderDetail.status === 'contract_pending'}}">
     <view class="card-title">
@@ -39,7 +54,7 @@
   </view>
 
   <!-- 分期付款详情 -->
-  <view class="installments-card" a:if="{{!loading && installments.length > 0 && orderDetail && orderDetail.status !== 'contract_pending'}}">
+  <view class="installments-card" a:if="{{!loading && installments.length > 0 && orderDetail && orderDetail.status !== 'contract_pending' && orderDetail.status !== 'service_fee_pending'}}">
     <view class="card-title">
       <text class="title-text">分期付款详情</text>
       <text class="title-desc">共{{installments.length}}期</text>

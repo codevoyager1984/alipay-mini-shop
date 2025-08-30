@@ -41,10 +41,14 @@
 .tab-item {
   flex: 1;
   text-align: center;
-  padding: 30rpx 0;
-  font-size: 28rpx;
+  padding: 30rpx 8rpx;
+  font-size: 22rpx;
   color: #666;
   position: relative;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tab-item.active {
@@ -127,6 +131,11 @@
 .order-status.contract_pending {
   background: #fff1f0;
   color: #ff4d4f;
+}
+
+.order-status.service_fee_pending {
+  background: #fff7e6;
+  color: #fa8c16;
 }
 
 /* 订单内容 */
