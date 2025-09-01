@@ -73,13 +73,23 @@
     
     <!-- 已配置联系信息 -->
     <view class="contact-content" a:if="{{contactInfo.isConfigured}}">
-      <view class="contact-item">
-        <view class="contact-label">联系地址</view>
-        <view class="contact-value">{{contactInfo.contact_address}}</view>
-      </view>
-      <view class="contact-item">
-        <view class="contact-label">紧急联系人</view>
-        <view class="contact-value">{{contactInfo.emergency_contact_name}} {{contactInfo.emergency_contact_phone}}</view>
+      <!-- 联系人详情列表 -->
+      <view class="contacts-list">
+        <view class="contact-detail-item" a:for="{{contactInfo.contacts}}" a:for-index="index" a:for-item="contact" a:key="index">
+          <view class="contact-number">联系人{{index + 1}}</view>
+          <view class="contact-info-row">
+            <view class="info-label">关系:</view>
+            <view class="info-value">{{contact.relation_type}}</view>
+          </view>
+          <view class="contact-info-row">
+            <view class="info-label">姓名:</view>
+            <view class="info-value">{{contact.relation_name}}</view>
+          </view>
+          <view class="contact-info-row">
+            <view class="info-label">电话:</view>
+            <view class="info-value">{{contact.relation_phone}}</view>
+          </view>
+        </view>
       </view>
     </view>
     

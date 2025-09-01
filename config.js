@@ -18,7 +18,6 @@ const config = {
         bindPhone: '/api/auth/bind-phone',
         certifyInitialize: '/api/auth/certify/initialize',
         certifyQuery: '/api/auth/certify/query',
-        contactInfo: '/api/auth/contact-info'
       },
       // 联系人相关
       contacts: {

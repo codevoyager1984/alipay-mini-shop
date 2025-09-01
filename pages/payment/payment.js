@@ -35,10 +35,8 @@ Page({
     
     // 联系信息
     contactInfo: {
-      contact_address: '',
-      emergency_contact_name: '',
-      emergency_contact_phone: '',
-      isConfigured: false
+      isConfigured: false,
+      contacts: []
     },
     
     // 支付状态
@@ -547,7 +545,7 @@ Page({
       }
 
       my.request({
-        url: config.api.baseUrl + config.api.endpoints.auth.profile,
+        url: config.api.baseUrl + config.api.endpoints.contacts.list,
         method: 'GET',
         headers: {
           'authorization': `Bearer ${tokenResult.data}`
@@ -555,25 +553,30 @@ Page({
         success: (response) => {
           console.log('获取用户联系信息成功:', response);
           
-          if (response.statusCode === 200 && response.data) {
-            const userProfile = response.data;
+          if (response.statusCode === 200 && response.data && response.data.contacts) {
+            const contacts = response.data.contacts;
             
-            // 检查联系信息是否已配置（必填字段都已填写）
-            const isConfigured = !!(
-              userProfile.contact_address && 
-              userProfile.emergency_contact_name && 
-              userProfile.emergency_contact_phone
+            // 检查联系信息是否已配置（至少有2个完整的联系人）
+            const validContacts = contacts.filter(contact => 
+              contact.relation_type && contact.relation_name && contact.relation_phone
             );
+            const isConfigured = validContacts.length >= 2;
             
             const contactInfo = {
-              contact_address: userProfile.contact_address || '',
-              emergency_contact_name: userProfile.emergency_contact_name || '',
-              emergency_contact_phone: userProfile.emergency_contact_phone || '',
-              isConfigured: isConfigured
+              isConfigured: isConfigured,
+              contacts: validContacts
             };
             
             this.setData({
               contactInfo: contactInfo
+            });
+          } else {
+            // 如果没有联系人数据，设置为未配置状态
+            this.setData({
+              contactInfo: {
+                isConfigured: false,
+                contacts: []
+              }
             });
           }
         },
@@ -582,10 +585,8 @@ Page({
           // 如果获取失败，设置为未配置状态
           this.setData({
             contactInfo: {
-              contact_address: '',
-              emergency_contact_name: '',
-              emergency_contact_phone: '',
-              isConfigured: false
+              isConfigured: false,
+              contacts: []
             }
           });
         }
@@ -595,10 +596,8 @@ Page({
       // 如果出现异常，设置为未配置状态
       this.setData({
         contactInfo: {
-          contact_address: '',
-          emergency_contact_name: '',
-          emergency_contact_phone: '',
-          isConfigured: false
+          isConfigured: false,
+          contacts: []
         }
       });
     }
