@@ -99,6 +99,8 @@ Page({
           totalAmount: response.data.total_amount.toFixed(2),
           // 合同签订状态
           signStatus: response.data.sign_status,
+          // 签约流程ID
+          signFlowId: response.data.sign_flow_id,
           // 服务费支付状态
           serviceFeePaid: response.data.service_fee_paid,
           status: this.mapOrderStatus(response.data.status, response.data.sign_status, response.data.service_fee_paid),
@@ -352,5 +354,96 @@ Page({
   // 返回订单列表
   goBack() {
     my.navigateBack();
+  },
+
+  // 查看合同
+  async viewContract() {
+    const { orderDetail } = this.data;
+    
+    if (!orderDetail || !orderDetail.signFlowId) {
+      my.showToast({
+        content: '合同信息不完整',
+        type: 'fail'
+      });
+      return;
+    }
+
+    try {
+      my.showLoading({
+        content: '正在获取合同...'
+      });
+
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+      
+      if (!accessToken.data) {
+        throw new Error('用户未登录，请先登录');
+      }
+
+      // 1. 调用下载接口获取下载链接
+      const downloadResponse = await new Promise((resolve, reject) => {
+        my.request({
+          url: `${config.api.baseUrl}${config.api.endpoints.esign.download}/${orderDetail.signFlowId}`,
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      if (downloadResponse.statusCode !== 200 || !downloadResponse.data || !downloadResponse.data.url) {
+        throw new Error('获取合同下载链接失败');
+      }
+
+      const contractUrl = downloadResponse.data.url;
+      
+      // 2. 使用 my.downloadFile 下载文件
+      const downloadResult = await new Promise((resolve, reject) => {
+        my.downloadFile({
+          url: contractUrl,
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      my.hideLoading();
+
+      if (downloadResult.statusCode === 200) {
+        // 3. 使用 my.openDocument 打开文件
+        my.openDocument({
+          filePath: downloadResult.tempFilePath,
+          fileType: 'pdf',
+          success: () => {
+            console.log('合同打开成功');
+          },
+          fail: (error) => {
+            console.error('打开合同失败:', error);
+            my.showToast({
+              content: '打开合同失败',
+              type: 'fail'
+            });
+          }
+        });
+      } else {
+        throw new Error('下载合同文件失败');
+      }
+
+    } catch (error) {
+      my.hideLoading();
+      console.error('查看合同失败:', error);
+      
+      let errorMessage = '查看合同失败';
+      if (error.message && error.message.includes('未登录')) {
+        errorMessage = '请先登录';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      my.showToast({
+        content: errorMessage,
+        type: 'fail'
+      });
+    }
   }
 });

@@ -91,6 +91,22 @@
     </view>
   </view>
 
+  <!-- 操作按钮区域 -->
+  <view class="action-buttons" a:if="{{!loading && orderDetail}}">
+    <!-- 查看合同按钮 (仅当签约状态为SUCCESS时显示) -->
+    <button 
+      class="action-btn contract-btn" 
+      a:if="{{orderDetail.signStatus === 'SUCCESS'}}"
+      onTap="viewContract">
+      查看合同
+    </button>
+    
+    <!-- 联系客服按钮 -->
+    <button class="action-btn service-btn" onTap="contactService">
+      联系客服
+    </button>
+  </view>
+
   <!-- 空状态 -->
   <view class="empty-state" a:if="{{!loading && !orderDetail}}">
     <text class="empty-icon">📋</text>

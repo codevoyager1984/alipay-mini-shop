@@ -50,7 +50,8 @@ const config = {
       // 电子签相关
       esign: {
         start: '/api/esign/start',
-        status: '/api/esign/status'  // 状态接口会拼接 /{signFlowId}
+        status: '/api/esign/status',  // 状态接口会拼接 /{signFlowId}
+        download: '/api/esign/download'  // 下载接口会拼接 /{sign_flow_id}
       }
     }
   },
