@@ -2,14 +2,26 @@ const config = require('../../config.js');
 
 Page({
   data: {
-    // 联系信息表单
-    contactForm: {
-      email: '',
-      contact_address: '',
-      emergency_contact_name: '',
-      emergency_contact_phone: '',
-      social_account: ''
-    },
+    // 联系信息表单 - 最少2组
+    contacts: [
+      { 
+        relationship: '', 
+        name: '', 
+        phone: '',
+        relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+      },
+      { 
+        relationship: '', 
+        name: '', 
+        phone: '',
+        relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+      }
+    ],
+    
+    // 关系选择器状态
+    relationshipPickerVisible: false,
+    currentContactIndex: 0,
+    selectedRelationshipIndex: 0,
     
     // 加载状态
     loading: false
@@ -41,12 +53,12 @@ Page({
     try {
       const tokenResult = my.getStorageSync({ key: 'access_token' });
       if (!tokenResult.data) {
-        console.log('未找到access_token，使用空白表单');
+        console.log('未找到access_token，使用默认表单');
         return;
       }
 
       my.request({
-        url: config.api.baseUrl + config.api.endpoints.auth.profile,
+        url: config.api.baseUrl + config.api.endpoints.contacts.list,
         method: 'GET',
         headers: {
           'authorization': `Bearer ${tokenResult.data}`
@@ -54,19 +66,29 @@ Page({
         success: (response) => {
           console.log('获取联系信息成功:', response);
           
-          if (response.statusCode === 200 && response.data) {
-            const userProfile = response.data;
+          if (response.statusCode === 200 && response.data && response.data.contacts) {
+            const contactsData = response.data.contacts;
             
-            const contactForm = {
-              email: userProfile.email || '',
-              contact_address: userProfile.contact_address || '',
-              emergency_contact_name: userProfile.emergency_contact_name || '',
-              emergency_contact_phone: userProfile.emergency_contact_phone || '',
-              social_account: userProfile.social_account || ''
-            };
+            // 转换字段名并确保至少有2组联系人
+            const contacts = contactsData.map(contact => ({
+              relationship: contact.relation_type || '',
+              name: contact.relation_name || '',
+              phone: contact.relation_phone || '',
+              relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+            }));
+            
+            // 确保至少有2组联系人
+            while (contacts.length < 2) {
+              contacts.push({
+                relationship: '',
+                name: '',
+                phone: '',
+                relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+              });
+            }
             
             this.setData({
-              contactForm: contactForm
+              contacts: contacts
             });
           }
         },
@@ -84,61 +106,159 @@ Page({
   },
 
   // 表单输入处理
-  onFormInput(e) {
-    const { field } = e.target.dataset;
+  onContactInput(e) {
+    const { field, index } = e.target.dataset;
     const { value } = e.detail;
     
     this.setData({
-      [`contactForm.${field}`]: value
+      [`contacts[${index}].${field}`]: value
+    });
+  },
+
+  // 显示关系选择器
+  showRelationshipPicker(e) {
+    const { index } = e.target.dataset;
+    const { contacts } = this.data;
+    const currentContact = contacts[parseInt(index)];
+    
+    // 找到当前选中的关系的索引
+    let selectedIndex = 0;
+    if (currentContact.relationship) {
+      selectedIndex = currentContact.relationshipOptions.indexOf(currentContact.relationship);
+      if (selectedIndex === -1) selectedIndex = 0;
+    }
+    
+    this.setData({
+      relationshipPickerVisible: true,
+      currentContactIndex: parseInt(index),
+      selectedRelationshipIndex: selectedIndex
+    });
+  },
+
+  // 选择关系选项
+  selectRelationship(e) {
+    const { index } = e.target.dataset;
+    this.setData({
+      selectedRelationshipIndex: parseInt(index)
+    });
+  },
+
+  // 确认选择关系
+  confirmRelationship() {
+    const { currentContactIndex, selectedRelationshipIndex, contacts } = this.data;
+    const selectedRelationship = contacts[currentContactIndex].relationshipOptions[selectedRelationshipIndex];
+    
+    this.setData({
+      [`contacts[${currentContactIndex}].relationship`]: selectedRelationship,
+      relationshipPickerVisible: false
+    });
+  },
+
+  // 关系选择器取消
+  onRelationshipCancel() {
+    this.setData({
+      relationshipPickerVisible: false
+    });
+  },
+
+  // 阻止事件冒泡
+  stopPropagation() {
+    // 空函数，用于阻止点击事件冒泡
+  },
+
+  // 添加联系人
+  addContact() {
+    const { contacts } = this.data;
+
+    const newContact = {
+      relationship: '',
+      name: '',
+      phone: '',
+      relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+    };
+
+    this.setData({
+      contacts: [...contacts, newContact]
+    });
+  },
+
+  // 删除联系人
+  removeContact(e) {
+    const { index } = e.target.dataset;
+    const { contacts } = this.data;
+    
+    if (contacts.length <= 2) {
+      my.showToast({
+        content: '至少需要保留2组联系人',
+        type: 'fail'
+      });
+      return;
+    }
+
+    contacts.splice(index, 1);
+    this.setData({
+      contacts: contacts
     });
   },
 
   // 保存联系信息
   saveContactInfo() {
-    const { contactForm } = this.data;
+    const { contacts } = this.data;
     
-    // 验证必填字段
-    if (!contactForm.contact_address || !contactForm.contact_address.trim()) {
+    // 强制要求：所有联系人必须完整填写，不允许空白项
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
+      
+      // 每个联系人都必须完整填写
+      if (!contact.relationship) {
+        my.showToast({
+          content: `第${i + 1}联系人请选择关系`,
+          type: 'fail'
+        });
+        return;
+      }
+      
+      if (!contact.name || !contact.name.trim()) {
+        my.showToast({
+          content: `第${i + 1}联系人请填写姓名`,
+          type: 'fail'
+        });
+        return;
+      }
+      
+      if (!contact.phone || !contact.phone.trim()) {
+        my.showToast({
+          content: `第${i + 1}联系人请填写手机号`,
+          type: 'fail'
+        });
+        return;
+      }
+      
+      // 验证手机号格式
+      if (!this.validatePhone(contact.phone)) {
+        my.showToast({
+          content: `第${i + 1}联系人手机号格式不正确`,
+          type: 'fail'
+        });
+        return;
+      }
+    }
+    
+    // 确保至少有2组联系人
+    if (contacts.length < 2) {
       my.showToast({
-        content: '请填写联系地址',
+        content: '至少需要填写2组联系人信息',
         type: 'fail'
       });
       return;
     }
-    
-    if (!contactForm.emergency_contact_name || !contactForm.emergency_contact_name.trim()) {
-      my.showToast({
-        content: '请填写紧急联系人姓名',
-        type: 'fail'
-      });
-      return;
-    }
-    
-    if (!contactForm.emergency_contact_phone || !contactForm.emergency_contact_phone.trim()) {
-      my.showToast({
-        content: '请填写紧急联系人电话',
-        type: 'fail'
-      });
-      return;
-    }
-    
-    // 验证紧急联系人电话格式（必填字段）
-    if (!this.validatePhone(contactForm.emergency_contact_phone)) {
-      my.showToast({
-        content: '请输入正确的紧急联系人电话格式',
-        type: 'fail'
-      });
-      return;
-    }
-    
-    // 验证邮箱格式（如果填写了邮箱）
-    if (contactForm.email && !this.validateEmail(contactForm.email)) {
-      my.showToast({
-        content: '请输入正确的邮箱格式',
-        type: 'fail'
-      });
-      return;
-    }
+
+    // 转换所有联系人字段名（此时已经验证过都是完整的）
+    const validContacts = contacts.map(contact => ({
+      relation_type: contact.relationship,
+      relation_name: contact.name.trim(),
+      relation_phone: contact.phone.trim()
+    }));
 
     try {
       const tokenResult = my.getStorageSync({ key: 'access_token' });
@@ -153,13 +273,15 @@ Page({
       this.setData({ loading: true });
 
       my.request({
-        url: config.api.baseUrl + config.api.endpoints.auth.contactInfo,
+        url: config.api.baseUrl + config.api.endpoints.contacts.list,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'authorization': `Bearer ${tokenResult.data}`
         },
-        data: contactForm,
+        data: {
+          contacts: validContacts
+        },
         success: (response) => {
           this.setData({ loading: false });
           console.log('保存联系信息成功:', response);
@@ -201,12 +323,6 @@ Page({
         type: 'fail'
       });
     }
-  },
-
-  // 验证邮箱格式
-  validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   },
 
   // 验证手机号格式

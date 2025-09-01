@@ -1,42 +1,79 @@
 <view class="contact-edit-container">
   <!-- 页面标题 -->
   <view class="page-header">
-    <view class="header-title">完善联系信息</view>
-    <view class="header-desc">请填写真实有效的联系信息，以便我们为您提供更好的服务</view>
+    <view class="header-title">紧急联系人</view>
+    <view class="header-desc">请添加紧急联系人，要求最少填写两个</view>
   </view>
 
-  <!-- 表单内容 -->
-  <view class="form-container">
-    <view class="form-item">
-      <text class="form-label required">联系地址 *</text>
-      <textarea class="form-textarea" placeholder="请输入详细地址（必填）" value="{{contactForm.contact_address}}" onInput="onFormInput" data-field="contact_address" />
+  <!-- 联系人列表 -->
+  <view class="contacts-container">
+    <view class="contact-item" a:for="{{contacts}}" a:for-index="index" a:for-item="contact" a:key="index">
+      <view class="contact-header">
+        <text class="contact-title">第{{index + 1}}联系人</text>
+        <view class="contact-actions" a:if="{{contacts.length > 2}}">
+          <text class="delete-btn" onTap="removeContact" data-index="{{index}}">删除</text>
+        </view>
+      </view>
+      
+      <view class="contact-form">
+        <view class="form-item">
+          <text class="form-label required">与本人关系</text>
+          <view class="relationship-selector" onTap="showRelationshipPicker" data-index="{{index}}">
+            <text class="selector-text {{contact.relationship ? '' : 'placeholder'}}">
+              {{contact.relationship || '请选择'}}
+            </text>
+            <text class="selector-arrow">></text>
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label required">联系人姓名</text>
+          <input class="form-input" type="text" placeholder="请输入姓名" value="{{contact.name}}" onInput="onContactInput" data-field="name" data-index="{{index}}" />
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label required">手机号</text>
+          <input class="form-input" type="number" placeholder="请输入手机号" value="{{contact.phone}}" onInput="onContactInput" data-field="phone" data-index="{{index}}" />
+        </view>
+      </view>
     </view>
-    
-    <view class="form-item">
-      <text class="form-label required">紧急联系人姓名 *</text>
-      <input class="form-input" type="text" placeholder="请输入紧急联系人姓名（必填）" value="{{contactForm.emergency_contact_name}}" onInput="onFormInput" data-field="emergency_contact_name" />
+  </view>
+
+  <!-- 添加联系人按钮 -->
+  <view class="add-contact-container">
+    <view class="add-contact-btn" onTap="addContact">
+      <text class="add-text">+ 添加联系人</text>
     </view>
-    
-    <view class="form-item">
-      <text class="form-label required">紧急联系人电话 *</text>
-      <input class="form-input" type="number" placeholder="请输入紧急联系人电话（必填）" value="{{contactForm.emergency_contact_phone}}" onInput="onFormInput" data-field="emergency_contact_phone" />
-    </view>
-    
-    <view class="form-item">
-      <text class="form-label">邮箱地址（可选）</text>
-      <input class="form-input" type="text" placeholder="请输入邮箱地址（可选）" value="{{contactForm.email}}" onInput="onFormInput" data-field="email" />
-    </view>
-    
-    <view class="form-item">
-      <text class="form-label">社交账号（可选）</text>
-      <input class="form-input" type="text" placeholder="微信号/QQ号等（可选）" value="{{contactForm.social_account}}" onInput="onFormInput" data-field="social_account" />
+  </view>
+
+  <!-- 关系选择器遮罩 -->
+  <view class="picker-overlay" a:if="{{relationshipPickerVisible}}" onTap="onRelationshipCancel">
+    <view class="picker-content" onTap="stopPropagation" catchTap="stopPropagation">
+      <view class="picker-header">
+        <text class="picker-cancel" onTap="onRelationshipCancel" catchTap="onRelationshipCancel">取消</text>
+        <text class="picker-title">选择关系</text>
+        <text class="picker-confirm" onTap="confirmRelationship" catchTap="confirmRelationship">确定</text>
+      </view>
+      <view class="picker-options">
+        <view 
+          class="picker-option {{selectedRelationshipIndex === index ? 'selected' : ''}}" 
+          a:for="{{contacts[currentContactIndex].relationshipOptions}}" 
+          a:key="{{index}}"
+          data-index="{{index}}"
+          data-value="{{item}}"
+          onTap="selectRelationship"
+          catchTap="selectRelationship">
+          {{item}}
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- 底部操作按钮 -->
   <view class="bottom-actions">
     <button class="save-btn" onTap="saveContactInfo" disabled="{{loading}}">
-      {{loading ? '保存中...' : '保存'}}
+      {{loading ? '保存中...' : '确定'}}
     </button>
   </view>
 </view>
+

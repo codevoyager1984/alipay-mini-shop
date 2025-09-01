@@ -23,11 +23,6 @@ Page({
     
     // 联系信息
     contactInfo: {
-      email: '',
-      contact_address: '',
-      emergency_contact_name: '',
-      emergency_contact_phone: '',
-      social_account: '',
       isComplete: false
     },
     
@@ -669,7 +664,7 @@ Page({
       }
 
       my.request({
-        url: config.api.baseUrl + config.api.endpoints.auth.profile,
+        url: config.api.baseUrl + config.api.endpoints.contacts.list,
         method: 'GET',
         headers: {
           'authorization': `Bearer ${tokenResult.data}`
@@ -677,28 +672,21 @@ Page({
         success: (response) => {
           console.log('获取联系信息成功:', response);
           
-          if (response.statusCode === 200 && response.data) {
-            const userProfile = response.data;
+          if (response.statusCode === 200 && response.data && response.data.contacts) {
+            const contacts = response.data.contacts;
             
-            // 检查联系信息是否完整（必填字段都已填写）
-            const isComplete = !!(
-              userProfile.contact_address && 
-              userProfile.emergency_contact_name && 
-              userProfile.emergency_contact_phone
+            // 检查联系信息是否完整（至少有2个完整的联系人）
+            const validContacts = contacts.filter(contact => 
+              contact.relation_type && contact.relation_name && contact.relation_phone
             );
+            const isComplete = validContacts.length >= 2;
             
             const contactInfo = {
-              email: userProfile.email || '',
-              contact_address: userProfile.contact_address || '',
-              emergency_contact_name: userProfile.emergency_contact_name || '',
-              emergency_contact_phone: userProfile.emergency_contact_phone || '',
-              social_account: userProfile.social_account || '',
               isComplete: isComplete
             };
             
             this.setData({
-              contactInfo: contactInfo,
-              contactForm: { ...contactInfo }
+              contactInfo: contactInfo
             });
           }
         },

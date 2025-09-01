@@ -89,21 +89,7 @@
       </view>
     </view>
     
-    <!-- 显示已填写的联系信息摘要 -->
-    <view class="contact-summary" a:if="{{contactInfo.isComplete}}">
-      <view class="summary-item" a:if="{{contactInfo.email}}">
-        <text class="summary-label">邮箱:</text>
-        <text class="summary-value">{{contactInfo.email}}</text>
-      </view>
-      <view class="summary-item" a:if="{{contactInfo.contact_address}}">
-        <text class="summary-label">联系地址:</text>
-        <text class="summary-value">{{contactInfo.contact_address}}</text>
-      </view>
-      <view class="summary-item" a:if="{{contactInfo.emergency_contact_name}}">
-        <text class="summary-label">紧急联系人:</text>
-        <text class="summary-value">{{contactInfo.emergency_contact_name}} {{contactInfo.emergency_contact_phone}}</text>
-      </view>
-    </view>
+
   </view>
 
   <!-- 其他功能区域 -->
