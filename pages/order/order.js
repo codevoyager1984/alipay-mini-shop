@@ -387,6 +387,17 @@ Page({
     }
   },
 
+  // 检查手机号绑定状态
+  checkPhoneBindingStatus() {
+    try {
+      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      return userInfo.data && userInfo.data.phone && userInfo.data.phone.trim() !== '';
+    } catch (e) {
+      console.error('检查手机号绑定状态失败:', e);
+      return false;
+    }
+  },
+
   // 显示合同弹窗
   showContract() {
     // 显示合同弹窗并开始倒计时
@@ -458,6 +469,25 @@ Page({
         title: '请先登录',
         content: '下单前需要先登录账户，点击确定跳转到个人页面完成登录。',
         confirmText: '去登录',
+        cancelText: '取消',
+        success: (result) => {
+          if (result.confirm) {
+            // 跳转到个人页面
+            my.navigateTo({
+              url: '/pages/profile/profile'
+            });
+          }
+        }
+      });
+      return;
+    }
+
+    // 检查手机号绑定状态
+    if (!this.checkPhoneBindingStatus()) {
+      my.showModal({
+        title: '需要绑定手机号',
+        content: '为了您的账户安全，下单前需要先绑定手机号，点击确定前往个人页面完成绑定。',
+        confirmText: '去绑定',
         cancelText: '取消',
         success: (result) => {
           if (result.confirm) {
