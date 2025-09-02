@@ -20,25 +20,60 @@
     <!-- 已提交的材料 -->
     <view class="submitted-materials-card">
       <view class="card-title">已提交材料</view>
+      <view class="card-subtitle">点击照片可重新上传</view>
       
       <view class="materials-grid">
         <!-- 芝麻信用照片 -->
-        <view class="material-item" a:if="{{auditInfo.zhimaxinyong_image}}">
-          <image class="material-image" src="{{auditInfo.zhimaxinyong_image}}" mode="aspectFill" />
+        <view class="material-item">
+          <view class="material-upload-wrapper" onTap="selectAuditImage" data-type="zhimaxinyong">
+            <image class="material-image" src="{{auditInfo.zhimaxinyong_image}}" mode="aspectFill" a:if="{{auditInfo.zhimaxinyong_image}}" />
+            <view class="upload-placeholder" a:else>
+              <view class="upload-icon">📷</view>
+              <view class="upload-text">上传照片</view>
+            </view>
+            <view class="upload-overlay">
+              <view class="overlay-icon">📷</view>
+            </view>
+          </view>
           <view class="material-label">芝麻信用照片</view>
         </view>
         
         <!-- 车架号照片 -->
-        <view class="material-item" a:if="{{auditInfo.chejiahao_image}}">
-          <image class="material-image" src="{{auditInfo.chejiahao_image}}" mode="aspectFill" />
+        <view class="material-item">
+          <view class="material-upload-wrapper" onTap="selectAuditImage" data-type="chejiahao">
+            <image class="material-image" src="{{auditInfo.chejiahao_image}}" mode="aspectFill" a:if="{{auditInfo.chejiahao_image}}" />
+            <view class="upload-placeholder" a:else>
+              <view class="upload-icon">📷</view>
+              <view class="upload-text">上传照片</view>
+            </view>
+            <view class="upload-overlay">
+              <view class="overlay-icon">📷</view>
+            </view>
+          </view>
           <view class="material-label">车架号照片</view>
         </view>
         
-        <!-- 产品封面图 -->
-        <view class="material-item" a:if="{{auditInfo.product_cover_image}}">
-          <image class="material-image" src="{{auditInfo.product_cover_image}}" mode="aspectFill" />
-          <view class="material-label">产品照片</view>
+        <!-- 人车合一照片 -->
+        <view class="material-item">
+          <view class="material-upload-wrapper" onTap="selectAuditImage" data-type="rencheheyi">
+            <image class="material-image" src="{{auditInfo.product_cover_image}}" mode="aspectFill" a:if="{{auditInfo.product_cover_image}}" />
+            <view class="upload-placeholder" a:else>
+              <view class="upload-icon">📷</view>
+              <view class="upload-text">上传照片</view>
+            </view>
+            <view class="upload-overlay">
+              <view class="overlay-icon">📷</view>
+            </view>
+          </view>
+          <view class="material-label">人车合一照片</view>
         </view>
+      </view>
+      
+      <!-- 重新提交按钮 -->
+      <view class="resubmit-section" a:if="{{hasAuditChanges}}">
+        <button class="resubmit-btn" onTap="resubmitAuditMaterials" disabled="{{auditUploading}}">
+          {{auditUploading ? '提交中...' : '重新提交审核'}}
+        </button>
       </view>
     </view>
 
@@ -87,32 +122,66 @@
     <!-- 已提交的材料 -->
     <view class="submitted-materials-card">
       <view class="card-title">已提交材料</view>
+      <view class="card-subtitle">点击照片可重新上传</view>
       
       <view class="materials-grid">
         <!-- 芝麻信用照片 -->
-        <view class="material-item" a:if="{{auditInfo.zhimaxinyong_image}}">
-          <image class="material-image" src="{{auditInfo.zhimaxinyong_image}}" mode="aspectFill" />
+        <view class="material-item">
+          <view class="material-upload-wrapper" onTap="selectAuditImage" data-type="zhimaxinyong">
+            <image class="material-image" src="{{auditInfo.zhimaxinyong_image}}" mode="aspectFill" a:if="{{auditInfo.zhimaxinyong_image}}" />
+            <view class="upload-placeholder" a:else>
+              <view class="upload-icon">📷</view>
+              <view class="upload-text">上传照片</view>
+            </view>
+            <view class="upload-overlay">
+              <view class="overlay-icon">📷</view>
+            </view>
+          </view>
           <view class="material-label">芝麻信用照片</view>
         </view>
         
         <!-- 车架号照片 -->
-        <view class="material-item" a:if="{{auditInfo.chejiahao_image}}">
-          <image class="material-image" src="{{auditInfo.chejiahao_image}}" mode="aspectFill" />
+        <view class="material-item">
+          <view class="material-upload-wrapper" onTap="selectAuditImage" data-type="chejiahao">
+            <image class="material-image" src="{{auditInfo.chejiahao_image}}" mode="aspectFill" a:if="{{auditInfo.chejiahao_image}}" />
+            <view class="upload-placeholder" a:else>
+              <view class="upload-icon">📷</view>
+              <view class="upload-text">上传照片</view>
+            </view>
+            <view class="upload-overlay">
+              <view class="overlay-icon">📷</view>
+            </view>
+          </view>
           <view class="material-label">车架号照片</view>
         </view>
         
-        <!-- 产品封面图 -->
-        <view class="material-item" a:if="{{auditInfo.product_cover_image}}">
-          <image class="material-image" src="{{auditInfo.product_cover_image}}" mode="aspectFill" />
-          <view class="material-label">产品照片</view>
+        <!-- 人车合一照片 -->
+        <view class="material-item">
+          <view class="material-upload-wrapper" onTap="selectAuditImage" data-type="rencheheyi">
+            <image class="material-image" src="{{auditInfo.product_cover_image}}" mode="aspectFill" a:if="{{auditInfo.product_cover_image}}" />
+            <view class="upload-placeholder" a:else>
+              <view class="upload-icon">📷</view>
+              <view class="upload-text">上传照片</view>
+            </view>
+            <view class="upload-overlay">
+              <view class="overlay-icon">📷</view>
+            </view>
+          </view>
+          <view class="material-label">人车合一照片</view>
         </view>
+      </view>
+      
+      <!-- 重新提交按钮 -->
+      <view class="resubmit-section" a:if="{{hasAuditChanges}}">
+        <button class="resubmit-btn" onTap="resubmitAuditMaterials" disabled="{{auditUploading}}">
+          {{auditUploading ? '提交中...' : '重新提交审核'}}
+        </button>
       </view>
     </view>
 
     <!-- 操作按钮区域 -->
     <view class="rejected-actions-section">
-      <button class="action-btn secondary" onTap="goToHome">重新选择商品</button>
-      <button class="action-btn primary" onTap="contactService">联系客服</button>
+      <button class="action-btn primary full-width" onTap="contactService">联系客服</button>
     </view>
   </view>
 

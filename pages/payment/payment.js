@@ -55,6 +55,10 @@ Page({
       zhimaxinyong_image: ''
     },
     
+    // 审核材料修改相关
+    hasAuditChanges: false,
+    auditUploading: false,
+    
     // 加载状态
     loading: false
   },
@@ -153,11 +157,9 @@ Page({
   // 加载订单详情
   async loadOrderDetail(orderId) {
     try {
-      console.log('开始加载订单详情, orderId:', orderId);
       this.setData({ loading: true });
       
       const accessToken = my.getStorageSync({ key: 'access_token' });
-      console.log('获取到 accessToken:', accessToken ? '有token' : '无token');
       
       const response = await new Promise((resolve, reject) => {
         const requestUrl = `${config.api.baseUrl}${config.api.endpoints.orders.detail}/${orderId}`;
@@ -689,5 +691,182 @@ Page({
         });
       }
     });
+  },
+
+  // 选择审核图片
+  selectAuditImage(e) {
+    const type = e.currentTarget.dataset.type;
+    console.log('选择审核图片类型:', type);
+    
+    my.chooseImage({
+      count: 1,
+      sourceType: ['camera', 'album'],
+      success: (res) => {
+        console.log('选择审核图片成功:', res);
+        let filePath = undefined;
+        if (res.tempFilePaths && res.tempFilePaths.length > 0) {
+          filePath = res.tempFilePaths[0];
+        } else if (res.filePaths && res.filePaths.length > 0) {
+          filePath = res.filePaths[0];
+        } else if (res.apFilePaths && res.apFilePaths.length > 0) {
+          filePath = res.apFilePaths[0];
+        }
+        if (filePath) {
+          // 先显示本地图片预览
+          this.updateAuditImagePreview(type, filePath);
+          
+          // 延迟上传，让用户看到图片选择效果
+          setTimeout(() => {
+            this.uploadAuditImage(filePath, type);
+          }, 300);
+        }
+      },
+      fail: (error) => {
+        console.error('选择审核图片失败:', error);
+        my.showToast({
+          content: '选择图片失败',
+          type: 'fail'
+        });
+      }
+    });
+  },
+
+  // 更新审核图片预览
+  updateAuditImagePreview(type, imagePath) {
+    const updateKey = this.getAuditImageKey(type);
+    this.setData({
+      [`auditInfo.${updateKey}`]: imagePath
+    });
+  },
+
+  // 上传审核图片
+  async uploadAuditImage(filePath, type) {
+    try {
+      my.showLoading({
+        content: '上传中...'
+      });
+
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+      const uploadedUrl = await new Promise((resolve, reject) => {
+        my.uploadFile({
+          url: `${config.api.baseUrl}/api/upload/image?folder=audit-images`,
+          filePath: filePath,
+          name: 'file',
+          header: {
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          success: (res) => {
+            console.log('审核图片上传响应:', res);
+            try {
+              const responseData = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+              console.log('解析后的响应数据:', responseData);
+              
+              if (responseData && (responseData.url || responseData.uploadedUrl)) {
+                // 支持两种格式：url 和 uploadedUrl
+                const imageUrl = responseData.url || responseData.uploadedUrl;
+                resolve(imageUrl);
+              } else {
+                reject(new Error('上传响应数据格式错误'));
+              }
+            } catch (parseError) {
+              console.error('解析上传响应失败:', parseError);
+              reject(parseError);
+            }
+          },
+          fail: (error) => {
+            console.error('审核图片上传失败:', error);
+            reject(error);
+          }
+        });
+      });
+
+      // 更新图片URL
+      const updateKey = this.getAuditImageKey(type);
+      this.setData({
+        [`auditInfo.${updateKey}`]: uploadedUrl,
+        hasAuditChanges: true
+      });
+
+      my.hideLoading();
+      my.showToast({
+        content: '图片上传成功',
+        type: 'success'
+      });
+
+      console.log('审核图片上传成功:', uploadedUrl);
+    } catch (error) {
+      my.hideLoading();
+      console.error('上传审核图片失败:', error);
+      my.showToast({
+        content: '图片上传失败',
+        type: 'fail'
+      });
+    }
+  },
+
+  // 获取审核图片对应的字段名
+  getAuditImageKey(type) {
+    const mapping = {
+      'zhimaxinyong': 'zhimaxinyong_image',
+      'chejiahao': 'chejiahao_image',
+      'rencheheyi': 'product_cover_image'
+    };
+    return mapping[type] || type;
+  },
+
+  // 重新提交审核材料
+  async resubmitAuditMaterials() {
+    try {
+      this.setData({ auditUploading: true });
+      
+      const accessToken = my.getStorageSync({ key: 'access_token' });
+      const orderId = this.data.orderInfo.orderId;
+      
+      const updateData = {
+        chejiahao_image: this.data.auditInfo.chejiahao_image,
+        zhimaxinyong_image: this.data.auditInfo.zhimaxinyong_image,
+        rencheheyi_image: this.data.auditInfo.product_cover_image
+      };
+      
+      console.log('重新提交审核材料:', updateData);
+
+      const response = await new Promise((resolve, reject) => {
+        my.request({
+          url: `${config.api.baseUrl}/api/orders/${orderId}`,
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken.data}`
+          },
+          data: updateData,
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      if (response.statusCode === 200) {
+        this.setData({
+          hasAuditChanges: false,
+          orderStatus: 'under_review' // 重新提交后状态改为审核中
+        });
+        
+        my.showToast({
+          content: '审核材料已重新提交',
+          type: 'success'
+        });
+        
+        console.log('审核材料重新提交成功');
+      } else {
+        throw new Error((response.data && response.data.message) || '提交失败');
+      }
+    } catch (error) {
+      console.error('重新提交审核材料失败:', error);
+      my.showToast({
+        content: error.message || '提交失败，请稍后重试',
+        type: 'fail'
+      });
+    } finally {
+      this.setData({ auditUploading: false });
+    }
   },
 });
