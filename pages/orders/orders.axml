@@ -16,6 +16,13 @@
       审核中
     </view>
     <view 
+      class="tab-item {{activeTab === 'rejected' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="rejected"
+    >
+      审核未通过
+    </view>
+    <view 
       class="tab-item {{activeTab === 'ongoing' ? 'active' : ''}}" 
       onTap="switchTab" 
       data-tab="ongoing"
@@ -88,6 +95,16 @@
             onTap="viewAuditProgress" 
             data-order="{{item}}"
             a:if="{{item.status === 'under_review'}}"
+          >
+            查看详情
+          </button>
+          
+          <!-- 审核未通过状态 -->
+          <button 
+            class="action-btn secondary" 
+            onTap="viewOrderDetail" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'rejected'}}"
           >
             查看详情
           </button>

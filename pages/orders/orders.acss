@@ -143,6 +143,11 @@
   color: #2f54eb;
 }
 
+.order-status.rejected {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+
 /* 订单内容 */
 .order-content {
   display: flex;
