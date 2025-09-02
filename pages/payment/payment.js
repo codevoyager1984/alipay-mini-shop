@@ -45,6 +45,16 @@ Page({
     // 支付类型
     paymentType: '', // serviceFee, installment
     
+    // 订单状态
+    orderStatus: 'pending', // pending, under_review, approved, rejected
+    
+    // 审核相关信息
+    auditInfo: {
+      chejiahao_image: '',
+      product_cover_image: '',
+      zhimaxinyong_image: ''
+    },
+    
     // 加载状态
     loading: false
   },
@@ -105,6 +115,39 @@ Page({
     // 页面被关闭
   },
 
+  // 联系客服
+  contactService() {
+    const { globalConfig } = this.data;
+    
+    // 使用动态配置的联系方式和工作时间
+    const phoneNumber = globalConfig ? globalConfig.contact_info : '400-123-4567';
+    const businessHours = globalConfig ? globalConfig.business_hours : '09:00-18:00';
+
+    my.showModal({
+      title: '联系客服',
+      content: `客服电话：${phoneNumber}\n工作时间：${businessHours}`,
+      confirmText: '拨打电话',
+      cancelText: '取消',
+      success: (result) => {
+        if (result.confirm) {
+          my.makePhoneCall({
+            number: phoneNumber,
+            success: () => {
+              console.log('拨打客服电话成功');
+            },
+            fail: (error) => {
+              console.error('拨打电话失败', error);
+              my.showToast({
+                content: '拨打电话失败',
+                type: 'fail'
+              });
+            }
+          });
+        }
+      }
+    });
+  },
+
   // 加载订单详情
   async loadOrderDetail(orderId) {
     try {
@@ -154,7 +197,12 @@ Page({
           // 根据支付类型更新支付金额
           'orderInfo.amount': this.data.paymentType === 'serviceFee' ? 
             (response.data.service_fee_amount || 0) : 
-            installmentInfo.currentAmount
+            installmentInfo.currentAmount,
+          // 订单状态和审核信息
+          orderStatus: response.data.status || 'pending',
+          'auditInfo.chejiahao_image': response.data.chejiahao_image || '',
+          'auditInfo.product_cover_image': response.data.product_cover_image || '',
+          'auditInfo.zhimaxinyong_image': response.data.zhimaxinyong_image || ''
         });
       }
     } catch (error) {

@@ -308,7 +308,12 @@ Page({
 
   // 映射订单状态
   mapOrderStatus(apiStatus, signStatus, serviceFeePaid) {
-    // 优先级：服务费 > 合同签订 > 订单状态
+    // 优先级：审核中 > 服务费 > 合同签订 > 订单状态
+    
+    // 如果订单状态是审核中，优先显示审核中状态
+    if (apiStatus === 'under_review') {
+      return 'under_review';
+    }
     
     // 如果服务费未支付，则优先显示服务费相关状态
     if (serviceFeePaid === null || serviceFeePaid === false) {
@@ -334,7 +339,12 @@ Page({
 
   // 获取状态文本
   getStatusText(apiStatus, signStatus, serviceFeePaid) {
-    // 优先级：服务费 > 合同签订 > 订单状态
+    // 优先级：审核中 > 服务费 > 合同签订 > 订单状态
+    
+    // 如果订单状态是审核中，优先显示审核中状态
+    if (apiStatus === 'under_review') {
+      return '审核中';
+    }
     
     // 如果服务费未支付，则优先显示服务费相关状态
     if (serviceFeePaid === null || serviceFeePaid === false) {
@@ -353,6 +363,7 @@ Page({
       'completed': '已完成',
       'cancelled': '已取消',
       "inprogress": "进行中",
+      'under_review': '审核中',
       'contract_pending': '待签合同',
       'service_fee_pending': '服务费'
     };
@@ -373,7 +384,12 @@ Page({
   filterOrders() {
     let filtered = this.data.orders;
     
-    if (this.data.activeTab === 'service_fee_pending') {
+    if (this.data.activeTab === 'under_review') {
+      // 审核中
+      filtered = this.data.orders.filter(order => 
+        order.status === 'under_review'
+      );
+    } else if (this.data.activeTab === 'service_fee_pending') {
       // 待支付服务费
       filtered = this.data.orders.filter(order => 
         order.status === 'service_fee_pending'
@@ -384,7 +400,7 @@ Page({
         order.status === 'contract_pending'
       );
     } else if (this.data.activeTab === 'ongoing') {
-      // 进行中（不包括待支付服务费和待签合同）
+      // 进行中（不包括审核中、待支付服务费和待签合同）
       filtered = this.data.orders.filter(order => 
         order.status === 'ongoing' || order.status === 'pending' || order.status === 'inprogress'
       );
@@ -598,6 +614,16 @@ Page({
     // 跳转到支付页面
     my.navigateTo({
       url: `/pages/payment/payment?orderId=${order.id}&orderNo=${order.orderNo}&amount=${paymentAmount}`
+    });
+  },
+
+  // 查看审核进度
+  viewAuditProgress(e) {
+    const order = e.currentTarget.dataset.order;
+    
+    // 跳转到支付页面查看审核进度
+    my.navigateTo({
+      url: `/pages/payment/payment?orderId=${order.id}&orderNo=${order.orderNo}`
     });
   },
 

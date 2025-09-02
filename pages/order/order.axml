@@ -162,7 +162,7 @@
           </view>
         </view>
       </view>
-      
+
       <!-- 价格和确认按钮 -->
       <view class="confirm-bottom">
         <view class="confirm-price">
@@ -171,7 +171,94 @@
           <text class="price-unit">/月</text>
           <text class="service-fee" a:if="{{productInfo.service_fee}}">（服务费¥{{productInfo.service_fee}}）</text>
         </view>
-        <button class="confirm-btn" onTap="submitOrderDirect">确认下单</button>
+        <button class="confirm-btn" onTap="showMaterialSubmission">确认下单</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 材料提交弹窗 -->
+  <view class="material-submit-modal" a:if="{{showMaterialSubmission}}">
+    <view class="modal-mask" onTap="closeMaterialSubmission"></view>
+    <view class="material-modal-content">
+      <!-- 关闭按钮 -->
+      <view class="modal-close" onTap="closeMaterialSubmission">✕</view>
+      
+      <!-- 提交资料 -->
+      <view class="submit-materials">
+        <view class="materials-title">提交资料</view>
+        <view class="materials-subtitle">请按工作人员的指导，提交下单所需的资料</view>
+        <view class="materials-grid">
+          <!-- 芝麻信用照片 -->
+          <view class="material-item">
+            <view class="material-upload" onTap="selectImage" data-type="zhimaxinyong">
+              <image 
+                class="material-image" 
+                src="{{materialImages.zhimaxinyong}}" 
+                mode="aspectFill"
+                a:if="{{materialImages.zhimaxinyong}}"
+              />
+              <view class="upload-placeholder" a:else>
+                <text class="upload-icon">+</text>
+                <text class="upload-text">点击拍摄</text>
+              </view>
+            </view>
+            <view class="material-label">
+              <text class="material-name">芝麻信用照片</text>
+              <text class="material-required">必传</text>
+            </view>
+          </view>
+          
+          <!-- 人车合一照片 -->
+          <view class="material-item">
+            <view class="material-upload" onTap="selectImage" data-type="rencheheyi">
+              <image 
+                class="material-image" 
+                src="{{materialImages.rencheheyi}}" 
+                mode="aspectFill"
+                a:if="{{materialImages.rencheheyi}}"
+              />
+              <view class="upload-placeholder" a:else>
+                <text class="upload-icon">+</text>
+                <text class="upload-text">点击拍摄</text>
+              </view>
+            </view>
+            <view class="material-label">
+              <text class="material-name">人车合一照片</text>
+              <text class="material-required">必传</text>
+            </view>
+          </view>
+          
+          <!-- 车架号照片 -->
+          <view class="material-item">
+            <view class="material-upload" onTap="selectImage" data-type="chejiahao">
+              <image 
+                class="material-image" 
+                src="{{materialImages.chejiahao}}" 
+                mode="aspectFill"
+                a:if="{{materialImages.chejiahao}}"
+              />
+              <view class="upload-placeholder" a:else>
+                <text class="upload-icon">+</text>
+                <text class="upload-text">点击拍摄</text>
+              </view>
+            </view>
+            <view class="material-label">
+              <text class="material-name">车架号照片</text>
+              <text class="material-required">必传</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 确认按钮 -->
+      <view class="material-submit-bottom">
+        <button 
+          class="confirm-btn {{!allMaterialsUploaded ? 'disabled' : ''}}" 
+          onTap="submitOrderDirect"
+          disabled="{{!allMaterialsUploaded}}"
+        >
+          确认提交
+        </button>
       </view>
     </view>
   </view>

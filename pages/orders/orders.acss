@@ -138,6 +138,11 @@
   color: #fa8c16;
 }
 
+.order-status.under_review {
+  background: #f0f5ff;
+  color: #2f54eb;
+}
+
 /* 订单内容 */
 .order-content {
   display: flex;

@@ -9,6 +9,13 @@
       全部
     </view>
     <view 
+      class="tab-item {{activeTab === 'under_review' ? 'active' : ''}}" 
+      onTap="switchTab" 
+      data-tab="under_review"
+    >
+      审核中
+    </view>
+    <view 
       class="tab-item {{activeTab === 'ongoing' ? 'active' : ''}}" 
       onTap="switchTab" 
       data-tab="ongoing"
@@ -75,6 +82,16 @@
         </view>
         
         <view class="order-actions">
+          <!-- 审核中状态 -->
+          <button 
+            class="action-btn secondary" 
+            onTap="viewAuditProgress" 
+            data-order="{{item}}"
+            a:if="{{item.status === 'under_review'}}"
+          >
+            查看详情
+          </button>
+          
           <!-- 服务费待支付状态 -->
           <button 
             class="action-btn secondary" 

@@ -27,6 +27,9 @@ Page({
     // 订单确认弹窗数据加载状态
     orderConfirmLoading: false,
     
+    // 材料提交弹窗状态
+    showMaterialSubmission: false,
+    
     // 订单配置信息
     orderConfig: {
       rentalDays: 30,          // 租期：固定30天
@@ -39,7 +42,20 @@ Page({
     showContractModal: false,  // 是否显示合同弹窗
     countdown: 10,             // 倒计时秒数（10秒）
     isAgreed: false,          // 是否同意协议
-    countdownTimer: null      // 倒计时定时器
+    countdownTimer: null,     // 倒计时定时器
+    
+    // 材料上传相关状态
+    materialImages: {         // 已上传的材料图片
+      zhimaxinyong: null,     // 芝麻信用照片
+      rencheheyi: null,       // 人车合一照片
+      chejiahao: null         // 车架号照片
+    },
+    materialUrls: {           // 上传后的URL
+      zhimaxinyong_image: null,
+      rencheheyi_image: null,
+      chejiahao_image: null
+    },
+    allMaterialsUploaded: false  // 是否全部材料已上传
   },
 
   onLoad(query) {
@@ -543,9 +559,38 @@ Page({
     });
   },
 
+  // 显示材料提交弹窗
+  async showMaterialSubmission() {
+    // 关闭订单确认弹窗
+    this.setData({
+      showOrderConfirm: false
+    });
+    
+    // 显示材料提交弹窗
+    this.setData({
+      showMaterialSubmission: true
+    });
+  },
+
+  // 关闭材料提交弹窗
+  closeMaterialSubmission() {
+    this.setData({
+      showMaterialSubmission: false
+    });
+  },
+
   // 直接提交订单（不显示协议弹窗）
   async submitOrderDirect() {
     try {
+      // 检查是否所有材料都已上传
+      if (!this.data.allMaterialsUploaded) {
+        my.showToast({
+          content: '请先上传所有必需的材料',
+          type: 'fail'
+        });
+        return;
+      }
+
       my.showLoading({
         content: '正在创建订单...'
       });
@@ -558,7 +603,7 @@ Page({
         throw new Error('用户信息获取失败，请重新登录');
       }
 
-      // 调用订单创建API
+      // 调用订单创建API，包含上传的材料URLs
       const response = await new Promise((resolve, reject) => {
         my.request({
           url: `${config.api.baseUrl}${config.api.endpoints.orders.create}`,
@@ -569,7 +614,10 @@ Page({
           },
           data: {
             product_id: this.data.productInfo.id,
-            remark: null
+            remark: null,
+            rencheheyi_image: this.data.materialUrls.rencheheyi_image,
+            chejiahao_image: this.data.materialUrls.chejiahao_image,
+            zhimaxinyong_image: this.data.materialUrls.zhimaxinyong_image
           },
           success: resolve,
           fail: reject
@@ -579,9 +627,9 @@ Page({
       my.hideLoading();
 
       if (response.statusCode === 200 && response.data) {
-        // 订单创建成功，关闭订单确认弹窗
+        // 订单创建成功，关闭材料提交弹窗
         this.setData({
-          showOrderConfirm: false
+          showMaterialSubmission: false
         });
 
         // 跳转到支付页面
@@ -604,38 +652,61 @@ Page({
     }
   },
 
-  // 提交订单（保留原方法以备兼容）
-  async submitOrder() {
-    // 检查是否满足提交条件
-    if (this.data.countdown > 0 || !this.data.isAgreed) {
-      return;
-    }
+  // 选择图片
+  selectImage(e) {
+    const type = e.currentTarget.dataset.type;
+    console.log('选择图片类型:', type);
+    
+    my.chooseImage({
+      count: 1,
+      sourceType: ['camera', 'album'],
+      success: (res) => {
+        console.log('选择图片成功:', res);
+        const filePaths = res.tempFilePaths || res.filePaths || res.apFilePaths;
+        if (filePaths && filePaths.length > 0) {
+          // 先在界面上显示选中的图片
+          console.log('设置本地图片路径:', type, filePaths[0]);
+          this.setData({
+            [`materialImages.${type}`]: filePaths[0]
+          });
+          console.log('设置后的materialImages:', this.data.materialImages);
+          
+          // 延迟一点再显示上传中状态，让用户先看到选中的图片
+          setTimeout(() => {
+            my.showLoading({
+              content: '上传中...'
+            });
+            
+            // 上传图片
+            this.uploadImageFile(filePaths[0], type);
+          }, 300);
+        }
+      },
+      fail: (error) => {
+        console.error('选择图片失败:', error);
+        my.showToast({
+          content: '选择图片失败',
+          type: 'fail'
+        });
+      }
+    });
+  },
 
+  // 上传图片文件
+  async uploadImageFile(filePath, type) {
     try {
-      my.showLoading({
-        content: '正在创建订单...'
-      });
-
-      // 获取用户信息
-      const userInfo = my.getStorageSync({ key: 'userInfo' });
+      console.log('开始上传图片:', filePath, type);
+      
+      // 获取访问令牌
       const accessToken = my.getStorageSync({ key: 'access_token' });
       
-      if (!userInfo.data || !userInfo.data.userId) {
-        throw new Error('用户信息获取失败，请重新登录');
-      }
-
-      // 调用订单创建API
       const response = await new Promise((resolve, reject) => {
-        my.request({
-          url: `${config.api.baseUrl}${config.api.endpoints.orders.create}`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        my.uploadFile({
+          url: `${config.api.baseUrl}/api/upload/image?folder=audit-images`,
+          filePath: filePath,
+          name: 'file',
+          header: {
             'Authorization': `Bearer ${accessToken.data}`
-          },
-          data: {
-            product_id: this.data.productInfo.id,
-            remark: null
           },
           success: resolve,
           fail: reject
@@ -643,39 +714,68 @@ Page({
       });
 
       my.hideLoading();
-
-      if (response.statusCode === 200 && response.data) {
-        // 订单创建成功，关闭合同弹窗和订单确认弹窗
+      
+      if (response.statusCode === 200) {
+        const result = JSON.parse(response.data);
+        console.log('上传成功:', result);
+        
+        // 保存上传后的URL
+        const urlKey = this.getMaterialUrlKey(type);
+        const uploadedUrl = result.url || (result.data && result.data.url);
+        console.log('保存图片URL:', type, uploadedUrl);
+        
         this.setData({
-          showContractModal: false,
-          showOrderConfirm: false
+          [`materialUrls.${urlKey}`]: uploadedUrl,
+          [`materialImages.${type}`]: uploadedUrl  // 同时更新界面显示的图片
         });
-
-        // 清理倒计时定时器
-        if (this.data.countdownTimer) {
-          clearInterval(this.data.countdownTimer);
-          this.setData({
-            countdownTimer: null
-          });
-        }
-
-        // 跳转到支付页面
-        my.navigateTo({
-          url: `/pages/payment/payment?orderId=${response.data.id}&orderNo=${response.data.order_no}&amount=${response.data.total_amount}`
+        
+        console.log('当前materialImages:', this.data.materialImages);
+        
+        // 检查是否所有材料都已上传
+        this.checkAllMaterialsUploaded();
+        
+        my.showToast({
+          content: '上传成功',
+          type: 'success'
         });
       } else {
-        throw new Error((response.data && response.data.message) ? response.data.message : '订单创建失败');
+        throw new Error('上传失败');
       }
     } catch (error) {
       my.hideLoading();
-      console.error('创建订单失败:', error);
+      console.error('上传图片失败:', error);
       
-      my.showModal({
-        title: '订单创建失败',
-        content: error.message || '网络错误，请稍后重试',
-        confirmText: '知道了',
-        showCancel: false
+      // 清除界面上的图片显示
+      this.setData({
+        [`materialImages.${type}`]: null
+      });
+      
+      my.showToast({
+        content: '上传失败，请重试',
+        type: 'fail'
       });
     }
-  }
+  },
+
+  // 获取材料URL键名
+  getMaterialUrlKey(type) {
+    const keyMap = {
+      'zhimaxinyong': 'zhimaxinyong_image',
+      'rencheheyi': 'rencheheyi_image', 
+      'chejiahao': 'chejiahao_image'
+    };
+    return keyMap[type];
+  },
+
+  // 检查是否所有材料都已上传
+  checkAllMaterialsUploaded() {
+    const urls = this.data.materialUrls;
+    const allUploaded = urls.zhimaxinyong_image && urls.rencheheyi_image && urls.chejiahao_image;
+    
+    this.setData({
+      allMaterialsUploaded: allUploaded
+    });
+    
+    console.log('材料上传状态:', allUploaded, urls);
+  },
 });

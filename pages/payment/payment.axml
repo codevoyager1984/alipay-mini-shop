@@ -7,7 +7,60 @@
     </view>
   </view>
 
-  <!-- 订单信息 -->
+  <!-- 审核中页面 -->
+  <view class="under-review-container" a:if="{{orderStatus === 'under_review'}}">
+    <!-- 审核状态提示 -->
+    <view class="review-status-card">
+      <view class="status-icon">⏳</view>
+      <view class="status-title">审核中</view>
+      <view class="status-desc">您的租赁申请正在审核中，请耐心等待审核结果</view>
+    </view>
+
+    <!-- 已提交的材料 -->
+    <view class="submitted-materials-card">
+      <view class="card-title">已提交材料</view>
+      
+      <view class="materials-grid">
+        <!-- 芝麻信用照片 -->
+        <view class="material-item" a:if="{{auditInfo.zhimaxinyong_image}}">
+          <image class="material-image" src="{{auditInfo.zhimaxinyong_image}}" mode="aspectFill" />
+          <view class="material-label">芝麻信用照片</view>
+        </view>
+        
+        <!-- 车架号照片 -->
+        <view class="material-item" a:if="{{auditInfo.chejiahao_image}}">
+          <image class="material-image" src="{{auditInfo.chejiahao_image}}" mode="aspectFill" />
+          <view class="material-label">车架号照片</view>
+        </view>
+        
+        <!-- 产品封面图 -->
+        <view class="material-item" a:if="{{auditInfo.product_cover_image}}">
+          <image class="material-image" src="{{auditInfo.product_cover_image}}" mode="aspectFill" />
+          <view class="material-label">产品照片</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 审核说明 -->
+    <view class="review-notice-card">
+      <view class="notice-title">审核说明</view>
+      <view class="notice-item">
+        <text class="notice-text">• 审核时间：通常在1-3个工作日内完成</text>
+      </view>
+      <view class="notice-item">
+        <text class="notice-text">• 如有疑问，请联系客服</text>
+      </view>
+    </view>
+
+    <!-- 联系客服按钮 -->
+    <view class="contact-service-section">
+      <button class="contact-btn" onTap="contactService">联系客服</button>
+    </view>
+  </view>
+
+  <!-- 正常支付页面 -->
+  <view class="normal-payment-container" a:else>
+    <!-- 订单信息 -->
   <view class="order-info-card">
     <view class="card-title">商品信息</view>
     
@@ -197,5 +250,6 @@
     <view class="action-buttons" a:if="{{paymentStatus === 'processing'}}">
       <button class="secondary-btn" onTap="goToOrders">查看订单</button>
     </view>
+  </view>
   </view>
 </view>
