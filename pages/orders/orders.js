@@ -11,6 +11,9 @@ Page({
     pageSize: 20,
     hasMore: true,
     
+    // 刷新状态
+    refreshing: false,
+    
     // 全局配置信息
     globalConfig: null
   },
@@ -44,7 +47,42 @@ Page({
 
   onPullDownRefresh() {
     // 页面被下拉刷新
-    this.loadOrders(true);
+    console.log('开始下拉刷新订单');
+    
+    this.setData({ refreshing: true });
+    
+    // 显示刷新提示
+    my.showToast({
+      content: '正在刷新订单...',
+      type: 'loading',
+      duration: 1000
+    });
+    
+    // 清除配置缓存，重新加载配置和订单
+    config.clearConfigCache();
+    
+    // 并行加载配置和订单数据
+    Promise.all([
+      this.loadGlobalConfig(),
+      this.loadOrders(true)
+    ]).then(() => {
+      console.log('下拉刷新订单完成');
+      my.showToast({
+        content: '刷新成功',
+        type: 'success',
+        duration: 1500
+      });
+    }).catch((error) => {
+      console.error('下拉刷新订单失败:', error);
+      my.showToast({
+        content: '刷新失败，请稍后重试',
+        type: 'fail',
+        duration: 2000
+      });
+    }).finally(() => {
+      this.setData({ refreshing: false });
+      my.stopPullDownRefresh();
+    });
   },
 
   onReachBottom() {
