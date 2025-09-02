@@ -102,7 +102,7 @@
           <!-- 审核未通过状态 -->
           <button 
             class="action-btn secondary" 
-            onTap="viewOrderDetail" 
+            onTap="viewAuditProgress" 
             data-order="{{item}}"
             a:if="{{item.status === 'rejected'}}"
           >

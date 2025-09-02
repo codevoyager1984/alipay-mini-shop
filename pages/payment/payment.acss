@@ -940,3 +940,148 @@
     font-size: 22rpx;
   }
 }
+
+/* 审核拒绝页面样式 */
+.review-rejected-container {
+  background: #f7f7f7;
+  min-height: 100vh;
+  padding: 30rpx;
+}
+
+/* 审核拒绝状态卡片 */
+.rejected-status-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+.rejected-status-card .status-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.rejected-status-card .status-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff4d4f;
+  margin-bottom: 15rpx;
+}
+
+.rejected-status-card .status-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 拒绝原因卡片 */
+.rejection-reason-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+.rejection-reason-card .card-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.reason-content {
+  background: #fff5f5;
+  border: 1rpx solid #ffcdd2;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.reason-item {
+  margin-bottom: 15rpx;
+}
+
+.reason-item:last-child {
+  margin-bottom: 0;
+}
+
+.reason-text {
+  font-size: 26rpx;
+  color: #d32f2f;
+  line-height: 1.6;
+}
+
+/* 操作按钮区域 */
+.rejected-actions-section {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.rejected-actions-section .action-btn {
+  flex: 1;
+  height: 80rpx;
+  border: none;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rejected-actions-section .action-btn.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.rejected-actions-section .action-btn.secondary:active {
+  background: #e8e8e8;
+}
+
+.rejected-actions-section .action-btn.primary {
+  background: #ff4757;
+  color: #fff;
+}
+
+.rejected-actions-section .action-btn.primary:active {
+  background: #ff3838;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 375px) {
+  .review-rejected-container {
+    padding: 20rpx;
+  }
+  
+  .rejected-status-card {
+    padding: 30rpx;
+  }
+  
+  .rejected-status-card .status-icon {
+    font-size: 60rpx;
+  }
+  
+  .rejected-status-card .status-title {
+    font-size: 32rpx;
+  }
+  
+  .rejected-status-card .status-desc {
+    font-size: 26rpx;
+  }
+  
+  .reason-text {
+    font-size: 24rpx;
+  }
+  
+  .rejected-actions-section {
+    gap: 15rpx;
+  }
+  
+  .rejected-actions-section .action-btn {
+    height: 70rpx;
+    font-size: 26rpx;
+  }
+}

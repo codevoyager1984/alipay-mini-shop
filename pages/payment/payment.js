@@ -70,6 +70,7 @@ Page({
     
     // 获取订单参数
     if (query.orderId && query.orderNo) {
+      console.log('获取到订单参数, orderId:', query.orderId, 'orderNo:', query.orderNo);
       this.setData({
         'orderInfo.orderId': parseInt(query.orderId),
         'orderInfo.orderNo': query.orderNo,
@@ -84,6 +85,7 @@ Page({
       }
       
       // 加载订单详情
+      console.log('准备调用 loadOrderDetail, orderId:', query.orderId);
       this.loadOrderDetail(query.orderId);
     } else {
       my.showModal({
@@ -151,29 +153,45 @@ Page({
   // 加载订单详情
   async loadOrderDetail(orderId) {
     try {
+      console.log('开始加载订单详情, orderId:', orderId);
       this.setData({ loading: true });
       
       const accessToken = my.getStorageSync({ key: 'access_token' });
+      console.log('获取到 accessToken:', accessToken ? '有token' : '无token');
       
       const response = await new Promise((resolve, reject) => {
+        const requestUrl = `${config.api.baseUrl}${config.api.endpoints.orders.detail}/${orderId}`;
+        console.log('请求订单详情 URL:', requestUrl);
+        
         my.request({
-          url: `${config.api.baseUrl}${config.api.endpoints.orders.detail}/${orderId}`,
+          url: requestUrl,
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${accessToken.data}`
           },
-          success: resolve,
-          fail: reject
+          success: (res) => {
+            console.log('订单详情请求成功, statusCode:', res.statusCode);
+            console.log('订单详情响应数据:', res.data);
+            resolve(res);
+          },
+          fail: (err) => {
+            console.error('订单详情请求失败:', err);
+            reject(err);
+          }
         });
       });
       
       if (response.statusCode === 200 && response.data) {
+        console.log('开始处理订单详情响应数据...');
+        
         // 计算分期信息
         const installmentInfo = this.calculateInstallmentInfo(
           response.data.installments || [], 
           response.data.monthly_price, 
           response.data.rental_period
         );
+        
+        console.log('分期信息计算完成:', installmentInfo);
         
         this.setData({
           'orderInfo.productName': response.data.product_name,
@@ -204,6 +222,11 @@ Page({
           'auditInfo.product_cover_image': response.data.product_cover_image || '',
           'auditInfo.zhimaxinyong_image': response.data.zhimaxinyong_image || ''
         });
+        
+        console.log('订单状态设置为:', response.data.status);
+        console.log('当前页面状态:', this.data.orderStatus);
+      } else {
+        console.log('响应状态码不是200或没有数据:', response.statusCode, response.data);
       }
     } catch (error) {
       console.error('加载订单详情失败:', error);

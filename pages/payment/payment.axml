@@ -1,4 +1,5 @@
 <view class="payment-container">
+  
   <!-- 加载状态 -->
   <view class="loading-overlay" a:if="{{loading}}">
     <view class="loading-content">
@@ -58,8 +59,65 @@
     </view>
   </view>
 
+  <!-- 审核拒绝页面 -->
+  <view class="review-rejected-container" a:if="{{orderStatus === 'rejected'}}">
+    <!-- 审核拒绝状态提示 -->
+    <view class="rejected-status-card">
+      <view class="status-icon">❌</view>
+      <view class="status-title">审核未通过</view>
+      <view class="status-desc">很抱歉，您的租赁申请未通过审核</view>
+    </view>
+
+    <!-- 拒绝原因说明 -->
+    <view class="rejection-reason-card">
+      <view class="card-title">未通过原因</view>
+      <view class="reason-content">
+        <view class="reason-item">
+          <text class="reason-text">• 请确保提供的证件信息清晰可见</text>
+        </view>
+        <view class="reason-item">
+          <text class="reason-text">• 请确保芝麻信用分满足租赁要求</text>
+        </view>
+        <view class="reason-item">
+          <text class="reason-text">• 请确保所有材料真实有效</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已提交的材料 -->
+    <view class="submitted-materials-card">
+      <view class="card-title">已提交材料</view>
+      
+      <view class="materials-grid">
+        <!-- 芝麻信用照片 -->
+        <view class="material-item" a:if="{{auditInfo.zhimaxinyong_image}}">
+          <image class="material-image" src="{{auditInfo.zhimaxinyong_image}}" mode="aspectFill" />
+          <view class="material-label">芝麻信用照片</view>
+        </view>
+        
+        <!-- 车架号照片 -->
+        <view class="material-item" a:if="{{auditInfo.chejiahao_image}}">
+          <image class="material-image" src="{{auditInfo.chejiahao_image}}" mode="aspectFill" />
+          <view class="material-label">车架号照片</view>
+        </view>
+        
+        <!-- 产品封面图 -->
+        <view class="material-item" a:if="{{auditInfo.product_cover_image}}">
+          <image class="material-image" src="{{auditInfo.product_cover_image}}" mode="aspectFill" />
+          <view class="material-label">产品照片</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮区域 -->
+    <view class="rejected-actions-section">
+      <button class="action-btn secondary" onTap="goToHome">重新选择商品</button>
+      <button class="action-btn primary" onTap="contactService">联系客服</button>
+    </view>
+  </view>
+
   <!-- 正常支付页面 -->
-  <view class="normal-payment-container" a:else>
+  <view class="normal-payment-container" a:elif="{{orderStatus !== 'under_review' && orderStatus !== 'rejected'}}">
     <!-- 订单信息 -->
   <view class="order-info-card">
     <view class="card-title">商品信息</view>
