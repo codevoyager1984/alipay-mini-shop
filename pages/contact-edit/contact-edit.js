@@ -8,13 +8,13 @@ Page({
         relationship: '', 
         name: '', 
         phone: '',
-        relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+        relationshipOptions: ['父母', '兄弟姐妹', '同事']
       },
       { 
         relationship: '', 
         name: '', 
         phone: '',
-        relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+        relationshipOptions: ['父母', '兄弟姐妹', '同事']
       }
     ],
     
@@ -74,7 +74,7 @@ Page({
               relationship: contact.relation_type || '',
               name: contact.relation_name || '',
               phone: contact.relation_phone || '',
-              relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+              relationshipOptions: ['父母', '兄弟姐妹', '同事']
             }));
             
             // 确保至少有2组联系人
@@ -83,7 +83,7 @@ Page({
                 relationship: '',
                 name: '',
                 phone: '',
-                relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+                relationshipOptions: ['父母', '兄弟姐妹', '同事']
               });
             }
             
@@ -174,7 +174,7 @@ Page({
       relationship: '',
       name: '',
       phone: '',
-      relationshipOptions: ['父母', '兄弟姐妹', '朋友', '同事']
+      relationshipOptions: ['父母', '兄弟姐妹', '同事']
     };
 
     this.setData({
